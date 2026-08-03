@@ -101,7 +101,7 @@ flowchart TD
 Every tool implements a common interface.
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.goms.gomsbook.ai.tool;
 
 public interface AgentTool<I, O> {
 
@@ -133,7 +133,7 @@ public interface AgentTool<I, O> {
 `ToolContext` contains execution information shared by tools.
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -166,7 +166,7 @@ public record ToolContext(
 Every tool returns a standardized result.
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 import java.util.List;
 
@@ -189,7 +189,7 @@ public record ToolResult<T>(
 ## ToolStatus
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 public enum ToolStatus {
     SUCCESS,
@@ -205,7 +205,7 @@ public enum ToolStatus {
 ## ToolIssue
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 public record ToolIssue(
         String code,
@@ -218,7 +218,7 @@ public record ToolIssue(
 ```
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 public enum ToolIssueSeverity {
     INFO,
@@ -233,7 +233,7 @@ public enum ToolIssueSeverity {
 ## ToolValidationResult
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 import java.util.List;
 
@@ -255,7 +255,7 @@ public record ToolValidationResult(
 The Tool Registry manages all available tools.
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -299,7 +299,7 @@ registry.register(new MetadataGenerationTool());
 The Tool Router selects a tool based on the Agent plan.
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 public interface ToolRouter {
 
@@ -340,7 +340,7 @@ Generate EPUB3-compatible XHTML according to GomsBookEditor project rules.
 ### Input
 
 ```java
-package com.gomsbook.ai.tool.xhtml;
+package kr.co.gomsbook.ai.tool.xhtml;
 
 import java.util.List;
 
@@ -377,7 +377,7 @@ public record XhtmlGenerationInput(
 ### Output
 
 ```java
-package com.gomsbook.ai.tool.xhtml;
+package kr.co.gomsbook.ai.tool.xhtml;
 
 import java.util.List;
 
@@ -441,7 +441,7 @@ Validate EPUB package structure and content.
 ### Input
 
 ```java
-package com.gomsbook.ai.tool.epub;
+package kr.co.gomsbook.ai.tool.epub;
 
 import java.nio.file.Path;
 
@@ -457,7 +457,7 @@ public record EpubValidationInput(
 ### Output
 
 ```java
-package com.gomsbook.ai.tool.epub;
+package kr.co.gomsbook.ai.tool.epub;
 
 import java.util.List;
 
@@ -505,7 +505,7 @@ Inspect XHTML and EPUB metadata for accessibility issues.
 ### Input
 
 ```java
-package com.gomsbook.ai.tool.accessibility;
+package kr.co.gomsbook.ai.tool.accessibility;
 
 import java.nio.file.Path;
 
@@ -522,7 +522,7 @@ public record AccessibilityCheckInput(
 ### Output
 
 ```java
-package com.gomsbook.ai.tool.accessibility;
+package kr.co.gomsbook.ai.tool.accessibility;
 
 import java.util.List;
 
@@ -567,7 +567,7 @@ Detect CSS compatibility and layout issues in EPUB preview and PDF export.
 ### Input
 
 ```java
-package com.gomsbook.ai.tool.css;
+package kr.co.gomsbook.ai.tool.css;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -584,7 +584,7 @@ public record CssAnalysisInput(
 ### Output
 
 ```java
-package com.gomsbook.ai.tool.css;
+package kr.co.gomsbook.ai.tool.css;
 
 import java.util.List;
 
@@ -626,7 +626,7 @@ Generate publishing metadata from book information.
 ### Input
 
 ```java
-package com.gomsbook.ai.tool.metadata;
+package kr.co.gomsbook.ai.tool.metadata;
 
 import java.util.List;
 
@@ -645,7 +645,7 @@ public record MetadataGenerationInput(
 ### Output
 
 ```java
-package com.gomsbook.ai.tool.metadata;
+package kr.co.gomsbook.ai.tool.metadata;
 
 import java.util.List;
 import java.util.Map;
@@ -692,7 +692,7 @@ This tool must not be executed before user approval when replacing or deleting e
 ### Input
 
 ```java
-package com.gomsbook.ai.tool.file;
+package kr.co.gomsbook.ai.tool.file;
 
 import java.nio.file.Path;
 
@@ -707,7 +707,7 @@ public record FileChangeInput(
 ```
 
 ```java
-package com.gomsbook.ai.tool.file;
+package kr.co.gomsbook.ai.tool.file;
 
 public enum FileChangeType {
     CREATE,
@@ -770,7 +770,7 @@ Approval is required for:
 # Diff Model
 
 ```java
-package com.gomsbook.ai.tool.file;
+package kr.co.gomsbook.ai.tool.file;
 
 import java.util.List;
 
@@ -784,7 +784,7 @@ public record FileDiff(
 ```
 
 ```java
-package com.gomsbook.ai.tool.file;
+package kr.co.gomsbook.ai.tool.file;
 
 public record DiffLine(
         DiffType type,
@@ -796,7 +796,7 @@ public record DiffLine(
 ```
 
 ```java
-package com.gomsbook.ai.tool.file;
+package kr.co.gomsbook.ai.tool.file;
 
 public enum DiffType {
     UNCHANGED,
@@ -812,7 +812,7 @@ public enum DiffType {
 Each execution should be traceable.
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -852,7 +852,7 @@ Sensitive source content must not be written to logs.
 ## Error Categories
 
 ```java
-package com.gomsbook.ai.tool;
+package kr.co.gomsbook.ai.tool;
 
 public enum ToolErrorCode {
     INVALID_INPUT,
