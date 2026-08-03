@@ -988,7 +988,7 @@ Tool behavior should be evaluated with structured test cases.
 # Package Structure
 
 ```text
-src/main/java/com/gomsbook/ai/
+src/main/java/kr/co/gomsbook/ai/
 ├── agent/
 │   ├── AgentOrchestrator.java
 │   ├── AgentTask.java
