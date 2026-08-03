@@ -12,31 +12,31 @@ Instead of executing a single LLM request, the agent analyzes the user's intent,
 
 ```text
                    User
-                     ฆข
-                     กๅ
+                     โ”
+                     โ–ผ
             GomsBookEditor UI
-                     ฆข
-                     กๅ
+                     โ”
+                     โ–ผ
             AI Agent Orchestrator
-                     ฆข
-     ฆฃฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆซฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆค
-     กๅ               กๅ                กๅ
+                     โ”
+     โ”โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”ผโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
+     โ–ผ               โ–ผ                โ–ผ
  Planner        Context Manager   Prompt Manager
-     ฆข
-     กๅ
+     โ”
+     โ–ผ
  Tool Router
-     ฆข
- ฆฃฆกฆกฆกฆซฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆจฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆจฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆค
- กๅ   กๅ              กๅ               กๅ               กๅ
+     โ”
+ โ”โ”€โ”€โ”€โ”ผโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”ฌโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”ฌโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
+ โ–ผ   โ–ผ              โ–ผ               โ–ผ               โ–ผ
 XHTML Tool    EPUB Tool    Accessibility Tool   Metadata Tool
-     ฆข
-     กๅ
+     โ”
+     โ–ผ
  Validator
-     ฆข
-     กๅ
+     โ”
+     โ–ผ
  Result Formatter
-     ฆข
-     กๅ
+     โ”
+     โ–ผ
  GomsBookEditor
 ```
 
@@ -47,35 +47,35 @@ XHTML Tool    EPUB Tool    Accessibility Tool   Metadata Tool
 ```text
 User Request
 
-ก้
+โ“
 
 Intent Analysis
 
-ก้
+โ“
 
 Task Planning
 
-ก้
+โ“
 
 Tool Selection
 
-ก้
+โ“
 
 Prompt Construction
 
-ก้
+โ“
 
 LLM Execution
 
-ก้
+โ“
 
 Validation
 
-ก้
+โ“
 
 Result Formatting
 
-ก้
+โ“
 
 Apply to GomsBookEditor
 ```
@@ -114,17 +114,17 @@ Planner
 Task
 Generate XHTML
 
-ก้
+โ“
 
 Need
 Formatting Rules
 
-ก้
+โ“
 
 Need
 Accessibility Rules
 
-ก้
+โ“
 
 Need
 Validation
@@ -248,25 +248,25 @@ Every generated result is validated before being returned.
 ```text
 LLM Output
 
-ก้
+โ“
 
 Validator
 
-ก้
+โ“
 
 Success ?
 
-ก้
+โ“
 
-Yes กๆ Return
+Yes โ’ Return
 
 No
 
-ก้
+โ“
 
 Retry
 
-ก้
+โ“
 
 Return
 ```
@@ -279,8 +279,8 @@ The architecture supports multiple LLM providers.
 
 ```text
             LLM Adapter
-          ฆฃฆกฆกฆกฆกฆกฆกฆชฆกฆกฆกฆกฆกฆกฆกฆกฆกฆค
-          กๅ                กๅ
+          โ”โ”€โ”€โ”€โ”€โ”€โ”€โ”ดโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
+          โ–ผ                โ–ผ
    Local LLM         Cloud LLM
 ```
 
@@ -307,19 +307,19 @@ Knowledge sources
 ```text
 Knowledge Base
 
-ก้
+โ“
 
 Embedding
 
-ก้
+โ“
 
 Vector Search
 
-ก้
+โ“
 
 Context
 
-ก้
+โ“
 
 LLM
 ```
@@ -354,15 +354,15 @@ Benefits
 
 ```text
                    Planner
-                      ฆข
-      ฆฃฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆซฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆค
-      กๅ               กๅ                กๅ
+                      โ”
+      โ”โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”ผโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
+      โ–ผ               โ–ผ                โ–ผ
  Document Agent  Validation Agent  Publishing Agent
-      ฆข               ฆข                ฆข
-      ฆฆฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆซฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆกฆฅ
-                      กๅ
+      โ”               โ”                โ”
+      โ””โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”ผโ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
+                      โ–ผ
                 Coordinator Agent
-                      ฆข
+                      โ”
                 GomsBookEditor
 ```
 
@@ -387,19 +387,19 @@ This architecture will evolve toward a Multi-Agent system, where specialized age
 
 ```
 src/
- ฆงฆกฆก agent/
- ฆงฆกฆก planner/
- ฆงฆกฆก tool/
- ฆงฆกฆก validation/
- ฆงฆกฆก llm/
- ฆงฆกฆก rag/
- ฆฆฆกฆก prompt/
+ โ”โ”€โ”€ agent/
+ โ”โ”€โ”€ planner/
+ โ”โ”€โ”€ tool/
+ โ”โ”€โ”€ validation/
+ โ”โ”€โ”€ llm/
+ โ”โ”€โ”€ rag/
+ โ””โ”€โ”€ prompt/
 
 docs/
- ฆงฆกฆก architecture.md
- ฆงฆกฆก agent-workflow.md
- ฆงฆกฆก tool-design.md
- ฆฆฆกฆก roadmap.md
+ โ”โ”€โ”€ architecture.md
+ โ”โ”€โ”€ agent-workflow.md
+ โ”โ”€โ”€ tool-design.md
+ โ””โ”€โ”€ roadmap.md
 ```
 
 ---
