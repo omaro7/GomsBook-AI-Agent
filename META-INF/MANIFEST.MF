@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GomsBook-AI-Agent
+Bundle-SymbolicName: kr.co.goms.gomsbook.ai
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: GOMSBOOK
+Automatic-Module-Name: kr.co.goms.gomsbook.ai
+Bundle-RequiredExecutionEnvironment: JavaSE-23
