@@ -988,53 +988,140 @@ Tool behavior should be evaluated with structured test cases.
 # Package Structure
 
 ```text
-src/main/java/kr/co/gomsbook/ai/
-├── agent/
-│   ├── AgentOrchestrator.java
-│   ├── AgentTask.java
-│   └── AgentPlan.java
-│
-├── tool/
-│   ├── AgentTool.java
-│   ├── ToolContext.java
-│   ├── ToolResult.java
-│   ├── ToolRegistry.java
-│   ├── ToolRouter.java
-│   │
-│   ├── xhtml/
-│   │   ├── XhtmlGenerationTool.java
-│   │   ├── XhtmlGenerationInput.java
-│   │   └── XhtmlGenerationOutput.java
-│   │
-│   ├── epub/
-│   │   ├── EpubValidationTool.java
-│   │   ├── EpubValidationInput.java
-│   │   └── EpubValidationOutput.java
-│   │
-│   ├── accessibility/
-│   │   ├── AccessibilityCheckTool.java
-│   │   ├── AccessibilityCheckInput.java
-│   │   └── AccessibilityCheckOutput.java
-│   │
-│   ├── css/
-│   │   ├── CssAnalysisTool.java
-│   │   ├── CssAnalysisInput.java
-│   │   └── CssAnalysisOutput.java
-│   │
-│   ├── metadata/
-│   │   ├── MetadataGenerationTool.java
-│   │   ├── MetadataGenerationInput.java
-│   │   └── MetadataGenerationOutput.java
-│   │
-│   └── file/
-│       ├── FileChangeTool.java
-│       ├── FileChangeInput.java
-│       └── FileDiff.java
-│
-├── validation/
-├── llm/
-├── rag/
-└── audit/
+src/main/java
+└── kr
+    └── co
+        └── goms
+            └── gomsbook
+                └── ai
+                    │
+                    ├── agent
+                    │   ├── Agent.java
+                    │   ├── AgentContext.java
+                    │   ├── AgentPlanner.java
+                    │   ├── AgentExecutor.java
+                    │   ├── AgentWorkflow.java
+                    │   ├── AgentTask.java
+                    │   ├── AgentMemory.java
+                    │   └── AgentSession.java
+                    │
+                    ├── tool
+                    │   ├── AgentTool.java
+                    │   ├── ToolContext.java
+                    │   ├── ToolInput.java
+                    │   ├── ToolOutput.java
+                    │   ├── ToolResult.java
+                    │   ├── ToolRegistry.java
+                    │   ├── ToolRouter.java
+                    │   ├── ToolMetadata.java
+                    │   ├── ToolStatus.java
+                    │   ├── ToolIssue.java
+                    │   ├── ToolExecutionMetadata.java
+                    │   └── ToolValidationResult.java
+                    │
+                    ├── tools
+                    │   ├── xhtml
+                    │   │   └── XhtmlGenerationTool.java
+                    │   │
+                    │   ├── epub
+                    │   │   └── EpubValidationTool.java
+                    │   │
+                    │   ├── accessibility
+                    │   │   └── AccessibilityCheckTool.java
+                    │   │
+                    │   ├── css
+                    │   │   └── CssAnalysisTool.java
+                    │   │
+                    │   ├── metadata
+                    │   │   └── MetadataGenerationTool.java
+                    │   │
+                    │   ├── file
+                    │   │   └── FileChangeTool.java
+                    │   │
+                    │   └── prompt
+                    │       └── PromptGenerationTool.java
+                    │
+                    ├── dto
+                    │   ├── xhtml
+                    │   │   ├── XhtmlGenerationRequest.java
+                    │   │   └── XhtmlGenerationResponse.java
+                    │   │
+                    │   ├── epub
+                    │   │   ├── EpubValidationRequest.java
+                    │   │   └── EpubValidationResponse.java
+                    │   │
+                    │   ├── accessibility
+                    │   │   ├── AccessibilityRequest.java
+                    │   │   └── AccessibilityResponse.java
+                    │   │
+                    │   ├── css
+                    │   │   ├── CssAnalysisRequest.java
+                    │   │   └── CssAnalysisResponse.java
+                    │   │
+                    │   ├── metadata
+                    │   │   ├── MetadataRequest.java
+                    │   │   └── MetadataResponse.java
+                    │   │
+                    │   └── common
+                    │       ├── ValidationResult.java
+                    │       └── DiffResult.java
+                    │
+                    ├── llm
+                    │   ├── LlmClient.java
+                    │   ├── LlmProvider.java
+                    │   ├── OpenAiProvider.java
+                    │   ├── GeminiProvider.java
+                    │   ├── ClaudeProvider.java
+                    │   ├── OllamaProvider.java
+                    │   └── LmStudioProvider.java
+                    │
+                    ├── rag
+                    │   ├── Retriever.java
+                    │   ├── EmbeddingProvider.java
+                    │   ├── VectorStore.java
+                    │   ├── DocumentChunk.java
+                    │   └── KnowledgeBase.java
+                    │
+                    ├── prompt
+                    │   ├── PromptBuilder.java
+                    │   ├── PromptTemplate.java
+                    │   ├── PromptVariable.java
+                    │   └── SystemPrompt.java
+                    │
+                    ├── validation
+                    │   ├── Validator.java
+                    │   ├── XhtmlValidator.java
+                    │   ├── AccessibilityValidator.java
+                    │   ├── CssValidator.java
+                    │   └── MetadataValidator.java
+                    │
+                    ├── editor
+                    │   ├── GomsBookEditorAdapter.java
+                    │   ├── EditorProject.java
+                    │   └── EditorDocument.java
+                    │
+                    ├── mcp
+                    │   ├── McpToolAdapter.java
+                    │   ├── McpToolRegistry.java
+                    │   └── McpServer.java
+                    │
+                    ├── event
+                    │   ├── AgentEvent.java
+                    │   ├── ToolEvent.java
+                    │   └── EventPublisher.java
+                    │
+                    ├── audit
+                    │   ├── AuditLog.java
+                    │   └── ExecutionHistory.java
+                    │
+                    ├── config
+                    │   ├── AiConfiguration.java
+                    │   └── ToolConfiguration.java
+                    │
+                    └── util
+                        ├── JsonUtils.java
+                        ├── XmlUtils.java
+                        └── FileUtils.java
 ```
 
 ---
@@ -1095,6 +1182,229 @@ Planned tools include:
 - Translation Tool
 - Content Summary Tool
 - Publishing Submission Tool
+
+---
+
+# UML Diagrams
+
+The following diagrams describe the static structure and runtime execution flow of the GomsBook AI Agent tool framework.
+
+## Tool Class Diagram
+
+```mermaid
+classDiagram
+    direction TB
+
+    class ToolRequest {
+        <<interface>>
+        +validate() ToolValidationResult
+    }
+
+    class ToolResponse {
+        <<interface>>
+    }
+
+    class AgentTool~R, S~ {
+        <<interface>>
+        +getName() String
+        +getDescription() String
+        +getVersion() String
+        +getRequestType() Class~R~
+        +getResponseType() Class~S~
+        +execute(context, request) ToolResult~S~
+    }
+
+    class ToolContext {
+        +String projectId
+        +Path projectRoot
+        +String userId
+        +String requestId
+        +Map attributes
+    }
+
+    class ToolResult~S~ {
+        +ToolStatus status
+        +S response
+        +String message
+        +List issues
+        +ToolExecutionMetadata metadata
+        +isSuccess() boolean
+    }
+
+    class ToolRegistry {
+        -Map tools
+        +register(tool) void
+        +findByName(name) Optional
+        +getAll() Collection
+    }
+
+    class ToolRouter {
+        <<interface>>
+        +selectTool(task, registry) ToolSelection
+    }
+
+    class ToolValidationResult {
+        +boolean valid
+        +List issues
+        +success() ToolValidationResult
+        +failure(issues) ToolValidationResult
+    }
+
+    class ToolIssue {
+        +String code
+        +ToolIssueSeverity severity
+        +String message
+        +String location
+        +String suggestion
+    }
+
+    class XhtmlGenerationRequest {
+        +String chapterTitle
+        +String sourceText
+        +String language
+        +HeadingLevel headingLevel
+        +String paragraphIdPrefix
+        +boolean accessibilityEnabled
+        +List formattingRules
+    }
+
+    class XhtmlGenerationResponse {
+        +String fileName
+        +String xhtml
+        +List generatedParagraphIds
+        +List appliedRules
+    }
+
+    class XhtmlGenerationTool {
+        +getName() String
+        +getDescription() String
+        +getVersion() String
+        +execute(context, request) ToolResult
+    }
+
+    ToolRequest <|.. XhtmlGenerationRequest
+    ToolResponse <|.. XhtmlGenerationResponse
+
+    AgentTool <|.. XhtmlGenerationTool
+
+    XhtmlGenerationTool ..> XhtmlGenerationRequest : receives
+    XhtmlGenerationTool ..> XhtmlGenerationResponse : creates
+    XhtmlGenerationTool ..> ToolContext : uses
+    XhtmlGenerationTool ..> ToolResult : returns
+
+    ToolRegistry o-- AgentTool : registers
+    ToolRouter ..> ToolRegistry : searches
+    ToolRouter ..> AgentTool : selects
+
+    ToolRequest ..> ToolValidationResult : validates
+    ToolValidationResult o-- ToolIssue : contains
+    ToolResult o-- ToolIssue : contains
+```
+
+## Tool Execution Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    actor User
+    participant Editor as GomsBookEditor
+    participant Planner as AgentPlanner
+    participant Router as ToolRouter
+    participant Registry as ToolRegistry
+    participant Tool as XhtmlGenerationTool
+    participant Validator as OutputValidator
+    participant Diff as DiffService
+    participant FileTool as FileChangeTool
+
+    User->>Editor: Request XHTML generation
+    Editor->>Planner: Create AgentTask
+    Planner->>Planner: Analyze intent and build plan
+    Planner->>Router: Select tool for generate_xhtml
+    Router->>Registry: Find xhtml.generate
+    Registry-->>Router: XhtmlGenerationTool
+    Router-->>Planner: Selected tool
+
+    Planner->>Tool: execute(context, request)
+    Tool->>Tool: Validate request
+
+    alt Invalid request
+        Tool-->>Planner: VALIDATION_FAILED
+        Planner-->>Editor: Validation issues
+        Editor-->>User: Show input errors
+    else Valid request
+        Tool->>Tool: Generate XHTML
+        Tool-->>Planner: ToolResult<XhtmlGenerationResponse>
+
+        Planner->>Validator: Validate generated XHTML
+
+        alt Invalid XHTML
+            Validator-->>Planner: Validation issues
+            Planner->>Tool: Retry with correction context
+            Tool-->>Planner: Corrected ToolResult
+        else Valid XHTML
+            Validator-->>Planner: Validation success
+        end
+
+        Planner->>Diff: Compare existing and proposed content
+        Diff-->>Planner: FileDiff
+        Planner-->>Editor: Show preview and diff
+        Editor-->>User: Request approval
+
+        alt User approves
+            User->>Editor: Approve change
+            Editor->>FileTool: Apply approved change
+            FileTool->>FileTool: Verify path and create backup
+            FileTool-->>Editor: Change applied
+            Editor-->>User: Completed
+        else User rejects
+            User->>Editor: Reject change
+            Editor-->>User: No file modified
+        end
+    end
+```
+
+## Package Diagram
+
+```mermaid
+flowchart TB
+    A["kr.co.goms.gomsbook.ai.agent"]
+    B["kr.co.goms.gomsbook.ai.tool"]
+    C["kr.co.goms.gomsbook.ai.tools"]
+    D["kr.co.goms.gomsbook.ai.dto"]
+    E["kr.co.goms.gomsbook.ai.validation"]
+    F["kr.co.goms.gomsbook.ai.llm"]
+    G["kr.co.goms.gomsbook.ai.rag"]
+    H["kr.co.goms.gomsbook.ai.editor"]
+    I["kr.co.goms.gomsbook.ai.audit"]
+    J["kr.co.goms.gomsbook.ai.mcp"]
+
+    A --> B
+    A --> F
+    A --> G
+
+    B --> C
+    B --> D
+
+    C --> D
+    C --> E
+    C --> H
+    C --> I
+
+    J --> B
+    H --> A
+```
+
+## Diagram Interpretation
+
+- `agent` analyzes user requests and coordinates execution.
+- `tool` defines the common Tool contracts and execution framework.
+- `tools` contains concrete publishing Tool implementations.
+- `dto` contains immutable Tool Request and Response models.
+- `validation` verifies generated EPUB, XHTML, CSS, and metadata.
+- `editor` integrates validated results into GomsBookEditor.
+- `audit` records execution metadata without storing sensitive manuscript content.
+- `mcp` exposes registered tools through an MCP-compatible adapter.
 
 ---
 
