@@ -293,45 +293,24 @@ Structured Response
 
 ```mermaid
 sequenceDiagram
+    autonumber
 
-actor User
+    actor User
+    participant Planner
+    participant PromptBuilder
+    participant ContextManager
+    participant RAG
+    participant LLM
 
-participant Planner
-
-participant PromptBuilder
-
-participant ContextManager
-
-participant RAG
-
-participant LLM
-
-User->>Planner:
-Request
-
-Planner->>PromptBuilder:
-Create Prompt
-
-PromptBuilder->>ContextManager:
-Load Project Context
-
-ContextManager-->>PromptBuilder:
-Project Information
-
-PromptBuilder->>RAG:
-Retrieve Documents
-
-RAG-->>PromptBuilder:
-Relevant Context
-
-PromptBuilder->>PromptBuilder:
-Assemble Prompt
-
-PromptBuilder->>LLM:
-Prompt Object
-
-LLM-->>Planner:
-Structured Response
+    User->>Planner: Submit request
+    Planner->>PromptBuilder: Create prompt
+    PromptBuilder->>ContextManager: Load project context
+    ContextManager-->>PromptBuilder: Return project information
+    PromptBuilder->>RAG: Retrieve relevant documents
+    RAG-->>PromptBuilder: Return knowledge context
+    PromptBuilder->>PromptBuilder: Assemble prompt
+    PromptBuilder->>LLM: Send prompt request
+    LLM-->>Planner: Return structured response
 ```
 
 ---
