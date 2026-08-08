@@ -4,33 +4,537 @@
  */
 package kr.co.goms.gomsbook.ai.tool;
 
-import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
- * 모든 GomsBook AI Agent Tool 요청 객체가 구현하는 공통 인터페이스입니다.
+ * Agent가 Tool 실행을 요청할 때 사용하는 표준 요청 객체입니다.
  *
- * <p>
- * 실제 요청 데이터는 불변 {@code record} 또는 불변 클래스로 구현하는 것을
- * 권장합니다.
- * </p>
+ * <p>LLM Tool Call 정보를 Tool 실행 계층으로 전달하며 다음 정보를
+ * 포함합니다.</p>
  *
- * <p>
- * 각 요청 객체는 필요할 경우 {@link #validate()}를 재정의하여
- * Tool 실행 전에 자체 입력값을 검증할 수 있습니다.
- * </p>
+ * <ul>
+ *     <li>Agent 요청 식별자</li>
+ *     <li>LLM Tool Call 식별자</li>
+ *     <li>호출할 Tool 이름</li>
+ *     <li>Tool 실행 인자</li>
+ * </ul>
+ *
+ * <p>사용 예시:</p>
+ *
+ * <pre>
+ * ToolRequest request = ToolRequest.builder()
+ *         .requestId("request-001")
+ *         .toolCallId("tool-call-001")
+ *         .toolName("validate_xhtml")
+ *         .argument("xhtml", xhtml)
+ *         .build();
+ * </pre>
  */
-public interface ToolRequest extends Serializable {
+public final class ToolRequest {
+
+    private final String requestId;
+    private final String toolCallId;
+    private final String toolName;
+    private final Map<String, Object> arguments;
+
+    private ToolRequest(Builder builder) {
+        this.requestId = normalizeOptional(
+                builder.requestId
+        );
+
+        this.toolCallId = normalizeOptional(
+                builder.toolCallId
+        );
+
+        this.toolName = requireToolName(
+                builder.toolName
+        );
+
+        this.arguments = immutableArguments(
+                builder.arguments
+        );
+    }
 
     /**
-     * Tool 실행 전에 요청 데이터를 검증합니다.
+     * 인자 없는 Tool 요청을 생성합니다.
      *
-     * <p>
-     * 별도의 검증이 필요하지 않은 요청은 기본 구현을 그대로 사용할 수 있습니다.
-     * </p>
-     *
-     * @return 입력값 검증 결과
+     * @param toolName Tool 이름
      */
-    default ToolValidationResult validate() {
-        return ToolValidationResult.success();
+    public ToolRequest(String toolName) {
+        this(
+                builder()
+                        .toolName(toolName)
+        );
+    }
+
+    /**
+     * Tool 이름과 인자로 요청을 생성합니다.
+     *
+     * @param toolName  Tool 이름
+     * @param arguments Tool 실행 인자
+     */
+    public ToolRequest(
+            String toolName,
+            Map<String, Object> arguments) {
+
+        this(
+                builder()
+                        .toolName(toolName)
+                        .arguments(arguments)
+        );
+    }
+
+    /**
+     * Builder를 생성합니다.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * 기존 요청을 기반으로 Builder를 생성합니다.
+     *
+     * @param source 원본 Tool 요청
+     */
+    public static Builder builder(ToolRequest source) {
+        Objects.requireNonNull(
+                source,
+                "source must not be null"
+        );
+
+        return new Builder(source);
+    }
+
+    /**
+     * Agent 요청 식별자를 반환합니다.
+     */
+    public String getRequestId() {
+        return requestId;
+    }
+
+    /**
+     * LLM Tool Call 식별자를 반환합니다.
+     */
+    public String getToolCallId() {
+        return toolCallId;
+    }
+
+    /**
+     * 호출할 Tool 이름을 반환합니다.
+     */
+    public String getToolName() {
+        return toolName;
+    }
+
+    /**
+     * Tool 실행 인자를 반환합니다.
+     *
+     * @return 수정할 수 없는 인자 Map
+     */
+    public Map<String, Object> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Agent 요청 식별자가 있는지 확인합니다.
+     */
+    public boolean hasRequestId() {
+        return requestId != null;
+    }
+
+    /**
+     * Tool Call 식별자가 있는지 확인합니다.
+     */
+    public boolean hasToolCallId() {
+        return toolCallId != null;
+    }
+
+    /**
+     * Tool 실행 인자가 있는지 확인합니다.
+     */
+    public boolean hasArguments() {
+        return !arguments.isEmpty();
+    }
+
+    /**
+     * 특정 Tool 인자가 존재하는지 확인합니다.
+     *
+     * @param name 인자명
+     */
+    public boolean containsArgument(String name) {
+        return name != null
+                && arguments.containsKey(name);
+    }
+
+    /**
+     * 특정 Tool 인자를 반환합니다.
+     *
+     * @param name 인자명
+     * @return 인자값 또는 {@code null}
+     */
+    public Object getArgument(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        return arguments.get(name);
+    }
+
+    /**
+     * 특정 Tool 인자를 지정한 타입으로 반환합니다.
+     *
+     * @param name 인자명
+     * @param type 반환 타입
+     * @param <T>  반환 타입
+     * @return 인자값 또는 {@code null}
+     * @throws IllegalArgumentException 실제 타입이 요청 타입과 다른 경우
+     */
+    public <T> T getArgument(
+            String name,
+            Class<T> type) {
+
+        Objects.requireNonNull(
+                type,
+                "type must not be null"
+        );
+
+        Object value = getArgument(name);
+
+        if (value == null) {
+            return null;
+        }
+
+        if (!type.isInstance(value)) {
+            throw new IllegalArgumentException(
+                    "Tool argument type mismatch. "
+                            + "tool=" + toolName
+                            + ", argument=" + name
+                            + ", expected=" + type.getName()
+                            + ", actual="
+                            + value.getClass().getName()
+            );
+        }
+
+        return type.cast(value);
+    }
+
+    /**
+     * Tool 인자를 기본값과 함께 반환합니다.
+     */
+    public <T> T getArgumentOrDefault(
+            String name,
+            Class<T> type,
+            T defaultValue) {
+
+        T value = getArgument(name, type);
+
+        return value != null
+                ? value
+                : defaultValue;
+    }
+
+    /**
+     * 필수 문자열 인자를 반환합니다.
+     *
+     * @param name 인자명
+     * @return 공백이 제거된 문자열
+     * @throws IllegalArgumentException 인자가 없거나 문자열이 아닌 경우
+     */
+    public String requireStringArgument(String name) {
+        Object value = requireArgument(name);
+
+        if (!(value instanceof String stringValue)) {
+            throw new IllegalArgumentException(
+                    "Required Tool argument must be a string. "
+                            + "tool=" + toolName
+                            + ", argument=" + name
+            );
+        }
+
+        if (stringValue.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Required Tool argument must not be blank. "
+                            + "tool=" + toolName
+                            + ", argument=" + name
+            );
+        }
+
+        return stringValue;
+    }
+
+    /**
+     * 필수 Tool 인자를 반환합니다.
+     *
+     * @param name 인자명
+     * @return 인자값
+     * @throws IllegalArgumentException 인자가 없는 경우
+     */
+    public Object requireArgument(String name) {
+        validateArgumentName(name);
+
+        if (!arguments.containsKey(name)) {
+            throw new IllegalArgumentException(
+                    "Required Tool argument is missing. "
+                            + "tool=" + toolName
+                            + ", argument=" + name
+            );
+        }
+
+        Object value = arguments.get(name);
+
+        if (value == null) {
+            throw new IllegalArgumentException(
+                    "Required Tool argument must not be null. "
+                            + "tool=" + toolName
+                            + ", argument=" + name
+            );
+        }
+
+        return value;
+    }
+
+    /**
+     * 필수 Tool 인자를 지정한 타입으로 반환합니다.
+     */
+    public <T> T requireArgument(
+            String name,
+            Class<T> type) {
+
+        Object value = requireArgument(name);
+
+        Objects.requireNonNull(
+                type,
+                "type must not be null"
+        );
+
+        if (!type.isInstance(value)) {
+            throw new IllegalArgumentException(
+                    "Required Tool argument type mismatch. "
+                            + "tool=" + toolName
+                            + ", argument=" + name
+                            + ", expected=" + type.getName()
+                            + ", actual="
+                            + value.getClass().getName()
+            );
+        }
+
+        return type.cast(value);
+    }
+
+    private static String requireToolName(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(
+                    "toolName must not be blank"
+            );
+        }
+
+        String normalized = value.trim();
+
+        if (!normalized.matches(
+                "[A-Za-z_][A-Za-z0-9_-]*")) {
+
+            throw new IllegalArgumentException(
+                    "Invalid Tool name: " + normalized
+            );
+        }
+
+        return normalized;
+    }
+
+    private static String normalizeOptional(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
+    private static Map<String, Object> immutableArguments(
+            Map<String, Object> source) {
+
+        if (source == null || source.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<String, Object> copied =
+                new LinkedHashMap<>();
+
+        for (Map.Entry<String, Object> entry
+                : source.entrySet()) {
+
+            String name = entry.getKey();
+
+            validateArgumentName(name);
+
+            copied.put(
+                    name.trim(),
+                    deepCopyValue(entry.getValue())
+            );
+        }
+
+        return Collections.unmodifiableMap(copied);
+    }
+
+    /**
+     * 중첩 Map과 Iterable을 복사하여 외부 변경 영향을 줄입니다.
+     */
+    private static Object deepCopyValue(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> copied =
+                    new LinkedHashMap<>();
+
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (entry.getKey() == null) {
+                    throw new IllegalArgumentException(
+                            "Nested Tool argument Map "
+                                    + "must not contain null keys"
+                    );
+                }
+
+                copied.put(
+                        String.valueOf(entry.getKey()),
+                        deepCopyValue(entry.getValue())
+                );
+            }
+
+            return Collections.unmodifiableMap(copied);
+        }
+
+        if (value instanceof Iterable<?> iterable) {
+            java.util.List<Object> copied =
+                    new java.util.ArrayList<>();
+
+            for (Object item : iterable) {
+                copied.add(deepCopyValue(item));
+            }
+
+            return Collections.unmodifiableList(copied);
+        }
+
+        return value;
+    }
+
+    private static void validateArgumentName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException(
+                    "argument name must not be blank"
+            );
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ToolRequest{"
+                + "requestId='" + requestId + '\''
+                + ", toolCallId='" + toolCallId + '\''
+                + ", toolName='" + toolName + '\''
+                + ", argumentNames="
+                + arguments.keySet()
+                + '}';
+    }
+
+    /**
+     * ToolRequest Builder입니다.
+     */
+    public static final class Builder {
+
+        private String requestId;
+        private String toolCallId;
+        private String toolName;
+
+        private final Map<String, Object> arguments =
+                new LinkedHashMap<>();
+
+        private Builder() {
+        }
+
+        private Builder(ToolRequest source) {
+            this.requestId = source.requestId;
+            this.toolCallId = source.toolCallId;
+            this.toolName = source.toolName;
+            this.arguments.putAll(source.arguments);
+        }
+
+        public Builder requestId(String requestId) {
+            this.requestId = requestId;
+            return this;
+        }
+
+        public Builder toolCallId(String toolCallId) {
+            this.toolCallId = toolCallId;
+            return this;
+        }
+
+        public Builder toolName(String toolName) {
+            this.toolName = toolName;
+            return this;
+        }
+
+        /**
+         * Tool 인자를 하나 추가하거나 변경합니다.
+         */
+        public Builder argument(
+                String name,
+                Object value) {
+
+            validateArgumentName(name);
+
+            this.arguments.put(
+                    name.trim(),
+                    value
+            );
+
+            return this;
+        }
+
+        /**
+         * 여러 Tool 인자를 추가합니다.
+         */
+        public Builder arguments(
+                Map<String, ?> arguments) {
+
+            Objects.requireNonNull(
+                    arguments,
+                    "arguments must not be null"
+            );
+
+            for (Map.Entry<String, ?> entry
+                    : arguments.entrySet()) {
+
+                argument(
+                        entry.getKey(),
+                        entry.getValue()
+                );
+            }
+
+            return this;
+        }
+
+        /**
+         * 지정한 Tool 인자를 제거합니다.
+         */
+        public Builder removeArgument(String name) {
+            validateArgumentName(name);
+            this.arguments.remove(name);
+            return this;
+        }
+
+        /**
+         * 모든 Tool 인자를 제거합니다.
+         */
+        public Builder clearArguments() {
+            this.arguments.clear();
+            return this;
+        }
+
+        /**
+         * ToolRequest를 생성합니다.
+         */
+        public ToolRequest build() {
+            return new ToolRequest(this);
+        }
     }
 }

@@ -4,230 +4,208 @@
  */
 package kr.co.goms.gomsbook.ai.tool;
 
+import java.util.Map;
+
 /**
- * GomsBook AI Agent에서 실행 가능한 모든 Tool이 구현하는 공통 인터페이스입니다.
+ * Agent가 호출할 수 있는 Tool의 표준 인터페이스입니다.
  *
- * <p>
- * 각 Tool은 하나의 요청 타입과 하나의 응답 타입을 가지며,
- * Tool 실행 결과는 {@link ToolResult}로 반환합니다.
- * </p>
- *
- * <p>
- * Tool 구현체는 다음 책임을 가집니다.
- * </p>
+ * <p>각 Tool 구현체는 다음 정보를 제공합니다.</p>
  *
  * <ul>
- *   <li>Tool 이름과 버전 정의</li>
- *   <li>지원하는 요청 및 응답 타입 정의</li>
- *   <li>요청값 검증</li>
- *   <li>Tool 실행</li>
- *   <li>표준화된 실행 결과 반환</li>
+ *     <li>LLM에 공개할 Tool 이름</li>
+ *     <li>Tool 설명</li>
+ *     <li>JSON Schema 형식의 입력 파라미터</li>
+ *     <li>요청 검증 로직</li>
+ *     <li>실제 Tool 실행 로직</li>
  * </ul>
  *
- * @param <R> Tool 요청 타입
- * @param <S> Tool 응답 타입
+ * <p>Tool 이름은 LLM 함수명으로 사용되므로 영문자 또는 밑줄로
+ * 시작하고, 이후에는 영문자·숫자·밑줄·하이픈만 사용하는 것을
+ * 권장합니다.</p>
  */
-public interface AgentTool<
-        R extends ToolRequest,
-        S extends ToolResponse> {
+public interface AgentTool {
 
     /**
-     * Tool을 식별하는 고유 이름을 반환합니다.
+     * Tool 이름을 반환합니다.
      *
-     * <p>
-     * 이름은 Tool Registry와 Planner에서 사용되므로
-     * 프로젝트 전체에서 중복되지 않아야 합니다.
-     * </p>
+     * <p>이 이름은 ToolRegistry 조회 및 LLM Tool Calling의
+     * 함수명으로 사용됩니다.</p>
      *
-     * <p>
-     * 권장 형식:
-     * </p>
-     *
-     * <pre>
-     * xhtml.generate
-     * xhtml.validate
-     * epub.validate
-     * accessibility.check
-     * metadata.generate
-     * </pre>
-     *
-     * @return Tool 고유 이름
+     * @return 공백이 아닌 고유 Tool 이름
      */
     String getName();
 
     /**
-     * Tool의 기능을 설명하는 문장을 반환합니다.
+     * Tool의 기능과 사용 목적을 설명합니다.
      *
-     * <p>
-     * 이 설명은 Tool Registry, AI Planner,
-     * Tool Calling Schema 및 UI에서 사용할 수 있습니다.
-     * </p>
+     * <p>이 설명은 LLM이 Tool 호출 여부를 판단할 때 사용됩니다.</p>
      *
-     * @return Tool 설명
+     * @return Tool 설명. 설명이 없으면 빈 문자열 가능
      */
-    String getDescription();
+    default String getDescription() {
+        return "";
+    }
 
     /**
-     * Tool 버전을 반환합니다.
+     * Tool 입력 파라미터의 JSON Schema를 반환합니다.
      *
-     * <p>
-     * Semantic Versioning 형식을 권장합니다.
-     * </p>
+     * <p>반환값은 일반적으로 다음 구조를 가집니다.</p>
      *
      * <pre>
-     * 1.0.0
-     * 1.1.0
-     * 2.0.0
+     * {
+     *   "type": "object",
+     *   "properties": {
+     *     "xhtml": {
+     *       "type": "string",
+     *       "description": "검증할 XHTML 문서"
+     *     }
+     *   },
+     *   "required": ["xhtml"]
+     * }
      * </pre>
      *
-     * @return Tool 버전
+     * <p>인자가 없는 Tool은 기본 빈 Object Schema를 반환할 수 있습니다.</p>
+     *
+     * @return JSON Schema 형식 입력 파라미터
      */
-    String getVersion();
+    default Map<String, Object> getInputSchema() {
+        return Map.of(
+                "type", "object",
+                "properties", Map.of()
+        );
+    }
 
     /**
-     * Tool이 처리하는 요청 타입을 반환합니다.
+     * Tool 요청을 검증합니다.
      *
-     * @return 요청 클래스
+     * <p>기본 구현은 모든 요청을 유효한 것으로 처리합니다.</p>
+     *
+     * @param request Tool 실행 요청
+     * @param context Tool 실행 컨텍스트
+     * @return Tool 요청 검증 결과
      */
-    Class<R> getRequestType();
+    default ToolValidationResult validate(
+            ToolRequest request,
+            ToolContext context) {
+
+        return ToolValidationResult.valid();
+    }
 
     /**
-     * Tool이 반환하는 응답 타입을 반환합니다.
+     * Tool을 실행합니다.
      *
-     * @return 응답 클래스
+     * @param request Tool 실행 요청
+     * @param context Tool 실행 컨텍스트
+     * @return Tool 실행 결과
+     * @throws RuntimeException Tool 실행 중 복구할 수 없는 오류가 발생한 경우
      */
-    Class<S> getResponseType();
+    ToolResult execute(
+            ToolRequest request,
+            ToolContext context
+    );
 
     /**
-     * Tool이 현재 사용 가능한지 반환합니다.
+     * 현재 Tool을 사용할 수 있는지 확인합니다.
      *
-     * <p>
-     * 기본값은 {@code true}입니다.
-     * 외부 서비스, Local LLM 또는 특정 실행 환경에 의존하는 Tool은
-     * 이 메서드를 재정의할 수 있습니다.
-     * </p>
+     * <p>외부 프로그램 설치 여부, 현재 프로젝트 상태, 파일 접근 가능 여부
+     * 등을 기준으로 판단할 수 있습니다.</p>
      *
-     * @return 사용 가능하면 true
+     * @return 사용 가능하면 {@code true}
      */
     default boolean isAvailable() {
         return true;
     }
 
     /**
-     * Tool 요청을 검증합니다.
+     * 현재 요청과 컨텍스트에서 Tool을 실행할 수 있는지 확인합니다.
      *
-     * <p>
-     * 기본 구현은 다음 순서로 검증합니다.
-     * </p>
+     * <p>기본 구현은 Tool 자체 가용성과 요청 검증 결과를 함께 확인합니다.</p>
      *
-     * <ol>
-     *   <li>요청 객체 null 여부 확인</li>
-     *   <li>요청 타입 일치 여부 확인</li>
-     *   <li>{@link ToolRequest#validate()} 호출</li>
-     * </ol>
-     *
-     * @param request 검증할 요청
-     * @return 검증 결과
+     * @param request Tool 실행 요청
+     * @param context Tool 실행 컨텍스트
+     * @return 실행 가능하면 {@code true}
      */
-    default ToolValidationResult validateRequest(
-            R request
-    ) {
-        if (request == null) {
-            return ToolValidationResult.failure(
-                    new ToolIssue(
-                            "TOOL_REQUEST_REQUIRED",
-                            ToolIssueSeverity.ERROR,
-                            "Tool 요청 데이터가 없습니다.",
-                            "Tool 실행을 위해 요청 객체가 필요합니다.",
-                            null,
-                            null,
-                            null,
-                            java.util.Map.of(
-                                    "toolName",
-                                    getName()
-                            )
-                    )
-            );
+    default boolean canExecute(
+            ToolRequest request,
+            ToolContext context) {
+
+        if (!isAvailable()) {
+            return false;
         }
 
-        if (!getRequestType().isInstance(request)) {
-            return ToolValidationResult.failure(
-                    new ToolIssue(
-                            "TOOL_REQUEST_TYPE_MISMATCH",
-                            ToolIssueSeverity.ERROR,
-                            "Tool 요청 타입이 올바르지 않습니다.",
-                            "Expected: "
-                                    + getRequestType().getName()
-                                    + ", Actual: "
-                                    + request.getClass().getName(),
-                            null,
-                            null,
-                            null,
-                            java.util.Map.of(
-                                    "toolName",
-                                    getName(),
-                                    "expectedType",
-                                    getRequestType().getName(),
-                                    "actualType",
-                                    request.getClass().getName()
-                            )
-                    )
-            );
+        if (request == null) {
+            return false;
+        }
+
+        if (!getName().equals(request.getToolName())) {
+            return false;
         }
 
         ToolValidationResult validationResult =
-                request.validate();
+                validate(request, context);
 
-        if (validationResult == null) {
-            return ToolValidationResult.failure(
-                    new ToolIssue(
-                            "TOOL_REQUEST_VALIDATION_NULL",
-                            ToolIssueSeverity.ERROR,
-                            "요청 검증 결과가 없습니다.",
-                            "ToolRequest.validate()는 null을 반환할 수 없습니다.",
-                            null,
-                            null,
-                            null,
-                            java.util.Map.of(
-                                    "toolName",
-                                    getName(),
-                                    "requestType",
-                                    request.getClass().getName()
-                            )
-                    )
-            );
-        }
-
-        return validationResult;
+        return validationResult == null
+                || validationResult.isValid();
     }
 
     /**
-     * Tool을 실행합니다.
+     * Tool 이름과 기본 메타데이터의 유효성을 검증합니다.
      *
-     * <p>
-     * Tool 구현체는 이 메서드 안에서 다음 순서를 따르는 것이 좋습니다.
-     * </p>
-     *
-     * <ol>
-     *   <li>요청 검증</li>
-     *   <li>Tool 실행</li>
-     *   <li>응답 생성</li>
-     *   <li>Issue 정리</li>
-     *   <li>{@link ToolResult} 반환</li>
-     * </ol>
-     *
-     * <p>
-     * Tool 구현체는 예외를 그대로 외부에 노출하기보다,
-     * 가능한 경우 표준화된 {@link ToolIssue}와
-     * {@link ToolResult}로 변환해야 합니다.
-     * </p>
-     *
-     * @param context Tool 실행 환경
-     * @param request Tool 요청 데이터
-     * @return Tool 실행 결과
+     * <p>ToolRegistry 등록 시 호출할 수 있습니다.</p>
      */
-    ToolResult<S> execute(
-            ToolContext context,
-            R request
-    );
+    default void validateDefinition() {
+        String name = getName();
+
+        if (name == null || name.isBlank()) {
+            throw new IllegalStateException(
+                    "Agent Tool name must not be blank"
+            );
+        }
+
+        String normalizedName = name.trim();
+
+        if (!normalizedName.matches(
+                "[A-Za-z_][A-Za-z0-9_-]*")) {
+
+            throw new IllegalStateException(
+                    "Invalid Agent Tool name: "
+                            + normalizedName
+            );
+        }
+
+        Map<String, Object> schema =
+                getInputSchema();
+
+        if (schema == null || schema.isEmpty()) {
+            throw new IllegalStateException(
+                    "Agent Tool input schema must not be empty. "
+                            + "tool=" + normalizedName
+            );
+        }
+
+        Object schemaType =
+                schema.get("type");
+
+        if (!(schemaType instanceof String type)
+                || !"object".equals(type)) {
+
+            throw new IllegalStateException(
+                    "Agent Tool input schema must have type=object. "
+                            + "tool=" + normalizedName
+            );
+        }
+
+        Object properties =
+                schema.get("properties");
+
+        if (properties != null
+                && !(properties instanceof Map<?, ?>)) {
+
+            throw new IllegalStateException(
+                    "Agent Tool input schema properties "
+                            + "must be an object. tool="
+                            + normalizedName
+            );
+        }
+    }
 }

@@ -4,7 +4,9 @@
  */
 package kr.co.goms.gomsbook.ai.tool;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,340 +14,340 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * GomsBook AI Agent에서 사용할 Tool을 등록하고 조회하는 Registry입니다.
+ * Agent Tool을 이름 기준으로 등록하고 조회하는 Registry입니다.
  *
- * <p>
- * Tool 이름을 기준으로 Tool 구현체를 관리하며,
- * 동일한 이름의 Tool이 중복 등록되는 것을 방지합니다.
- * </p>
- *
- * <p>
- * Tool 이름은 다음 형식을 권장합니다.
- * </p>
- *
- * <pre>
- * xhtml.generate
- * xhtml.validate
- * epub.validate
- * accessibility.check
- * metadata.generate
- * </pre>
+ * <p>등록 순서를 유지하며, 동일한 이름의 Tool 중복 등록을
+ * 허용하지 않습니다.</p>
  */
 public final class ToolRegistry {
 
-    /**
-     * Tool 이름과 Tool 구현체를 저장합니다.
-     *
-     * <p>
-     * 등록 순서를 유지하기 위해 {@link LinkedHashMap}을 사용합니다.
-     * </p>
-     */
-    private final Map<
-            String,
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > tools = new LinkedHashMap<>();
+    private final Map<String, AgentTool> tools =
+            new LinkedHashMap<>();
 
     /**
-     * Tool을 Registry에 등록합니다.
-     *
-     * @param tool 등록할 Tool
-     * @throws NullPointerException Tool이 null인 경우
-     * @throws IllegalArgumentException Tool 이름이 비어 있는 경우
-     * @throws IllegalStateException 동일한 이름의 Tool이 이미 등록된 경우
+     * 빈 ToolRegistry를 생성합니다.
      */
-    public synchronized void register(
-            AgentTool<? extends ToolRequest, ? extends ToolResponse> tool
-    ) {
-        Objects.requireNonNull(
-                tool,
-                "tool must not be null."
-        );
-
-        String toolName = normalizeToolName(
-                tool.getName()
-        );
-
-        AgentTool<? extends ToolRequest, ? extends ToolResponse>
-                previous = tools.putIfAbsent(
-                        toolName,
-                        tool
-                );
-
-        if (previous != null) {
-            throw new IllegalStateException(
-                    "Tool is already registered: "
-                            + toolName
-                            + " (existing version: "
-                            + previous.getVersion()
-                            + ", new version: "
-                            + tool.getVersion()
-                            + ")"
-            );
-        }
+    public ToolRegistry() {
     }
 
     /**
-     * 여러 Tool을 한 번에 등록합니다.
+     * 초기 Tool 목록을 포함하는 Registry를 생성합니다.
+     *
+     * @param tools 초기 Tool 목록
+     */
+    public ToolRegistry(
+            Collection<? extends AgentTool> tools) {
+
+        registerAll(tools);
+    }
+
+    /**
+     * Tool을 등록합니다.
+     *
+     * @param tool 등록할 Tool
+     * @throws IllegalArgumentException 동일한 이름이 이미 등록된 경우
+     */
+    public synchronized void register(
+            AgentTool tool) {
+
+        Objects.requireNonNull(
+                tool,
+                "tool must not be null"
+        );
+
+        tool.validateDefinition();
+
+        String toolName =
+                normalizeToolName(tool.getName());
+
+        if (tools.containsKey(toolName)) {
+            throw new IllegalArgumentException(
+                    "Tool is already registered: "
+                            + toolName
+            );
+        }
+
+        tools.put(toolName, tool);
+    }
+
+    /**
+     * 여러 Tool을 등록합니다.
+     *
+     * <p>등록 도중 하나라도 실패하면 이전에 등록된 Tool은
+     * 그대로 유지됩니다.</p>
      *
      * @param tools 등록할 Tool 목록
      */
     public synchronized void registerAll(
-            Collection<
-                    ? extends AgentTool<
-                            ? extends ToolRequest,
-                            ? extends ToolResponse
-                    >
-            > tools
-    ) {
-        if (tools == null || tools.isEmpty()) {
-            return;
-        }
+            Collection<? extends AgentTool> tools) {
 
-        for (AgentTool<
-                ? extends ToolRequest,
-                ? extends ToolResponse> tool : tools) {
+        Objects.requireNonNull(
+                tools,
+                "tools must not be null"
+        );
+
+        for (AgentTool tool : tools) {
             register(tool);
         }
     }
 
     /**
-     * Tool 이름으로 Tool을 조회합니다.
+     * 기존 Tool을 동일 이름의 새 Tool로 교체합니다.
+     *
+     * @param tool 등록 또는 교체할 Tool
+     * @return 이전 Tool 또는 {@code null}
+     */
+    public synchronized AgentTool registerOrReplace(
+            AgentTool tool) {
+
+        Objects.requireNonNull(
+                tool,
+                "tool must not be null"
+        );
+
+        tool.validateDefinition();
+
+        String toolName =
+                normalizeToolName(tool.getName());
+
+        return tools.put(toolName, tool);
+    }
+
+    /**
+     * 이름으로 Tool을 조회합니다.
      *
      * @param toolName Tool 이름
-     * @return Tool이 존재하면 Optional로 반환
+     * @return Tool 또는 {@code null}
      */
-    public synchronized Optional<
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > findByName(
-            String toolName
-    ) {
+    public synchronized AgentTool get(
+            String toolName) {
+
         if (toolName == null || toolName.isBlank()) {
-            return Optional.empty();
+            return null;
         }
 
-        return Optional.ofNullable(
-                tools.get(
-                        toolName.trim()
-                )
-        );
+        return tools.get(toolName.trim());
     }
 
     /**
-     * Tool 이름으로 Tool을 조회합니다.
-     *
-     * <p>
-     * Tool이 존재하지 않으면 예외를 발생시킵니다.
-     * </p>
-     *
-     * @param toolName Tool 이름
-     * @return 등록된 Tool
-     * @throws ToolNotFoundException Tool이 존재하지 않는 경우
+     * 이름으로 Tool을 Optional 형태로 조회합니다.
      */
-    public synchronized AgentTool<
-            ? extends ToolRequest,
-            ? extends ToolResponse
-    > getRequired(
-            String toolName
-    ) {
-        return findByName(toolName)
-                .orElseThrow(
-                        () -> new ToolNotFoundException(
-                                toolName
-                        )
-                );
+    public synchronized Optional<AgentTool> find(
+            String toolName) {
+
+        return Optional.ofNullable(get(toolName));
     }
 
     /**
-     * 지정한 이름의 Tool이 등록되어 있는지 확인합니다.
-     *
-     * @param toolName Tool 이름
-     * @return 등록되어 있으면 true
+     * Tool이 등록되어 있는지 확인합니다.
      */
     public synchronized boolean contains(
-            String toolName
-    ) {
+            String toolName) {
+
         if (toolName == null || toolName.isBlank()) {
             return false;
         }
 
-        return tools.containsKey(
-                toolName.trim()
-        );
+        return tools.containsKey(toolName.trim());
     }
 
     /**
-     * 지정한 Tool을 Registry에서 제거합니다.
+     * Tool 등록을 해제합니다.
      *
      * @param toolName Tool 이름
-     * @return 제거된 Tool이 있으면 Optional로 반환
+     * @return 제거된 Tool 또는 {@code null}
      */
-    public synchronized Optional<
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > unregister(
-            String toolName
-    ) {
+    public synchronized AgentTool unregister(
+            String toolName) {
+
         if (toolName == null || toolName.isBlank()) {
-            return Optional.empty();
+            return null;
         }
 
-        return Optional.ofNullable(
-                tools.remove(
-                        toolName.trim()
-                )
+        return tools.remove(toolName.trim());
+    }
+
+    /**
+     * 지정한 Tool이 등록되어 있을 때만 해제합니다.
+     *
+     * @param tool 제거할 Tool
+     * @return 제거되었으면 {@code true}
+     */
+    public synchronized boolean unregister(
+            AgentTool tool) {
+
+        if (tool == null) {
+            return false;
+        }
+
+        String toolName =
+                normalizeToolName(tool.getName());
+
+        AgentTool registered = tools.get(toolName);
+
+        if (registered != tool) {
+            return false;
+        }
+
+        tools.remove(toolName);
+        return true;
+    }
+
+    /**
+     * 등록된 Tool 목록을 반환합니다.
+     *
+     * <p>등록 순서를 유지하며 수정할 수 없는 복사본을 반환합니다.</p>
+     */
+    public synchronized List<AgentTool> getTools() {
+        if (tools.isEmpty()) {
+            return List.of();
+        }
+
+        return Collections.unmodifiableList(
+                new ArrayList<>(tools.values())
         );
     }
 
     /**
-     * 등록된 모든 Tool을 반환합니다.
-     *
-     * <p>
-     * 반환된 목록은 불변입니다.
-     * </p>
-     *
-     * @return 등록된 Tool 목록
+     * 등록된 Tool 이름 목록을 반환합니다.
      */
-    public synchronized List<
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > getAll() {
-        return List.copyOf(
-                tools.values()
+    public synchronized List<String> getToolNames() {
+        if (tools.isEmpty()) {
+            return List.of();
+        }
+
+        return Collections.unmodifiableList(
+                new ArrayList<>(tools.keySet())
         );
     }
 
     /**
-     * 현재 사용 가능한 Tool만 반환합니다.
+     * 등록된 Tool Map을 반환합니다.
      *
-     * @return 사용 가능한 Tool 목록
+     * @return 수정할 수 없는 복사본
      */
-    public synchronized List<
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > getAvailableTools() {
-        return tools.values()
-                .stream()
-                .filter(AgentTool::isAvailable)
-                .toList();
+    public synchronized Map<String, AgentTool>
+            getToolMap() {
+
+        if (tools.isEmpty()) {
+            return Map.of();
+        }
+
+        return Collections.unmodifiableMap(
+                new LinkedHashMap<>(tools)
+        );
     }
 
     /**
-     * 등록된 Tool의 개수를 반환합니다.
-     *
-     * @return Tool 개수
+     * 등록된 Tool 수를 반환합니다.
      */
     public synchronized int size() {
         return tools.size();
     }
 
     /**
-     * Registry가 비어 있는지 확인합니다.
-     *
-     * @return 비어 있으면 true
+     * 등록된 Tool이 없는지 확인합니다.
      */
     public synchronized boolean isEmpty() {
         return tools.isEmpty();
     }
 
     /**
-     * 모든 Tool을 제거합니다.
+     * 사용 가능한 Tool이 하나 이상 존재하는지 확인합니다.
+     */
+    public synchronized boolean hasAvailableTools() {
+        for (AgentTool tool : tools.values()) {
+            try {
+                if (tool.isAvailable()) {
+                    return true;
+                }
+            } catch (RuntimeException ignored) {
+                // 가용성 확인 실패 Tool은 사용 불가로 처리합니다.
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 사용 가능한 Tool 목록을 반환합니다.
+     */
+    public synchronized List<AgentTool>
+            getAvailableTools() {
+
+        if (tools.isEmpty()) {
+            return List.of();
+        }
+
+        List<AgentTool> available =
+                new ArrayList<>();
+
+        for (AgentTool tool : tools.values()) {
+            try {
+                if (tool.isAvailable()) {
+                    available.add(tool);
+                }
+            } catch (RuntimeException ignored) {
+                // 해당 Tool은 제외합니다.
+            }
+        }
+
+        return Collections.unmodifiableList(available);
+    }
+
+    /**
+     * 모든 Tool 등록을 제거합니다.
      */
     public synchronized void clear() {
         tools.clear();
     }
 
     /**
-     * 요청 타입을 처리할 수 있는 Tool을 조회합니다.
-     *
-     * <p>
-     * 여러 Tool이 같은 요청 타입을 처리할 수 있으므로
-     * 목록으로 반환합니다.
-     * </p>
-     *
-     * @param requestType 요청 타입
-     * @return 요청 타입을 지원하는 Tool 목록
+     * 모든 등록 Tool 정의를 검증합니다.
      */
-    public synchronized List<
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > findByRequestType(
-            Class<? extends ToolRequest> requestType
-    ) {
-        Objects.requireNonNull(
-                requestType,
-                "requestType must not be null."
-        );
+    public synchronized void validateAll() {
+        for (AgentTool tool : tools.values()) {
+            tool.validateDefinition();
 
-        return tools.values()
-                .stream()
-                .filter(tool ->
-                        tool.getRequestType().equals(
-                                requestType
-                        )
-                )
-                .toList();
+            String actualName =
+                    normalizeToolName(tool.getName());
+
+            if (!tools.containsKey(actualName)) {
+                throw new IllegalStateException(
+                        "Tool Registry key mismatch: "
+                                + actualName
+                );
+            }
+        }
     }
 
-    /**
-     * 응답 타입을 반환하는 Tool을 조회합니다.
-     *
-     * @param responseType 응답 타입
-     * @return 응답 타입이 일치하는 Tool 목록
-     */
-    public synchronized List<
-            AgentTool<? extends ToolRequest, ? extends ToolResponse>
-    > findByResponseType(
-            Class<? extends ToolResponse> responseType
-    ) {
-        Objects.requireNonNull(
-                responseType,
-                "responseType must not be null."
-        );
-
-        return tools.values()
-                .stream()
-                .filter(tool ->
-                        tool.getResponseType().equals(
-                                responseType
-                        )
-                )
-                .toList();
-    }
-
-    /**
-     * 등록된 Tool 이름 목록을 반환합니다.
-     *
-     * @return Tool 이름 목록
-     */
-    public synchronized List<String> getToolNames() {
-        return List.copyOf(
-                tools.keySet()
-        );
-    }
-
-    /**
-     * Tool 이름을 검증하고 정규화합니다.
-     *
-     * @param toolName Tool 이름
-     * @return 정규화된 Tool 이름
-     */
     private static String normalizeToolName(
-            String toolName
-    ) {
+            String toolName) {
+
         if (toolName == null || toolName.isBlank()) {
             throw new IllegalArgumentException(
-                    "Tool name must not be blank."
+                    "toolName must not be blank"
             );
         }
 
         String normalized = toolName.trim();
 
         if (!normalized.matches(
-                "[a-z][a-z0-9]*(\\.[a-z][a-z0-9-]*)+"
-        )) {
+                "[A-Za-z_][A-Za-z0-9_-]*")) {
+
             throw new IllegalArgumentException(
                     "Invalid Tool name: "
                             + normalized
-                            + ". Expected format: domain.operation"
             );
         }
 
         return normalized;
+    }
+
+    @Override
+    public synchronized String toString() {
+        return "ToolRegistry{"
+                + "toolNames=" + tools.keySet()
+                + '}';
     }
 }

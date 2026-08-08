@@ -5,109 +5,139 @@
 package kr.co.goms.gomsbook.ai.tool;
 
 /**
- * ToolIssue의 심각도를 나타냅니다.
+ * Tool 검증 또는 실행 과정에서 발견된 이슈의 심각도입니다.
  *
- * <p>
- * 심각도는 Validation, Prompt, LLM, RAG 등
- * AI Framework 전체에서 공통으로 사용됩니다.
- * </p>
- * 
- * new ToolIssue(
-    "XHTML001",
-    ToolIssueSeverity.ERROR,
-    "Duplicate id detected.",
-    "Paragraph id 'p_01' already exists.",
-    "chapter01.xhtml",
-    32,
-    5,
-    Map.of("id", "p_01")
-);
-
-new ToolIssue(
-    "LLM001",
-    ToolIssueSeverity.CRITICAL,
-    "Failed to connect to Ollama.",
-    "Connection timeout.",
-    null,
-    null,
-    null,
-    Map.of("host", "localhost:11434")
-);
-
+ * <p>심각도 비교를 위해 각 상태는 숫자 레벨을 가집니다.
+ * 숫자가 클수록 심각한 이슈입니다.</p>
  */
 public enum ToolIssueSeverity {
 
     /**
-     * 참고용 정보입니다.
-     *
-     * 예:
-     * <ul>
-     *   <li>AI 응답 시간이 다소 길었습니다.</li>
-     *   <li>캐시를 사용했습니다.</li>
-     * </ul>
+     * 실행에 영향을 주지 않는 참고 정보입니다.
      */
-    INFO,
+    INFO(10),
 
     /**
-     * 작업은 계속 진행할 수 있지만
-     * 확인이 필요한 사항입니다.
-     *
-     * 예:
-     * <ul>
-     *   <li>이미지 Alt 속성이 없습니다.</li>
-     *   <li>긴 문장이 감지되었습니다.</li>
-     * </ul>
+     * 실행은 가능하지만 확인이 필요한 경고입니다.
      */
-    WARNING,
+    WARNING(20),
 
     /**
-     * 오류가 발생하여
-     * 정상적인 결과를 생성할 수 없습니다.
-     *
-     * 예:
-     * <ul>
-     *   <li>XHTML Parsing Error</li>
-     *   <li>잘못된 XML 구조</li>
-     * </ul>
+     * 요청 검증 또는 Tool 실행에 영향을 주는 오류입니다.
      */
-    ERROR,
+    ERROR(30),
 
     /**
-     * 시스템 수준의 심각한 오류입니다.
-     *
-     * 예:
-     * <ul>
-     *   <li>LLM 연결 실패</li>
-     *   <li>Vector DB 손상</li>
-     *   <li>프로젝트 파일 접근 실패</li>
-     * </ul>
+     * Tool 실행을 계속할 수 없는 치명적 오류입니다.
      */
-    CRITICAL;
+    FATAL(40);
+
+    private final int level;
+
+    ToolIssueSeverity(int level) {
+        this.level = level;
+    }
 
     /**
-     * ERROR 이상 여부를 반환합니다.
+     * 심각도 비교용 숫자 레벨을 반환합니다.
      *
-     * @return ERROR 또는 CRITICAL이면 true
+     * @return 심각도 레벨
+     */
+    public int getLevel() {
+        return level;
+    }
+
+    /**
+     * 정보 수준인지 확인합니다.
+     *
+     * @return INFO이면 {@code true}
+     */
+    public boolean isInfo() {
+        return this == INFO;
+    }
+
+    /**
+     * 경고 수준인지 확인합니다.
+     *
+     * @return WARNING이면 {@code true}
+     */
+    public boolean isWarning() {
+        return this == WARNING;
+    }
+
+    /**
+     * 오류 수준인지 확인합니다.
+     *
+     * <p>ERROR와 FATAL을 모두 오류로 판단합니다.</p>
+     *
+     * @return 오류 수준이면 {@code true}
      */
     public boolean isError() {
-        return this == ERROR || this == CRITICAL;
+        return this == ERROR || this == FATAL;
     }
 
     /**
-     * WARNING 이상 여부를 반환합니다.
+     * 치명적 오류인지 확인합니다.
      *
-     * @return WARNING, ERROR, CRITICAL이면 true
+     * @return FATAL이면 {@code true}
      */
-    public boolean isWarningOrHigher() {
-        return this != INFO;
+    public boolean isFatal() {
+        return this == FATAL;
     }
 
     /**
-     * 치명적인 오류 여부를 반환합니다.
+     * 다른 심각도보다 높은지 확인합니다.
      *
-     * @return CRITICAL이면 true
+     * @param other 비교할 심각도
+     * @return 현재 심각도가 더 높으면 {@code true}
      */
-    public boolean isCritical() {
-        return this == CRITICAL;
+    public boolean isHigherThan(
+            ToolIssueSeverity other) {
+
+        if (other == null) {
+            return true;
+        }
+
+        return this.level > other.level;
+    }
+
+    /**
+     * 다른 심각도 이상인지 확인합니다.
+     *
+     * @param other 비교할 심각도
+     * @return 현재 심각도가 같거나 더 높으면 {@code true}
+     */
+    public boolean isAtLeast(
+            ToolIssueSeverity other) {
+
+        if (other == null) {
+            return true;
+        }
+
+        return this.level >= other.level;
+    }
+
+    /**
+     * 두 심각도 중 더 높은 값을 반환합니다.
+     *
+     * @param first  첫 번째 심각도
+     * @param second 두 번째 심각도
+     * @return 더 높은 심각도
+     */
+    public static ToolIssueSeverity max(
+            ToolIssueSeverity first,
+            ToolIssueSeverity second) {
+
+        if (first == null) {
+            return second;
+        }
+
+        if (second == null) {
+            return first;
+        }
+
+        return first.level >= second.level
+                ? first
+                : second;
     }
 }

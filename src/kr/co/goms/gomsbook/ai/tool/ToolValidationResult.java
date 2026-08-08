@@ -4,228 +4,345 @@
  */
 package kr.co.goms.gomsbook.ai.tool;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * Tool 요청 데이터의 검증 결과를 나타냅니다.
+ * Tool 요청 검증 결과입니다.
  *
- * <p>
- * {@link ToolRequest#validate()}에서 반환되며,
- * 검증 성공 여부와 발견된 Issue 목록을 함께 관리합니다.
- * </p>
- *
- * <p>
- * ERROR 또는 CRITICAL 수준의 Issue가 하나라도 존재하면
- * 검증 실패로 판단합니다.
- * WARNING과 INFO는 검증을 실패시키지 않습니다.
- * </p>
+ * <p>Tool 실행 전에 입력 인자와 실행 컨텍스트의 유효성을 검사한 결과를
+ * 표현합니다.</p>
  */
-public record ToolValidationResult(
-        boolean valid,
-        List<ToolIssue> issues
-) implements Serializable {
+public final class ToolValidationResult {
+
+    private final boolean valid;
+    private final String message;
+    private final List<ToolIssue> issues;
+
+    private ToolValidationResult(Builder builder) {
+        this.valid = builder.valid;
+        this.message = normalizeOptional(builder.message);
+        this.issues = immutableIssues(builder.issues);
+
+        validateState();
+    }
 
     /**
-     * 정규 생성자입니다.
-     *
-     * <p>
-     * Issue 목록은 외부에서 변경되지 않도록 불변 목록으로 복사합니다.
-     * {@code valid} 값과 실제 Issue 심각도가 일치하지 않으면,
-     * ERROR 이상 Issue 존재 여부를 기준으로 보정합니다.
-     * </p>
+     * Builder를 생성합니다.
      */
-    public ToolValidationResult {
-        issues = issues == null
-                ? List.of()
-                : List.copyOf(issues);
+    public static Builder builder() {
+        return new Builder();
+    }
 
-        boolean containsError = issues.stream()
-                .filter(Objects::nonNull)
-                .map(ToolIssue::severity)
-                .filter(Objects::nonNull)
-                .anyMatch(ToolIssueSeverity::isError);
+    /**
+     * 기존 검증 결과를 기반으로 Builder를 생성합니다.
+     */
+    public static Builder builder(
+            ToolValidationResult source) {
 
-        valid = valid && !containsError;
+        Objects.requireNonNull(
+                source,
+                "source must not be null"
+        );
+
+        return new Builder(source);
     }
 
     /**
      * 검증 성공 결과를 생성합니다.
-     *
-     * @return Issue가 없는 성공 결과
      */
-    public static ToolValidationResult success() {
-        return new ToolValidationResult(
-                true,
-                List.of()
-        );
+    public static ToolValidationResult valid() {
+        return builder()
+                .valid(true)
+                .build();
     }
 
     /**
-     * INFO 또는 WARNING Issue를 포함한 성공 결과를 생성합니다.
-     *
-     * <p>
-     * ERROR 또는 CRITICAL Issue가 포함되어 있으면
-     * 생성자에서 자동으로 실패 상태로 보정됩니다.
-     * </p>
-     *
-     * @param issues Issue 목록
-     * @return 검증 결과
+     * 메시지를 포함하는 검증 성공 결과를 생성합니다.
      */
-    public static ToolValidationResult successWithIssues(
-            Collection<ToolIssue> issues
-    ) {
-        return new ToolValidationResult(
-                true,
-                sanitizeIssues(issues)
-        );
+    public static ToolValidationResult valid(
+            String message) {
+
+        return builder()
+                .valid(true)
+                .message(message)
+                .build();
     }
 
     /**
-     * 하나 이상의 Issue를 포함한 검증 실패 결과를 생성합니다.
-     *
-     * @param issues 검증 Issue
-     * @return 검증 실패 결과
+     * 검증 실패 결과를 생성합니다.
      */
-    public static ToolValidationResult failure(
-            ToolIssue... issues
-    ) {
-        List<ToolIssue> issueList = issues == null
-                ? List.of()
-                : sanitizeIssues(Arrays.asList(issues));
+    public static ToolValidationResult invalid(
+            String message) {
 
-        return new ToolValidationResult(
-                false,
-                issueList
-        );
+        return builder()
+                .valid(false)
+                .message(message)
+                .build();
     }
 
     /**
-     * Issue 목록을 포함한 검증 실패 결과를 생성합니다.
-     *
-     * @param issues 검증 Issue 목록
-     * @return 검증 실패 결과
+     * 단일 이슈를 포함하는 검증 실패 결과를 생성합니다.
      */
-    public static ToolValidationResult failure(
-            Collection<ToolIssue> issues
-    ) {
-        return new ToolValidationResult(
-                false,
-                sanitizeIssues(issues)
-        );
+    public static ToolValidationResult invalid(
+            ToolIssue issue) {
+
+        return builder()
+                .valid(false)
+                .issue(issue)
+                .build();
     }
 
     /**
-     * ERROR 또는 CRITICAL Issue가 존재하는지 확인합니다.
+     * 여러 이슈를 포함하는 검증 실패 결과를 생성합니다.
+     */
+    public static ToolValidationResult invalid(
+            List<ToolIssue> issues) {
+
+        return builder()
+                .valid(false)
+                .issues(issues)
+                .build();
+    }
+
+    /**
+     * 검증 성공 여부를 반환합니다.
+     */
+    public boolean isValid() {
+        return valid;
+    }
+
+    /**
+     * 검증 실패 여부를 반환합니다.
+     */
+    public boolean isInvalid() {
+        return !valid;
+    }
+
+    /**
+     * 검증 메시지를 반환합니다.
+     */
+    public String getMessage() {
+        return message;
+    }
+
+    /**
+     * 검증 이슈 목록을 반환합니다.
      *
-     * @return 오류 수준 Issue가 있으면 true
+     * @return 수정할 수 없는 이슈 목록
+     */
+    public List<ToolIssue> getIssues() {
+        return issues;
+    }
+
+    /**
+     * 메시지가 존재하는지 확인합니다.
+     */
+    public boolean hasMessage() {
+        return message != null;
+    }
+
+    /**
+     * 검증 이슈가 존재하는지 확인합니다.
+     */
+    public boolean hasIssues() {
+        return !issues.isEmpty();
+    }
+
+    /**
+     * 이슈 개수를 반환합니다.
+     */
+    public int getIssueCount() {
+        return issues.size();
+    }
+
+    /**
+     * 특정 심각도의 이슈가 존재하는지 확인합니다.
+     */
+    public boolean hasSeverity(
+            ToolIssueSeverity severity) {
+
+        Objects.requireNonNull(
+                severity,
+                "severity must not be null"
+        );
+
+        return issues.stream()
+                .anyMatch(issue ->
+                        issue.getSeverity() == severity
+                );
+    }
+
+    /**
+     * 오류 수준 이상의 이슈가 존재하는지 확인합니다.
      */
     public boolean hasErrors() {
         return issues.stream()
-                .filter(Objects::nonNull)
-                .map(ToolIssue::severity)
-                .filter(Objects::nonNull)
-                .anyMatch(ToolIssueSeverity::isError);
-    }
-
-    /**
-     * WARNING Issue가 존재하는지 확인합니다.
-     *
-     * @return WARNING Issue가 있으면 true
-     */
-    public boolean hasWarnings() {
-        return issues.stream()
-                .filter(Objects::nonNull)
-                .map(ToolIssue::severity)
-                .anyMatch(
-                        severity ->
-                                severity == ToolIssueSeverity.WARNING
+                .anyMatch(issue ->
+                        issue.getSeverity().isError()
                 );
     }
 
     /**
-     * CRITICAL Issue가 존재하는지 확인합니다.
+     * 가장 높은 심각도를 반환합니다.
      *
-     * @return CRITICAL Issue가 있으면 true
+     * @return 이슈가 없으면 {@code null}
      */
-    public boolean hasCriticalErrors() {
-        return issues.stream()
-                .filter(Objects::nonNull)
-                .map(ToolIssue::severity)
-                .anyMatch(
-                        severity ->
-                                severity == ToolIssueSeverity.CRITICAL
-                );
-    }
+    public ToolIssueSeverity getHighestSeverity() {
+        ToolIssueSeverity highest = null;
 
-    /**
-     * 지정한 심각도의 Issue 개수를 반환합니다.
-     *
-     * @param severity 조회할 심각도
-     * @return 해당 심각도의 Issue 개수
-     */
-    public long countBySeverity(
-            ToolIssueSeverity severity
-    ) {
-        Objects.requireNonNull(
-                severity,
-                "severity must not be null."
-        );
+        for (ToolIssue issue : issues) {
+            ToolIssueSeverity severity =
+                    issue.getSeverity();
 
-        return issues.stream()
-                .filter(Objects::nonNull)
-                .map(ToolIssue::severity)
-                .filter(severity::equals)
-                .count();
-    }
+            if (highest == null
+                    || severity.getLevel()
+                    > highest.getLevel()) {
 
-    /**
-     * 현재 결과에 다른 검증 결과를 병합합니다.
-     *
-     * @param other 병합할 검증 결과
-     * @return 병합된 새로운 검증 결과
-     */
-    public ToolValidationResult merge(
-            ToolValidationResult other
-    ) {
-        if (other == null) {
-            return this;
+                highest = severity;
+            }
         }
 
-        List<ToolIssue> mergedIssues =
-                new ArrayList<>(
-                        this.issues.size()
-                                + other.issues.size()
-                );
-
-        mergedIssues.addAll(this.issues);
-        mergedIssues.addAll(other.issues);
-
-        return new ToolValidationResult(
-                this.valid && other.valid,
-                mergedIssues
-        );
+        return highest;
     }
 
     /**
-     * null Issue를 제거하고 불변 목록으로 반환합니다.
-     *
-     * @param issues 원본 Issue 목록
-     * @return 정제된 Issue 목록
+     * 현재 검증 결과에 이슈 하나를 추가한 새 결과를 반환합니다.
      */
-    private static List<ToolIssue> sanitizeIssues(
-            Collection<ToolIssue> issues
-    ) {
-        if (issues == null || issues.isEmpty()) {
+    public ToolValidationResult withIssue(
+            ToolIssue issue) {
+
+        return builder(this)
+                .issue(issue)
+                .valid(false)
+                .build();
+    }
+
+    private void validateState() {
+        if (valid && hasErrors()) {
+            throw new IllegalArgumentException(
+                    "Valid ToolValidationResult "
+                            + "must not contain error issues"
+            );
+        }
+
+        if (!valid
+                && message == null
+                && issues.isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "Invalid ToolValidationResult must contain "
+                            + "a message or at least one issue"
+            );
+        }
+    }
+
+    private static List<ToolIssue> immutableIssues(
+            List<ToolIssue> source) {
+
+        if (source == null || source.isEmpty()) {
             return List.of();
         }
 
-        return issues.stream()
-                .filter(Objects::nonNull)
-                .toList();
+        List<ToolIssue> copied =
+                new ArrayList<>(source.size());
+
+        for (ToolIssue issue : source) {
+            copied.add(
+                    Objects.requireNonNull(
+                            issue,
+                            "issues must not contain null"
+                    )
+            );
+        }
+
+        return Collections.unmodifiableList(copied);
+    }
+
+    private static String normalizeOptional(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
+    @Override
+    public String toString() {
+        return "ToolValidationResult{"
+                + "valid=" + valid
+                + ", message='" + message + '\''
+                + ", issueCount=" + issues.size()
+                + '}';
+    }
+
+    /**
+     * ToolValidationResult Builder입니다.
+     */
+    public static final class Builder {
+
+        private boolean valid = true;
+        private String message;
+
+        private final List<ToolIssue> issues =
+                new ArrayList<>();
+
+        private Builder() {
+        }
+
+        private Builder(
+                ToolValidationResult source) {
+
+            this.valid = source.valid;
+            this.message = source.message;
+            this.issues.addAll(source.issues);
+        }
+
+        public Builder valid(boolean valid) {
+            this.valid = valid;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder issue(ToolIssue issue) {
+            this.issues.add(
+                    Objects.requireNonNull(
+                            issue,
+                            "issue must not be null"
+                    )
+            );
+
+            return this;
+        }
+
+        public Builder issues(
+                List<ToolIssue> issues) {
+
+            Objects.requireNonNull(
+                    issues,
+                    "issues must not be null"
+            );
+
+            for (ToolIssue issue : issues) {
+                issue(issue);
+            }
+
+            return this;
+        }
+
+        public Builder clearIssues() {
+            this.issues.clear();
+            return this;
+        }
+
+        public ToolValidationResult build() {
+            return new ToolValidationResult(this);
+        }
     }
 }

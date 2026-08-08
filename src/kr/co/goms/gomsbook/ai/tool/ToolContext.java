@@ -4,367 +4,487 @@
  */
 package kr.co.goms.gomsbook.ai.tool;
 
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
- * Tool 실행에 필요한 공통 실행 환경을 전달합니다.
+ * Tool 실행 중 공유되는 컨텍스트 정보입니다.
  *
- * <p>
- * ToolContext는 현재 프로젝트, 문서, 요청, 실행 시작 시각 및
- * 추가 속성을 Tool 구현체에 전달하는 불변 객체입니다.
- * </p>
+ * <p>Agent 요청과 Tool 실행 사이에서 다음 정보를 전달합니다.</p>
  *
- * <p>
- * AI Core의 독립성을 유지하기 위해 SWT, JFace, Workbench와 같은
- * Eclipse UI 객체를 직접 포함하지 않습니다.
- * </p>
- * 
- * ToolContext context = ToolContext.of(
-        "REQ-20260803-0001",
-        "gomsbook-project-001",
-        Path.of("C:/workspace/books/my-book")
-	)
-	.withCurrentDocument(
-	        Path.of("Text/chapter01.xhtml")
-	)
-	.withAttribute(
-	        "language",
-	        "ko"
-	)
-	.withAttribute(
-	        "epubVersion",
-	        "3.3"
-	);
+ * <ul>
+ *     <li>Agent 요청 식별자</li>
+ *     <li>대화 세션 식별자</li>
+ *     <li>프로젝트 경로, 현재 문서 등 확장 속성</li>
+ * </ul>
+ *
+ * <p>사용 예시:</p>
+ *
+ * <pre>
+ * ToolContext context = ToolContext.builder()
+ *         .requestId("request-001")
+ *         .sessionId("session-001")
+ *         .attribute("projectPath", "C:/workspace/GomsBook")
+ *         .attribute("currentFile", "chapter01.xhtml")
+ *         .build();
+ * </pre>
  */
-public record ToolContext(
+public final class ToolContext {
 
-        /**
-         * 현재 실행 요청 ID입니다.
-         *
-         * <p>
-         * Prompt, LLM, Tool, Validation 실행을 하나의 흐름으로
-         * 추적할 때 사용합니다.
-         * </p>
-         */
-        String requestId,
+    private final String requestId;
+    private final String sessionId;
+    private final Map<String, Object> attributes;
 
-        /**
-         * 현재 GomsBookEditor 프로젝트 ID입니다.
-         */
-        String projectId,
-
-        /**
-         * 현재 책 또는 출판물 ID입니다.
-         */
-        String bookId,
-
-        /**
-         * 현재 프로젝트의 루트 경로입니다.
-         */
-        Path projectRoot,
-
-        /**
-         * 현재 작업 대상 문서의 프로젝트 상대 경로입니다.
-         *
-         * <p>
-         * 예: {@code Text/chapter01.xhtml}
-         * </p>
-         */
-        Path currentDocument,
-
-        /**
-         * 현재 실행을 요청한 사용자 또는 세션 ID입니다.
-         */
-        String userId,
-
-        /**
-         * Tool 실행 시작 시각입니다.
-         */
-        Instant startedAt,
-
-        /**
-         * 추가 실행 속성입니다.
-         *
-         * <p>
-         * 예:
-         * </p>
-         *
-         * <ul>
-         *   <li>현재 선택 영역</li>
-         *   <li>프로젝트 언어</li>
-         *   <li>EPUB 버전</li>
-         *   <li>렌더러 종류</li>
-         *   <li>사용자 설정</li>
-         * </ul>
-         */
-        Map<String, Object> attributes
-
-) implements Serializable {
-
-    /**
-     * 정규 생성자입니다.
-     */
-    public ToolContext {
-        requestId = requireText(
-                requestId,
-                "requestId"
+    private ToolContext(Builder builder) {
+        this.requestId = normalizeOptional(
+                builder.requestId
         );
 
-        projectId = normalizeText(projectId);
-        bookId = normalizeText(bookId);
-        userId = normalizeText(userId);
+        this.sessionId = normalizeOptional(
+                builder.sessionId
+        );
 
-        projectRoot = normalizePath(projectRoot);
-        currentDocument = normalizeRelativePath(currentDocument);
-
-        startedAt = startedAt == null
-                ? Instant.now()
-                : startedAt;
-
-        attributes = attributes == null
-                ? Map.of()
-                : Map.copyOf(attributes);
-
-        validateCurrentDocument(
-                projectRoot,
-                currentDocument
+        this.attributes = immutableAttributes(
+                builder.attributes
         );
     }
 
     /**
-     * 최소 정보로 ToolContext를 생성합니다.
-     *
-     * @param requestId  요청 ID
-     * @param projectId  프로젝트 ID
-     * @param projectRoot 프로젝트 루트
-     * @return ToolContext
+     * 빈 Tool Context를 생성합니다.
      */
-    public static ToolContext of(
-            String requestId,
-            String projectId,
-            Path projectRoot
-    ) {
-        return new ToolContext(
-                requestId,
-                projectId,
-                null,
-                projectRoot,
-                null,
-                null,
-                Instant.now(),
-                Map.of()
+    public ToolContext() {
+        this(builder());
+    }
+
+    /**
+     * 확장 속성만 포함하는 Tool Context를 생성합니다.
+     *
+     * @param attributes 확장 속성
+     */
+    public ToolContext(
+            Map<String, Object> attributes) {
+
+        this(
+                builder()
+                        .attributes(attributes)
         );
     }
 
     /**
-     * 현재 문서의 절대 경로를 반환합니다.
-     *
-     * @return 현재 문서의 절대 경로
+     * Builder를 생성합니다.
      */
-    public Optional<Path> currentDocumentPath() {
-        if (projectRoot == null || currentDocument == null) {
-            return Optional.empty();
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * 기존 Context를 기반으로 Builder를 생성합니다.
+     *
+     * @param source 원본 Tool Context
+     * @return 원본 값이 복사된 Builder
+     */
+    public static Builder builder(ToolContext source) {
+        Objects.requireNonNull(
+                source,
+                "source must not be null"
+        );
+
+        return new Builder(source);
+    }
+
+    /**
+     * Agent 요청 식별자를 반환합니다.
+     */
+    public String getRequestId() {
+        return requestId;
+    }
+
+    /**
+     * 대화 세션 식별자를 반환합니다.
+     */
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    /**
+     * 확장 속성 목록을 반환합니다.
+     *
+     * @return 수정할 수 없는 속성 Map
+     */
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    /**
+     * 요청 식별자가 존재하는지 확인합니다.
+     */
+    public boolean hasRequestId() {
+        return requestId != null;
+    }
+
+    /**
+     * 세션 식별자가 존재하는지 확인합니다.
+     */
+    public boolean hasSessionId() {
+        return sessionId != null;
+    }
+
+    /**
+     * 확장 속성이 존재하는지 확인합니다.
+     */
+    public boolean hasAttributes() {
+        return !attributes.isEmpty();
+    }
+
+    /**
+     * 지정한 속성이 존재하는지 확인합니다.
+     *
+     * @param name 속성명
+     * @return 속성이 존재하면 {@code true}
+     */
+    public boolean containsAttribute(String name) {
+        return name != null
+                && attributes.containsKey(name);
+    }
+
+    /**
+     * 속성값을 반환합니다.
+     *
+     * @param name 속성명
+     * @return 속성값 또는 {@code null}
+     */
+    public Object getAttribute(String name) {
+        if (name == null) {
+            return null;
         }
 
-        return Optional.of(
-                projectRoot
-                        .resolve(currentDocument)
-                        .normalize()
-        );
+        return attributes.get(name);
     }
 
     /**
-     * 지정한 이름의 추가 속성을 조회합니다.
+     * 속성값을 지정한 타입으로 반환합니다.
      *
-     * @param name 속성 이름
-     * @return 속성 값
+     * @param name 속성명
+     * @param type 반환 타입
+     * @param <T>  반환 타입
+     * @return 속성값 또는 {@code null}
      */
-    public Optional<Object> attribute(
-            String name
-    ) {
-        if (name == null || name.isBlank()) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(
-                attributes.get(name)
-        );
-    }
-
-    /**
-     * 지정한 타입으로 추가 속성을 조회합니다.
-     *
-     * @param name 속성 이름
-     * @param type 기대 타입
-     * @param <T> 반환 타입
-     * @return 타입이 일치하는 속성 값
-     */
-    public <T> Optional<T> attribute(
+    public <T> T getAttribute(
             String name,
-            Class<T> type
-    ) {
+            Class<T> type) {
+
         Objects.requireNonNull(
                 type,
-                "type must not be null."
+                "type must not be null"
         );
 
-        return attribute(name)
-                .filter(type::isInstance)
-                .map(type::cast);
-    }
-
-    /**
-     * 추가 속성을 포함하는 새로운 ToolContext를 반환합니다.
-     *
-     * @param name 속성 이름
-     * @param value 속성 값
-     * @return 새로운 ToolContext
-     */
-    public ToolContext withAttribute(
-            String name,
-            Object value
-    ) {
-        String normalizedName = requireText(
-                name,
-                "name"
-        );
-
-        Map<String, Object> newAttributes =
-                new java.util.LinkedHashMap<>(
-                        attributes
-                );
+        Object value = getAttribute(name);
 
         if (value == null) {
-            newAttributes.remove(normalizedName);
-        } else {
-            newAttributes.put(
-                    normalizedName,
-                    value
+            return null;
+        }
+
+        if (!type.isInstance(value)) {
+            throw new IllegalArgumentException(
+                    "Tool context attribute type mismatch. "
+                            + "name=" + name
+                            + ", expected=" + type.getName()
+                            + ", actual="
+                            + value.getClass().getName()
             );
         }
 
-        return new ToolContext(
-                requestId,
-                projectId,
-                bookId,
-                projectRoot,
-                currentDocument,
-                userId,
-                startedAt,
-                newAttributes
-        );
+        return type.cast(value);
     }
 
     /**
-     * 현재 문서를 변경한 새로운 ToolContext를 반환합니다.
+     * 속성값을 기본값과 함께 반환합니다.
+     */
+    public <T> T getAttributeOrDefault(
+            String name,
+            Class<T> type,
+            T defaultValue) {
+
+        T value = getAttribute(name, type);
+
+        return value != null
+                ? value
+                : defaultValue;
+    }
+
+    /**
+     * 필수 속성값을 반환합니다.
      *
-     * @param document 프로젝트 상대 문서 경로
-     * @return 새로운 ToolContext
+     * @param name 속성명
+     * @return 속성값
+     * @throws IllegalArgumentException 속성이 없거나 값이 null인 경우
      */
-    public ToolContext withCurrentDocument(
-            Path document
-    ) {
-        return new ToolContext(
-                requestId,
-                projectId,
-                bookId,
-                projectRoot,
-                document,
-                userId,
-                startedAt,
-                attributes
-        );
+    public Object requireAttribute(String name) {
+        validateAttributeName(name);
+
+        if (!attributes.containsKey(name)) {
+            throw new IllegalArgumentException(
+                    "Required Tool context attribute is missing: "
+                            + name
+            );
+        }
+
+        Object value = attributes.get(name);
+
+        if (value == null) {
+            throw new IllegalArgumentException(
+                    "Required Tool context attribute "
+                            + "must not be null: "
+                            + name
+            );
+        }
+
+        return value;
     }
 
     /**
-     * 문자열이 비어 있지 않은지 확인합니다.
+     * 필수 속성값을 지정한 타입으로 반환합니다.
      */
-    private static String requireText(
-            String value,
-            String fieldName
-    ) {
-        if (value == null || value.isBlank()) {
+    public <T> T requireAttribute(
+            String name,
+            Class<T> type) {
+
+        Objects.requireNonNull(
+                type,
+                "type must not be null"
+        );
+
+        Object value = requireAttribute(name);
+
+        if (!type.isInstance(value)) {
             throw new IllegalArgumentException(
-                    fieldName + " must not be blank."
+                    "Required Tool context attribute type mismatch. "
+                            + "name=" + name
+                            + ", expected=" + type.getName()
+                            + ", actual="
+                            + value.getClass().getName()
             );
+        }
+
+        return type.cast(value);
+    }
+
+    /**
+     * 필수 문자열 속성을 반환합니다.
+     */
+    public String requireStringAttribute(String name) {
+        Object value = requireAttribute(name);
+
+        if (!(value instanceof String stringValue)) {
+            throw new IllegalArgumentException(
+                    "Required Tool context attribute "
+                            + "must be a string: "
+                            + name
+            );
+        }
+
+        if (stringValue.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Required Tool context string attribute "
+                            + "must not be blank: "
+                            + name
+            );
+        }
+
+        return stringValue;
+    }
+
+    private static String normalizeOptional(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
         }
 
         return value.trim();
     }
 
-    /**
-     * 선택 입력 문자열을 정규화합니다.
-     */
-    private static String normalizeText(
-            String value
-    ) {
-        return value == null || value.isBlank()
-                ? null
-                : value.trim();
-    }
+    private static Map<String, Object> immutableAttributes(
+            Map<String, Object> source) {
 
-    /**
-     * 경로를 절대 정규화합니다.
-     */
-    private static Path normalizePath(
-            Path path
-    ) {
-        return path == null
-                ? null
-                : path.toAbsolutePath().normalize();
-    }
-
-    /**
-     * 현재 문서는 프로젝트 상대 경로만 허용합니다.
-     */
-    private static Path normalizeRelativePath(
-            Path path
-    ) {
-        if (path == null) {
-            return null;
+        if (source == null || source.isEmpty()) {
+            return Map.of();
         }
 
-        Path normalized = path.normalize();
+        Map<String, Object> copied =
+                new LinkedHashMap<>();
 
-        if (normalized.isAbsolute()) {
-            throw new IllegalArgumentException(
-                    "currentDocument must be a project-relative path."
+        for (Map.Entry<String, Object> entry
+                : source.entrySet()) {
+
+            String name = entry.getKey();
+
+            validateAttributeName(name);
+
+            copied.put(
+                    name.trim(),
+                    deepCopyValue(entry.getValue())
             );
         }
 
-        if (normalized.startsWith("..")) {
-            throw new IllegalArgumentException(
-                    "currentDocument must not escape the project directory."
-            );
-        }
-
-        return normalized;
+        return Collections.unmodifiableMap(copied);
     }
 
     /**
-     * 현재 문서가 프로젝트 경로 밖으로 벗어나지 않는지 확인합니다.
+     * 중첩 Map과 Iterable을 복사하여 외부 변경 영향을 줄입니다.
      */
-    private static void validateCurrentDocument(
-            Path projectRoot,
-            Path currentDocument
-    ) {
-        if (projectRoot == null || currentDocument == null) {
-            return;
+    private static Object deepCopyValue(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> copied =
+                    new LinkedHashMap<>();
+
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (entry.getKey() == null) {
+                    throw new IllegalArgumentException(
+                            "Nested Tool context attribute Map "
+                                    + "must not contain null keys"
+                    );
+                }
+
+                copied.put(
+                        String.valueOf(entry.getKey()),
+                        deepCopyValue(entry.getValue())
+                );
+            }
+
+            return Collections.unmodifiableMap(copied);
         }
 
-        Path resolved = projectRoot
-                .resolve(currentDocument)
-                .normalize();
+        if (value instanceof Iterable<?> iterable) {
+            java.util.List<Object> copied =
+                    new java.util.ArrayList<>();
 
-        if (!resolved.startsWith(projectRoot)) {
+            for (Object item : iterable) {
+                copied.add(deepCopyValue(item));
+            }
+
+            return Collections.unmodifiableList(copied);
+        }
+
+        return value;
+    }
+
+    private static void validateAttributeName(String name) {
+        if (name == null || name.isBlank()) {
             throw new IllegalArgumentException(
-                    "currentDocument must be located inside projectRoot."
+                    "attribute name must not be blank"
             );
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ToolContext{"
+                + "requestId='" + requestId + '\''
+                + ", sessionId='" + sessionId + '\''
+                + ", attributeNames="
+                + attributes.keySet()
+                + '}';
+    }
+
+    /**
+     * ToolContext Builder입니다.
+     */
+    public static final class Builder {
+
+        private String requestId;
+        private String sessionId;
+
+        private final Map<String, Object> attributes =
+                new LinkedHashMap<>();
+
+        private Builder() {
+        }
+
+        private Builder(ToolContext source) {
+            this.requestId = source.requestId;
+            this.sessionId = source.sessionId;
+            this.attributes.putAll(source.attributes);
+        }
+
+        /**
+         * Agent 요청 식별자를 설정합니다.
+         */
+        public Builder requestId(String requestId) {
+            this.requestId = requestId;
+            return this;
+        }
+
+        /**
+         * 세션 식별자를 설정합니다.
+         */
+        public Builder sessionId(String sessionId) {
+            this.sessionId = sessionId;
+            return this;
+        }
+
+        /**
+         * 확장 속성을 추가하거나 변경합니다.
+         */
+        public Builder attribute(
+                String name,
+                Object value) {
+
+            validateAttributeName(name);
+
+            this.attributes.put(
+                    name.trim(),
+                    value
+            );
+
+            return this;
+        }
+
+        /**
+         * 여러 확장 속성을 추가합니다.
+         */
+        public Builder attributes(
+                Map<String, ?> attributes) {
+
+            Objects.requireNonNull(
+                    attributes,
+                    "attributes must not be null"
+            );
+
+            for (Map.Entry<String, ?> entry
+                    : attributes.entrySet()) {
+
+                attribute(
+                        entry.getKey(),
+                        entry.getValue()
+                );
+            }
+
+            return this;
+        }
+
+        /**
+         * 확장 속성을 제거합니다.
+         */
+        public Builder removeAttribute(String name) {
+            validateAttributeName(name);
+            this.attributes.remove(name);
+            return this;
+        }
+
+        /**
+         * 모든 확장 속성을 제거합니다.
+         */
+        public Builder clearAttributes() {
+            this.attributes.clear();
+            return this;
+        }
+
+        /**
+         * ToolContext를 생성합니다.
+         */
+        public ToolContext build() {
+            return new ToolContext(this);
         }
     }
 }
