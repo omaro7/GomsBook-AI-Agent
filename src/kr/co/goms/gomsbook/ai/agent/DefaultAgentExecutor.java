@@ -5,20 +5,17 @@
 package kr.co.goms.gomsbook.ai.agent;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import kr.co.goms.gomsbook.ai.json.JsonMapper;
 import kr.co.goms.gomsbook.ai.llm.LlmClient;
 import kr.co.goms.gomsbook.ai.llm.LlmMessage;
 import kr.co.goms.gomsbook.ai.llm.LlmRequest;
 import kr.co.goms.gomsbook.ai.llm.LlmResponse;
-import kr.co.goms.gomsbook.ai.llm.LlmRole;
 import kr.co.goms.gomsbook.ai.llm.LlmToolCall;
 import kr.co.goms.gomsbook.ai.llm.LlmToolDefinition;
-import kr.co.goms.gomsbook.ai.prompt.PromptService;
+import kr.co.goms.gomsbook.ai.llm.model.ChatModelProvider;
 import kr.co.goms.gomsbook.ai.tool.ToolContext;
 import kr.co.goms.gomsbook.ai.tool.ToolDefinitionProvider;
 import kr.co.goms.gomsbook.ai.tool.ToolExecutor;
@@ -39,27 +36,32 @@ public final class DefaultAgentExecutor
     private final LlmClient llmClient;
     private final ToolExecutor toolExecutor;
     private final ToolDefinitionProvider toolDefinitionProvider;
+    private final ChatModelProvider chatModelProvider;
 
     private final int maxIterations;
 
     public DefaultAgentExecutor(
             LlmClient llmClient,
             ToolExecutor toolExecutor,
-            ToolDefinitionProvider toolDefinitionProvider) {
+            ToolDefinitionProvider toolDefinitionProvider,
+            ChatModelProvider chatModelProvider) {
 
         this(
                 llmClient,
                 toolExecutor,
                 toolDefinitionProvider,
+                chatModelProvider,
                 DEFAULT_MAX_ITERATIONS
         );
     }
 
     public DefaultAgentExecutor(
-            LlmClient llmClient,
-            ToolExecutor toolExecutor,
-            ToolDefinitionProvider toolDefinitionProvider,
-            int maxIterations) {
+    	    LlmClient llmClient,
+    	    ToolExecutor toolExecutor,
+    	    ToolDefinitionProvider toolDefinitionProvider,
+    	    ChatModelProvider chatModelProvider,
+    	    int maxIterations
+    	) {
 
         this.llmClient =
                 Objects.requireNonNull(
@@ -78,7 +80,9 @@ public final class DefaultAgentExecutor
                         toolDefinitionProvider,
                         "toolDefinitionProvider must not be null"
                 );
-
+        
+	    this.chatModelProvider = Objects.requireNonNull(chatModelProvider);
+	    
         if (maxIterations <= 0) {
             throw new IllegalArgumentException(
                     "maxIterations must be greater than zero"

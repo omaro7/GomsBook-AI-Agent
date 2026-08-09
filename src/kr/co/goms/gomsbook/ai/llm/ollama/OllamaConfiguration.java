@@ -10,6 +10,12 @@ import java.util.Objects;
 
 /**
  * Ollama 연결 및 실행 설정입니다.
+ * 
+ * OllamaConfiguration configuration = OllamaConfiguration.builder()
+        .baseUrl("http://localhost:11434")
+        .chatModel("gemma4:31b-cloud")
+        .embeddingModel("nomic-embed-text")
+        .build();
  */
 public final class OllamaConfiguration {
 
@@ -33,6 +39,9 @@ public final class OllamaConfiguration {
 
     private final boolean enabled;
     private final String versionEndpoint;
+    
+    private final String chatModel;
+    private final String embeddingModel;
 
     private OllamaConfiguration(Builder builder) {
 
@@ -41,7 +50,17 @@ public final class OllamaConfiguration {
 
         this.model =
                 normalizeOptional(builder.model);
+        
+        this.chatModel = requireText(
+                builder.chatModel,
+                "chatModel"
+            );
 
+        this.embeddingModel = requireText(
+                builder.embeddingModel,
+                "embeddingModel"
+            );
+		
         this.connectTimeout =
                 validateDuration(
                         builder.connectTimeout,
@@ -105,6 +124,14 @@ public final class OllamaConfiguration {
 
     public String getVersionEndpoint() {
         return versionEndpoint;
+    }
+    
+    public String getChatModel() {
+        return chatModel;
+    }
+
+    public String getEmbeddingModel() {
+        return embeddingModel;
     }
 
     // =========================================================
@@ -300,6 +327,22 @@ public final class OllamaConfiguration {
 
         return value;
     }
+    
+    private static String requireText(
+            String value,
+            String fieldName
+        ) {
+            String normalized =
+                Objects.requireNonNullElse(value, "").trim();
+
+            if (normalized.isBlank()) {
+                throw new IllegalArgumentException(
+                    fieldName + " must not be blank"
+                );
+            }
+
+            return normalized;
+        }
 
     @Override
     public String toString() {
@@ -327,6 +370,10 @@ public final class OllamaConfiguration {
 
         private String model;
 
+        private String chatModel = "gemma4:31b-cloud";
+        
+        private String embeddingModel = "nomic-embed-text";
+        
         private Duration connectTimeout =
                 DEFAULT_CONNECT_TIMEOUT;
 
@@ -370,6 +417,18 @@ public final class OllamaConfiguration {
 
         public Builder model(String model) {
             this.model = model;
+            return this;
+        }
+        
+        public Builder chatModel(String chatModel) {
+            this.chatModel = chatModel;
+            return this;
+        }
+
+        public Builder embeddingModel(
+            String embeddingModel
+        ) {
+            this.embeddingModel = embeddingModel;
             return this;
         }
 
