@@ -4,14 +4,8 @@
  */
 package kr.co.goms.gomsbook.ai.tools.image;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -19,23 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import kr.co.goms.gomsbook.ai.json.JsonMapper;
+import kr.co.goms.gomsbook.ai.accessibility.application.AltTextApplicationException;
+import kr.co.goms.gomsbook.ai.accessibility.application.AltTextApplicationRequest;
+import kr.co.goms.gomsbook.ai.accessibility.application.AltTextApplicationResult;
+import kr.co.goms.gomsbook.ai.accessibility.application.AltTextApplicator;
+import kr.co.goms.gomsbook.ai.accessibility.model.ImageAccessibilityType;
 import kr.co.goms.gomsbook.ai.tool.AgentTool;
 import kr.co.goms.gomsbook.ai.tool.ToolContext;
 import kr.co.goms.gomsbook.ai.tool.ToolIssue;
@@ -45,38 +27,56 @@ import kr.co.goms.gomsbook.ai.tool.ToolResult;
 import kr.co.goms.gomsbook.ai.tool.ToolStatus;
 
 /**
- * 이미지 분석 결과의 대체 텍스트를 XHTML img 요소에 적용하는 Tool.
+ * 이미지 대체 텍스트와 관련 접근성 속성을 XHTML img 요소에
+ * 적용하는 Agent Tool.
  *
- * <p>대상 이미지 검색 우선순위:</p>
- * <ol>
- *     <li>img 요소의 id</li>
- *     <li>img 요소의 src</li>
- *     <li>문서 내 img 요소 순번</li>
- * </ol>
+ * <p>
+ * XHTML 파싱, img 요소 탐색, 기존 alt 충돌 검사,
+ * 접근성 속성 변경, 백업 및 저장은 직접 처리하지 않고
+ * {@link AltTextApplicator} 구현체에 위임합니다.
+ * </p>
  *
- * <p>장식 이미지인 경우 다음 속성을 적용한다.</p>
  * <pre>
- * alt=""
- * role="presentation"
- * aria-hidden="true"
+ * ApplyAltTextTool
+ *      ↓
+ * AltTextApplicationRequest
+ *      ↓
+ * AltTextApplicator
+ *      ↓
+ * DefaultAltTextApplicator
  * </pre>
  */
-public final class ApplyAltTextTool implements AgentTool {
+public final class ApplyAltTextTool
+        implements AgentTool {
 
-    public static final String TOOL_NAME = "apply_alt_text";
+    public static final String TOOL_NAME =
+            "apply_alt_text";
 
     private static final String TOOL_DESCRIPTION =
-            "이미지 분석 결과의 대체 텍스트를 XHTML img 요소에 적용합니다.";
+            "이미지 대체 텍스트와 접근성 속성을 "
+                    + "XHTML img 요소에 적용합니다.";
 
-    private static final String XHTML_EXTENSION = ".xhtml";
-    private static final String BACKUP_EXTENSION = ".bak";
+    private static final int DEFAULT_MAX_ALT_LENGTH =
+            100;
 
-    private final JsonMapper jsonMapper;
+    private static final int MAX_ALT_LENGTH =
+            2000;
 
-    public ApplyAltTextTool(JsonMapper jsonMapper) {
-        this.jsonMapper = Objects.requireNonNull(
-                jsonMapper,
-                "jsonMapper must not be null");
+    private final AltTextApplicator altTextApplicator;
+
+    /**
+     * AltTextApplicator 기반 Tool을 생성합니다.
+     *
+     * @param altTextApplicator 대체 텍스트 적용 서비스
+     */
+    public ApplyAltTextTool(
+            AltTextApplicator altTextApplicator) {
+
+        this.altTextApplicator =
+                Objects.requireNonNull(
+                        altTextApplicator,
+                        "altTextApplicator must not be null"
+                );
     }
 
     @Override
@@ -98,21 +98,29 @@ public final class ApplyAltTextTool implements AgentTool {
             return failure(
                     ToolStatus.FAILED,
                     "TOOL_REQUEST_REQUIRED",
-                    "ToolRequest가 없습니다.");
+                    "ToolRequest가 없습니다."
+            );
         }
 
         try {
             ApplyAltTextRequest request =
-                    parseRequest(toolRequest);
+                    parseRequest(
+                            toolRequest
+                    );
 
             List<ToolIssue> validationIssues =
-                    validateRequest(request);
+                    validateRequest(
+                            request
+                    );
 
             if (!validationIssues.isEmpty()) {
                 return ToolResult.builder()
                         .toolName(TOOL_NAME)
                         .status(ToolStatus.FAILED)
-                        .message("대체 텍스트 적용 요청이 올바르지 않습니다.")
+                        .message(
+                                "대체 텍스트 적용 요청이 "
+                                        + "올바르지 않습니다."
+                        )
                         .issues(validationIssues)
                         .build();
             }
@@ -120,75 +128,66 @@ public final class ApplyAltTextTool implements AgentTool {
             Path projectRoot =
                     resolveProjectRoot(
                             request,
-                            toolContext);
+                            toolContext
+                    );
 
             Path xhtmlPath =
                     resolveXhtmlPath(
                             request,
-                            projectRoot);
+                            projectRoot
+                    );
 
-            validateXhtmlFile(xhtmlPath);
+            AltTextApplicationRequest
+                    applicationRequest =
+                    createApplicationRequest(
+                            request,
+                            projectRoot,
+                            xhtmlPath
+                    );
 
-            Document document =
-                    parseXhtml(xhtmlPath);
+            /*
+             * Applicator가 현재 요청을 처리할 수 있는지
+             * 먼저 확인합니다.
+             */
+            if (!altTextApplicator.supports(
+                    applicationRequest)) {
 
-            ImageElementMatch imageMatch =
-                    findTargetImage(
-                            document,
-                            request);
-
-            if (imageMatch == null) {
                 return failure(
                         ToolStatus.FAILED,
-                        "IMAGE_ELEMENT_NOT_FOUND",
-                        createImageNotFoundMessage(request));
+                        "ALT_TEXT_APPLICATION_UNSUPPORTED",
+                        "현재 AltTextApplicator가 "
+                                + "이 요청을 지원하지 않습니다."
+                );
             }
 
-            Element imageElement =
-                    imageMatch.getElement();
+            AltTextApplicationResult result =
+                    altTextApplicator.apply(
+                            applicationRequest
+                    );
 
-            String previousAlt =
-                    imageElement.hasAttribute("alt")
-                            ? imageElement.getAttribute("alt")
-                            : null;
-
-            applyAltText(
-                    imageElement,
-                    request);
-
-            Path backupPath = null;
-
-            if (request.isCreateBackup()) {
-                backupPath =
-                        createBackup(xhtmlPath);
+            if (result == null) {
+                return failure(
+                        ToolStatus.FAILED,
+                        "ALT_TEXT_APPLICATION_EMPTY",
+                        "대체 텍스트 적용 결과가 없습니다."
+                );
             }
 
-            String serializedXhtml =
-                    serializeXhtml(document);
+            Map<String, Object> data =
+                    createOutput(
+                            result
+                    );
 
-            writeXhtml(
-                    xhtmlPath,
-                    serializedXhtml);
-
-            ApplyAltTextResponse response =
-                    createResponse(
-                            projectRoot,
-                            xhtmlPath,
-                            backupPath,
-                            imageMatch,
-                            previousAlt,
-                            request);
-
-            Map<String, Object> data = new LinkedHashMap<>();
-
-            data.put(
-                    "response",
-                    response);
-            
             return ToolResult.builder()
                     .toolName(TOOL_NAME)
-                    .status(ToolStatus.SUCCESS)
-                    .message("이미지 대체 텍스트를 XHTML에 적용했습니다.")
+                    .status(
+                            ToolStatus.SUCCESS
+                    )
+                    .message(
+                            createSuccessMessage(
+                                    result
+                            )
+                    )
                     .data(data)
                     .build();
 
@@ -197,53 +196,59 @@ public final class ApplyAltTextTool implements AgentTool {
                     ToolStatus.FAILED,
                     "INVALID_XHTML_PATH",
                     "유효하지 않은 XHTML 경로입니다: "
-                            + exception.getInput());
+                            + exception.getInput()
+            );
 
-        } catch (ParserConfigurationException exception) {
-            return failure(
-                    ToolStatus.FAILED,
-                    "XML_PARSER_CONFIGURATION_FAILED",
-                    buildExceptionMessage(exception));
-
-        } catch (SAXException exception) {
-            return failure(
-                    ToolStatus.FAILED,
-                    "INVALID_XHTML_DOCUMENT",
-                    "XHTML 문서를 XML로 해석할 수 없습니다: "
-                            + buildExceptionMessage(exception));
-
-        } catch (TransformerException exception) {
-            return failure(
-                    ToolStatus.FAILED,
-                    "XHTML_SERIALIZATION_FAILED",
-                    buildExceptionMessage(exception));
-
-        } catch (IOException exception) {
-            return failure(
-                    ToolStatus.FAILED,
-                    "XHTML_FILE_OPERATION_FAILED",
-                    buildExceptionMessage(exception));
+        } catch (AltTextApplicationException exception) {
+            return ToolResult.builder()
+                    .toolName(TOOL_NAME)
+                    .status(ToolStatus.FAILED)
+                    .message(
+                            "대체 텍스트 적용에 실패했습니다: "
+                                    + safeMessage(
+                                            exception
+                                    )
+                    )
+                    .cause(exception)
+                    .build();
 
         } catch (SecurityException exception) {
             return failure(
                     ToolStatus.FAILED,
                     "XHTML_PATH_ACCESS_DENIED",
-                    buildExceptionMessage(exception));
+                    safeMessage(exception)
+            );
 
         } catch (IllegalArgumentException exception) {
             return failure(
                     ToolStatus.FAILED,
                     "INVALID_ALT_TEXT_REQUEST",
-                    buildExceptionMessage(exception));
+                    safeMessage(exception)
+            );
 
-        } catch (Exception exception) {
-            return failure(
-                    ToolStatus.FAILED,
-                    "ALT_TEXT_APPLY_FAILED",
-                    buildExceptionMessage(exception));
+        } catch (RuntimeException exception) {
+            return ToolResult.builder()
+                    .toolName(TOOL_NAME)
+                    .status(ToolStatus.FAILED)
+                    .message(
+                            "대체 텍스트 적용 중 "
+                                    + "예상하지 못한 오류가 발생했습니다: "
+                                    + safeMessage(
+                                            exception
+                                    )
+                    )
+                    .cause(exception)
+                    .build();
         }
     }
 
+    /**
+     * ToolRequest arguments를 Tool 입력 DTO로 변환합니다.
+     *
+     * <p>
+     * JsonMapper 의존성을 제거하고 Map 기반으로 직접 읽습니다.
+     * </p>
+     */
     private ApplyAltTextRequest parseRequest(
             ToolRequest toolRequest) {
 
@@ -252,23 +257,224 @@ public final class ApplyAltTextTool implements AgentTool {
 
         if (arguments == null) {
             throw new IllegalArgumentException(
-                    "대체 텍스트 적용 인자가 없습니다.");
+                    "대체 텍스트 적용 인자가 없습니다."
+            );
         }
 
-        if (arguments instanceof ApplyAltTextRequest) {
-            return (ApplyAltTextRequest) arguments;
+        if (arguments
+                instanceof ApplyAltTextRequest request) {
+
+            return request;
         }
 
-        String json = jsonMapper.toJson(arguments);
+        if (!(arguments
+                instanceof Map<?, ?> map)) {
+
+            throw new IllegalArgumentException(
+                    "대체 텍스트 적용 인자는 "
+                            + "Object 또는 Map 형식이어야 합니다."
+            );
+        }
 
         ApplyAltTextRequest request =
-                jsonMapper.fromJson(
-                        json,
-                        ApplyAltTextRequest.class);
+                new ApplyAltTextRequest();
 
-        if (request == null) {
-            throw new IllegalArgumentException(
-                    "대체 텍스트 적용 요청을 변환할 수 없습니다.");
+        request.setProjectRoot(
+                readString(
+                        map,
+                        "projectRoot"
+                )
+        );
+
+        /*
+         * 기존 Tool 계약과 새 접근성 Tool 계약을
+         * 모두 받을 수 있도록 별칭을 지원합니다.
+         */
+        request.setXhtmlPath(
+                firstNonBlank(
+                        readString(
+                                map,
+                                "xhtmlPath"
+                        ),
+                        readString(
+                                map,
+                                "documentPath"
+                        )
+                )
+        );
+
+        request.setImageElementId(
+                readString(
+                        map,
+                        "imageElementId"
+                )
+        );
+
+        request.setImageSrc(
+                firstNonBlank(
+                        readString(
+                                map,
+                                "imageSrc"
+                        ),
+                        readString(
+                                map,
+                                "imageSource"
+                        )
+                )
+        );
+
+        request.setAccessibilityType(
+                readString(
+                        map,
+                        "accessibilityType"
+                )
+        );
+
+        request.setAltText(
+                readString(
+                        map,
+                        "altText"
+                )
+        );
+
+        request.setDetailedDescription(
+                readString(
+                        map,
+                        "detailedDescription"
+                )
+        );
+
+        request.setExpectedCurrentAlt(
+                readStringAllowEmpty(
+                        map,
+                        "expectedCurrentAlt"
+                )
+        );
+
+        Integer maxAltLength =
+                firstNonNull(
+                        readInteger(
+                                map,
+                                "maxAltLength"
+                        ),
+                        readInteger(
+                                map,
+                                "maxAltTextLength"
+                        )
+                );
+
+        if (maxAltLength != null) {
+            request.setMaxAltLength(
+                    maxAltLength
+            );
+        }
+
+        Boolean decorative =
+                readBoolean(
+                        map,
+                        "decorative"
+                );
+
+        if (decorative != null) {
+            request.setDecorative(
+                    decorative
+            );
+        }
+
+        Boolean overwriteExisting =
+                readBoolean(
+                        map,
+                        "overwriteExisting"
+                );
+
+        if (overwriteExisting != null) {
+            request.setOverwriteExisting(
+                    overwriteExisting
+            );
+        }
+
+        Boolean removeTitle =
+                readBoolean(
+                        map,
+                        "removeTitle"
+                );
+
+        if (removeTitle != null) {
+            request.setRemoveTitle(
+                    removeTitle
+            );
+        }
+
+        Boolean removeAriaLabel =
+                readBoolean(
+                        map,
+                        "removeAriaLabel"
+                );
+
+        if (removeAriaLabel != null) {
+            request.setRemoveAriaLabel(
+                    removeAriaLabel
+            );
+        }
+
+        Boolean applyPresentationRole =
+                readBoolean(
+                        map,
+                        "applyPresentationRole"
+                );
+
+        if (applyPresentationRole != null) {
+            request.setApplyPresentationRole(
+                    applyPresentationRole
+            );
+        }
+
+        Boolean applyAriaHidden =
+                readBoolean(
+                        map,
+                        "applyAriaHidden"
+                );
+
+        if (applyAriaHidden != null) {
+            request.setApplyAriaHidden(
+                    applyAriaHidden
+            );
+        }
+
+        Boolean createBackup =
+                readBoolean(
+                        map,
+                        "createBackup"
+                );
+
+        if (createBackup != null) {
+            request.setCreateBackup(
+                    createBackup
+            );
+        }
+
+        Boolean dryRun =
+                readBoolean(
+                        map,
+                        "dryRun"
+                );
+
+        if (dryRun != null) {
+            request.setDryRun(
+                    dryRun
+            );
+        }
+
+        Boolean restrictToProject =
+                readBoolean(
+                        map,
+                        "restrictToProject"
+                );
+
+        if (restrictToProject != null) {
+            request.setRestrictToProject(
+                    restrictToProject
+            );
         }
 
         return request;
@@ -281,58 +487,118 @@ public final class ApplyAltTextTool implements AgentTool {
             return Collections.singletonList(
                     issue(
                             "REQUEST_REQUIRED",
-                            "대체 텍스트 적용 요청이 없습니다."));
+                            "대체 텍스트 적용 요청이 없습니다."
+                    )
+            );
         }
 
         List<ToolIssue> issues =
                 new ArrayList<>();
 
-        if (isBlank(request.getXhtmlPath())) {
+        if (isBlank(
+                request.getXhtmlPath())) {
+
             issues.add(
                     issue(
                             "XHTML_PATH_REQUIRED",
-                            "대상 XHTML 경로가 필요합니다."));
+                            "대상 XHTML 경로가 필요합니다."
+                    )
+            );
         }
 
-        boolean hasSelector =
-                !isBlank(request.getImageElementId())
-                        || !isBlank(request.getImageSrc())
-                        || request.getImageIndex() >= 0;
+        if (isBlank(
+                request.getImageElementId())
+                && isBlank(
+                        request.getImageSrc())) {
 
-        if (!hasSelector) {
             issues.add(
                     issue(
                             "IMAGE_SELECTOR_REQUIRED",
-                            "이미지를 찾기 위한 id, src 또는 imageIndex가 필요합니다."));
+                            "imageElementId 또는 "
+                                    + "imageSource가 필요합니다."
+                    )
+            );
         }
 
-        if (!request.isDecorative()
-                && isBlank(request.getAltText())) {
+        ImageAccessibilityType accessibilityType =
+                resolveAccessibilityType(
+                        request
+                );
+
+        if (accessibilityType
+                == ImageAccessibilityType.UNKNOWN) {
+
+            issues.add(
+                    issue(
+                            "ACCESSIBILITY_TYPE_REQUIRED",
+                            "유효한 이미지 접근성 유형이 필요합니다."
+                    )
+            );
+        }
+
+        if (accessibilityType
+                != ImageAccessibilityType.UNKNOWN
+                && accessibilityType
+                        .isAltTextRequired()
+                && isBlank(
+                        request.getAltText())) {
 
             issues.add(
                     issue(
                             "ALT_TEXT_REQUIRED",
-                            "비장식 이미지에는 대체 텍스트가 필요합니다."));
+                            "비장식 이미지에는 "
+                                    + "대체 텍스트가 필요합니다."
+                    )
+            );
         }
 
-        if (request.getMaxAltLength() < 0) {
+        if (accessibilityType
+                != ImageAccessibilityType.UNKNOWN
+                && accessibilityType.isDecorative()
+                && !isBlank(
+                        request.getAltText())) {
+
+            issues.add(
+                    issue(
+                            "DECORATIVE_ALT_NOT_EMPTY",
+                            "장식 이미지는 빈 alt를 사용해야 합니다."
+                    )
+            );
+        }
+
+        if (request.getMaxAltLength() < 0
+                || request.getMaxAltLength()
+                        > MAX_ALT_LENGTH) {
+
             issues.add(
                     issue(
                             "INVALID_MAX_ALT_LENGTH",
-                            "대체 텍스트 최대 길이는 0 이상이어야 합니다."));
+                            "대체 텍스트 최대 길이는 0~"
+                                    + MAX_ALT_LENGTH
+                                    + " 사이여야 합니다."
+                    )
+            );
         }
 
-        if (!request.isDecorative()
-                && request.getMaxAltLength() > 0
-                && request.getAltText() != null
-                && request.getAltText().trim().length()
-                        > request.getMaxAltLength()
-                && !request.isTruncateAltText()) {
+        if (request.getMaxAltLength() > 0
+                && !isBlank(
+                        request.getAltText())
+                && request
+                        .getAltText()
+                        .trim()
+                        .length()
+                        > request
+                                .getMaxAltLength()) {
 
             issues.add(
                     issue(
                             "ALT_TEXT_TOO_LONG",
-                            "대체 텍스트가 최대 길이를 초과했습니다."));
+                            "대체 텍스트가 최대 길이 "
+                                    + request
+                                            .getMaxAltLength()
+                                    + "자를 초과했습니다."
+                    )
+            );
         }
 
         return issues;
@@ -343,44 +609,37 @@ public final class ApplyAltTextTool implements AgentTool {
             ToolContext toolContext) {
 
         String projectRootValue =
-                trimToNull(request.getProjectRoot());
+                trimToNull(
+                        request.getProjectRoot()
+                );
 
         if (projectRootValue == null) {
             projectRootValue =
                     getContextString(
                             toolContext,
-                            "projectRoot");
+                            "projectRoot"
+                    );
         }
 
         if (projectRootValue == null) {
             projectRootValue =
                     getContextString(
                             toolContext,
-                            "projectPath");
+                            "projectPath"
+                    );
         }
 
         if (projectRootValue == null) {
-            return null;
-        }
-
-        Path projectRoot =
-                Path.of(projectRootValue)
-                        .toAbsolutePath()
-                        .normalize();
-
-        if (!Files.exists(projectRoot)) {
             throw new IllegalArgumentException(
-                    "프로젝트 루트가 존재하지 않습니다: "
-                            + projectRoot);
+                    "프로젝트 루트가 필요합니다."
+            );
         }
 
-        if (!Files.isDirectory(projectRoot)) {
-            throw new IllegalArgumentException(
-                    "프로젝트 루트가 디렉터리가 아닙니다: "
-                            + projectRoot);
-        }
-
-        return projectRoot;
+        return Path.of(
+                projectRootValue
+        )
+        .toAbsolutePath()
+        .normalize();
     }
 
     private Path resolveXhtmlPath(
@@ -388,587 +647,386 @@ public final class ApplyAltTextTool implements AgentTool {
             Path projectRoot) {
 
         Path requestedPath =
-                Path.of(request.getXhtmlPath().trim());
+                Path.of(
+                        request
+                                .getXhtmlPath()
+                                .trim()
+                );
 
         Path xhtmlPath;
 
         if (requestedPath.isAbsolute()) {
             xhtmlPath =
-                    requestedPath.toAbsolutePath()
-                            .normalize();
-
-            if (projectRoot != null
-                    && request.isRestrictToProject()
-                    && !xhtmlPath.startsWith(projectRoot)) {
-
-                throw new SecurityException(
-                        "프로젝트 루트 외부 XHTML은 수정할 수 없습니다.");
-            }
-
-        } else {
-            if (projectRoot == null) {
-                throw new IllegalArgumentException(
-                        "상대 XHTML 경로를 사용하려면 프로젝트 루트가 필요합니다.");
-            }
-
-            xhtmlPath =
-                    projectRoot.resolve(requestedPath)
+                    requestedPath
                             .toAbsolutePath()
                             .normalize();
 
-            if (!xhtmlPath.startsWith(projectRoot)) {
-                throw new SecurityException(
-                        "프로젝트 루트 외부 XHTML은 수정할 수 없습니다.");
-            }
+        } else {
+            xhtmlPath =
+                    projectRoot
+                            .resolve(
+                                    requestedPath
+                            )
+                            .toAbsolutePath()
+                            .normalize();
+        }
+
+        if (request.isRestrictToProject()
+                && !xhtmlPath.startsWith(
+                        projectRoot)) {
+
+            throw new SecurityException(
+                    "프로젝트 루트 외부 XHTML은 "
+                            + "수정할 수 없습니다."
+            );
         }
 
         return xhtmlPath;
     }
 
-    private void validateXhtmlFile(
-            Path xhtmlPath) {
+    private AltTextApplicationRequest
+            createApplicationRequest(
+                    ApplyAltTextRequest request,
+                    Path projectRoot,
+                    Path xhtmlPath) {
 
-        if (!Files.exists(xhtmlPath)) {
-            throw new IllegalArgumentException(
-                    "XHTML 파일이 존재하지 않습니다: "
-                            + xhtmlPath);
-        }
-
-        if (!Files.isRegularFile(xhtmlPath)) {
-            throw new IllegalArgumentException(
-                    "XHTML 경로가 일반 파일이 아닙니다: "
-                            + xhtmlPath);
-        }
-
-        if (!Files.isReadable(xhtmlPath)) {
-            throw new IllegalArgumentException(
-                    "XHTML 파일을 읽을 수 없습니다: "
-                            + xhtmlPath);
-        }
-
-        if (!Files.isWritable(xhtmlPath)) {
-            throw new IllegalArgumentException(
-                    "XHTML 파일을 수정할 수 없습니다: "
-                            + xhtmlPath);
-        }
-
-        String fileName =
-                xhtmlPath.getFileName()
-                        .toString()
-                        .toLowerCase();
-
-        if (!fileName.endsWith(XHTML_EXTENSION)) {
-            throw new IllegalArgumentException(
-                    "대상 파일의 확장자는 .xhtml이어야 합니다.");
-        }
-    }
-
-    /**
-     * 외부 엔티티와 외부 DTD 접근을 차단한 XML 파서를 생성한다.
-     */
-    private Document parseXhtml(
-            Path xhtmlPath)
-            throws ParserConfigurationException,
-            IOException,
-            SAXException {
-
-        DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-
-        factory.setNamespaceAware(true);
-        factory.setXIncludeAware(false);
-        factory.setExpandEntityReferences(false);
-
-        setFeature(
-                factory,
-                "http://apache.org/xml/features/disallow-doctype-decl",
-                false);
-
-        setFeature(
-                factory,
-                "http://xml.org/sax/features/external-general-entities",
-                false);
-
-        setFeature(
-                factory,
-                "http://xml.org/sax/features/external-parameter-entities",
-                false);
-
-        setFeature(
-                factory,
-                "http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                false);
-
-        try {
-            factory.setAttribute(
-                    XMLConstants.ACCESS_EXTERNAL_DTD,
-                    "");
-        } catch (IllegalArgumentException ignored) {
-            // 사용 중인 XML 구현체가 지원하지 않을 수 있다.
-        }
-
-        try {
-            factory.setAttribute(
-                    XMLConstants.ACCESS_EXTERNAL_SCHEMA,
-                    "");
-        } catch (IllegalArgumentException ignored) {
-            // 사용 중인 XML 구현체가 지원하지 않을 수 있다.
-        }
-
-        DocumentBuilder builder =
-                factory.newDocumentBuilder();
-
-        return builder.parse(
-                xhtmlPath.toFile());
-    }
-
-    private void setFeature(
-            DocumentBuilderFactory factory,
-            String feature,
-            boolean enabled) {
-
-        try {
-            factory.setFeature(
-                    feature,
-                    enabled);
-        } catch (ParserConfigurationException ignored) {
-            /*
-             * XML 구현체별 지원 기능이 다를 수 있다.
-             * 지원되는 보안 설정은 계속 적용한다.
-             */
-        }
-    }
-
-    private ImageElementMatch findTargetImage(
-            Document document,
-            ApplyAltTextRequest request) {
-
-        NodeList imageNodes =
-                document.getElementsByTagNameNS(
-                        "*",
-                        "img");
-
-        if (imageNodes.getLength() == 0) {
-            imageNodes =
-                    document.getElementsByTagName("img");
-        }
-
-        if (!isBlank(request.getImageElementId())) {
-            ImageElementMatch match =
-                    findByElementId(
-                            imageNodes,
-                            request.getImageElementId());
-
-            if (match != null) {
-                return match;
-            }
-        }
-
-        if (!isBlank(request.getImageSrc())) {
-            ImageElementMatch match =
-                    findBySource(
-                            imageNodes,
-                            request.getImageSrc(),
-                            request.isMatchSourceFileNameOnly());
-
-            if (match != null) {
-                return match;
-            }
-        }
-
-        if (request.getImageIndex() >= 0
-                && request.getImageIndex()
-                        < imageNodes.getLength()) {
-
-            Element element =
-                    (Element) imageNodes.item(
-                            request.getImageIndex());
-
-            return new ImageElementMatch(
-                    element,
-                    request.getImageIndex(),
-                    "index");
-        }
-
-        return null;
-    }
-
-    private ImageElementMatch findByElementId(
-            NodeList imageNodes,
-            String imageElementId) {
-
-        String expectedId =
-                imageElementId.trim();
-
-        for (int index = 0;
-                index < imageNodes.getLength();
-                index++) {
-
-            Element imageElement =
-                    (Element) imageNodes.item(index);
-
-            if (expectedId.equals(
-                    imageElement.getAttribute("id"))) {
-
-                return new ImageElementMatch(
-                        imageElement,
-                        index,
-                        "id");
-            }
-        }
-
-        return null;
-    }
-
-    private ImageElementMatch findBySource(
-            NodeList imageNodes,
-            String imageSrc,
-            boolean fileNameOnly) {
-
-        String expectedSource =
-                normalizePathValue(imageSrc);
-
-        String expectedFileName =
-                extractFileName(expectedSource);
-
-        for (int index = 0;
-                index < imageNodes.getLength();
-                index++) {
-
-            Element imageElement =
-                    (Element) imageNodes.item(index);
-
-            String currentSource =
-                    normalizePathValue(
-                            imageElement.getAttribute("src"));
-
-            boolean matched;
-
-            if (fileNameOnly) {
-                matched =
-                        expectedFileName.equals(
-                                extractFileName(currentSource));
-            } else {
-                matched =
-                        expectedSource.equals(currentSource);
-            }
-
-            if (matched) {
-                return new ImageElementMatch(
-                        imageElement,
-                        index,
-                        "src");
-            }
-        }
-
-        return null;
-    }
-
-    private void applyAltText(
-            Element imageElement,
-            ApplyAltTextRequest request) {
-
-        if (request.isDecorative()) {
-            applyDecorativeAttributes(
-                    imageElement,
-                    request);
-
-            return;
-        }
+        ImageAccessibilityType accessibilityType =
+                resolveAccessibilityType(
+                        request
+                );
 
         String altText =
-                normalizeAltText(
-                        request.getAltText(),
-                        request.getMaxAltLength(),
-                        request.isTruncateAltText());
+                accessibilityType.isDecorative()
+                        ? ""
+                        : normalizeAltText(
+                                request.getAltText(),
+                                request.getMaxAltLength()
+                        );
 
-        imageElement.setAttribute(
-                "alt",
-                altText);
+        AltTextApplicationRequest.Builder builder =
+                AltTextApplicationRequest.builder()
+                        .projectRoot(
+                                projectRoot
+                        )
+                        .xhtmlPath(
+                                xhtmlPath
+                        )
+                        .imageElementId(
+                                trimToNull(
+                                        request
+                                                .getImageElementId()
+                                )
+                        )
+                        .imageSource(
+                                trimToNull(
+                                        request
+                                                .getImageSrc()
+                                )
+                        )
+                        .accessibilityType(
+                                accessibilityType
+                        )
+                        .altText(
+                                altText
+                        )
+                        .detailedDescription(
+                                trimToNull(
+                                        request
+                                                .getDetailedDescription()
+                                )
+                        )
+                        .overwriteExisting(
+                                request
+                                        .isOverwriteExisting()
+                        )
+                        .removeTitle(
+                                request.isRemoveTitle()
+                        )
+                        .removeAriaLabel(
+                                request
+                                        .isRemoveAriaLabel()
+                        )
+                        .applyPresentationRole(
+                                request
+                                        .isApplyPresentationRole()
+                        )
+                        .applyAriaHidden(
+                                request
+                                        .isApplyAriaHidden()
+                        )
+                        .createBackup(
+                                request
+                                        .isCreateBackup()
+                        )
+                        .dryRun(
+                                request.isDryRun()
+                        )
+                        .metadata(
+                                "toolName",
+                                TOOL_NAME
+                        );
 
         /*
-         * 이전에 장식 이미지로 설정했던 속성만 제거한다.
+         * null과 ""은 의미가 다릅니다.
+         *
+         * null:
+         * 현재 alt 값 비교를 하지 않음.
+         *
+         * "":
+         * 현재 alt="" 상태일 때만 적용.
          */
-        if ("presentation".equalsIgnoreCase(
-                imageElement.getAttribute("role"))) {
-
-            imageElement.removeAttribute("role");
+        if (request.hasExpectedCurrentAlt()) {
+            builder.expectedCurrentAlt(
+                    request
+                            .getExpectedCurrentAlt()
+            );
         }
 
-        if ("true".equalsIgnoreCase(
-                imageElement.getAttribute("aria-hidden"))) {
-
-            imageElement.removeAttribute("aria-hidden");
-        }
-
-        if (request.isApplyAriaLabel()) {
-            imageElement.setAttribute(
-                    "aria-label",
-                    altText);
-        } else {
-            imageElement.removeAttribute(
-                    "aria-label");
-        }
-
-        if (request.isApplyTitleAttribute()) {
-            imageElement.setAttribute(
-                    "title",
-                    altText);
-        }
+        return builder.build();
     }
 
-    private void applyDecorativeAttributes(
-            Element imageElement,
-            ApplyAltTextRequest request) {
+    private ImageAccessibilityType
+            resolveAccessibilityType(
+                    ApplyAltTextRequest request) {
 
-        imageElement.setAttribute(
-                "alt",
-                "");
+        String value =
+                trimToNull(
+                        request.getAccessibilityType()
+                );
 
-        imageElement.removeAttribute(
-                "aria-label");
-
-        if (request.isApplyDecorativeAttributes()) {
-            imageElement.setAttribute(
-                    "role",
-                    "presentation");
-
-            imageElement.setAttribute(
-                    "aria-hidden",
-                    "true");
+        /*
+         * 이전 Tool 계약과 호환하기 위해
+         * decorative=true인 경우 우선 DECORATIVE로 처리합니다.
+         */
+        if (request.isDecorative()) {
+            return ImageAccessibilityType.DECORATIVE;
         }
+
+        if (value == null) {
+            /*
+             * 기존 Tool 요청은 accessibilityType이 없었으므로
+             * altText가 있으면 INFORMATIVE로 간주합니다.
+             */
+            if (!isBlank(
+                    request.getAltText())) {
+
+                return ImageAccessibilityType.INFORMATIVE;
+            }
+
+            return ImageAccessibilityType.UNKNOWN;
+        }
+
+        return ImageAccessibilityType
+                .fromValueOrUnknown(
+                        value
+                );
+    }
+
+    private Map<String, Object> createOutput(
+            AltTextApplicationResult result) {
+
+        Map<String, Object> output =
+                new LinkedHashMap<>();
+
+        output.put(
+                "documentPath",
+                result.getProjectRelativeXhtmlPath()
+        );
+
+        output.put(
+                "imageElementId",
+                result.getImageElementId()
+        );
+
+        output.put(
+                "imageSource",
+                result.getImageSource()
+        );
+
+        if (result.getAccessibilityType()
+                != null) {
+
+            output.put(
+                    "accessibilityType",
+                    result
+                            .getAccessibilityType()
+                            .getCode()
+            );
+        }
+
+        output.put(
+                "matched",
+                result.isMatched()
+        );
+
+        output.put(
+                "matchedElementCount",
+                result.getMatchedElementCount()
+        );
+
+        output.put(
+                "ambiguousMatch",
+                result.isAmbiguousMatch()
+        );
+
+        output.put(
+                "changed",
+                result.isChanged()
+        );
+
+        output.put(
+                "noChange",
+                result.isNoChange()
+        );
+
+        output.put(
+                "fileUpdated",
+                result.isFileUpdated()
+        );
+
+        output.put(
+                "dryRun",
+                result.isDryRun()
+        );
+
+        output.put(
+                "successful",
+                result.isSuccessful()
+        );
+
+        output.put(
+                "decorative",
+                result.isDecorative()
+        );
+
+        output.put(
+                "previousAltText",
+                result.getPreviousAltText()
+        );
+
+        output.put(
+                "appliedAltText",
+                result.getAppliedAltText()
+        );
+
+        output.put(
+                "previousRole",
+                result.getPreviousRole()
+        );
+
+        output.put(
+                "appliedRole",
+                result.getAppliedRole()
+        );
+
+        output.put(
+                "previousAriaHidden",
+                result.getPreviousAriaHidden()
+        );
+
+        output.put(
+                "appliedAriaHidden",
+                result.getAppliedAriaHidden()
+        );
+
+        output.put(
+                "changedAttributes",
+                result.getChangedAttributes()
+        );
+
+        output.put(
+                "backupCreated",
+                result.isBackupCreated()
+        );
+
+        if (result.getBackupPath() != null) {
+            output.put(
+                    "backupPath",
+                    result
+                            .getBackupPath()
+                            .toString()
+                            .replace('\\', '/')
+            );
+        }
+
+        output.put(
+                "warnings",
+                result.getWarnings()
+        );
+
+        output.put(
+                "metadata",
+                result.getMetadata()
+        );
+
+        return Collections.unmodifiableMap(
+                output
+        );
+    }
+
+    private String createSuccessMessage(
+            AltTextApplicationResult result) {
+
+        if (!result.isMatched()) {
+            return "대상 img 요소를 찾지 못했습니다.";
+        }
+
+        if (result.isAmbiguousMatch()) {
+            return "여러 img 요소가 일치하여 "
+                    + "파일을 수정하지 않았습니다.";
+        }
+
+        if (result.isDryRun()) {
+            if (result.isChanged()) {
+                return "대체 텍스트 변경 내용을 계산했습니다. "
+                        + "dry-run이므로 파일은 수정하지 않았습니다.";
+            }
+
+            return "dry-run을 완료했습니다. "
+                    + "변경할 내용이 없습니다.";
+        }
+
+        if (result.isNoChange()) {
+            return "요청한 접근성 속성이 이미 적용되어 있습니다.";
+        }
+
+        if (result.isFileUpdated()) {
+            return "이미지 대체 텍스트와 "
+                    + "접근성 속성을 XHTML에 적용했습니다.";
+        }
+
+        return "대체 텍스트 적용 처리를 완료했습니다.";
     }
 
     private String normalizeAltText(
             String altText,
-            int maxLength,
-            boolean truncate) {
+            int maxLength) {
+
+        if (altText == null) {
+            return null;
+        }
 
         String normalized =
-                altText == null
-                        ? ""
-                        : altText.trim()
-                                .replaceAll("\\s+", " ");
+                altText
+                        .trim()
+                        .replaceAll(
+                                "\\s+",
+                                " "
+                        );
 
         if (maxLength <= 0
-                || normalized.length() <= maxLength) {
+                || normalized.length()
+                        <= maxLength) {
 
             return normalized;
         }
 
-        if (!truncate) {
-            throw new IllegalArgumentException(
-                    "대체 텍스트가 최대 길이 "
-                            + maxLength
-                            + "자를 초과했습니다.");
-        }
-
-        return normalized.substring(
-                0,
-                maxLength);
-    }
-
-    private Path createBackup(
-            Path xhtmlPath)
-            throws IOException {
-
-        Path backupPath =
-                xhtmlPath.resolveSibling(
-                        xhtmlPath.getFileName().toString()
-                                + BACKUP_EXTENSION);
-
-        Files.copy(
-                xhtmlPath,
-                backupPath,
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES);
-
-        return backupPath;
-    }
-
-    private String serializeXhtml(
-            Document document)
-            throws TransformerException {
-
-        TransformerFactory transformerFactory =
-                TransformerFactory.newInstance();
-
-        try {
-            transformerFactory.setAttribute(
-                    XMLConstants.ACCESS_EXTERNAL_DTD,
-                    "");
-        } catch (IllegalArgumentException ignored) {
-            // Transformer 구현체가 지원하지 않을 수 있다.
-        }
-
-        try {
-            transformerFactory.setAttribute(
-                    XMLConstants.ACCESS_EXTERNAL_STYLESHEET,
-                    "");
-        } catch (IllegalArgumentException ignored) {
-            // Transformer 구현체가 지원하지 않을 수 있다.
-        }
-
-        Transformer transformer =
-                transformerFactory.newTransformer();
-
-        transformer.setOutputProperty(
-                OutputKeys.METHOD,
-                "xml");
-
-        transformer.setOutputProperty(
-                OutputKeys.ENCODING,
-                StandardCharsets.UTF_8.name());
-
-        transformer.setOutputProperty(
-                OutputKeys.OMIT_XML_DECLARATION,
-                "yes");
-
-        transformer.setOutputProperty(
-                OutputKeys.INDENT,
-                "yes");
-
-        try {
-            transformer.setOutputProperty(
-                    "{http://xml.apache.org/xslt}indent-amount",
-                    "2");
-        } catch (IllegalArgumentException ignored) {
-            // 구현체별 들여쓰기 설정이다.
-        }
-
-        StringWriter writer =
-                new StringWriter();
-
-        transformer.transform(
-                new DOMSource(document),
-                new StreamResult(writer));
-
-        String result =
-                writer.toString()
-                        .replace("\r\n", "\n")
-                        .replace('\r', '\n')
-                        .trim();
-
-        if (!containsIgnoreCase(
-                result,
-                "<!DOCTYPE html>")) {
-
-            result =
-                    "<!DOCTYPE html>\n"
-                            + result;
-        }
-
-        return result + "\n";
-    }
-
-    private void writeXhtml(
-            Path xhtmlPath,
-            String xhtml)
-            throws IOException {
-
-        Files.writeString(
-                xhtmlPath,
-                xhtml,
-                StandardCharsets.UTF_8,
-                StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.WRITE);
-    }
-
-    private ApplyAltTextResponse createResponse(
-            Path projectRoot,
-            Path xhtmlPath,
-            Path backupPath,
-            ImageElementMatch imageMatch,
-            String previousAlt,
-            ApplyAltTextRequest request)
-            throws IOException {
-
-        Element element =
-                imageMatch.getElement();
-
-        ApplyAltTextResponse response =
-                new ApplyAltTextResponse();
-
-        response.setApplied(true);
-        response.setXhtmlFileName(
-                xhtmlPath.getFileName()
-                        .toString());
-
-        response.setAbsolutePath(
-                xhtmlPath.toString());
-
-        if (projectRoot != null
-                && xhtmlPath.startsWith(projectRoot)) {
-
-            response.setRelativePath(
-                    normalizeSeparator(
-                            projectRoot.relativize(xhtmlPath)
-                                    .toString()));
-        }
-
-        response.setImageElementId(
-                emptyToNull(
-                        element.getAttribute("id")));
-
-        response.setImageSrc(
-                emptyToNull(
-                        element.getAttribute("src")));
-
-        response.setImageIndex(
-                imageMatch.getImageIndex());
-
-        response.setMatchedBy(
-                imageMatch.getMatchedBy());
-
-        response.setPreviousAlt(
-                previousAlt);
-
-        response.setAppliedAlt(
-                element.getAttribute("alt"));
-
-        response.setDecorative(
-                request.isDecorative());
-
-        response.setBackupCreated(
-                backupPath != null);
-
-        if (backupPath != null) {
-            response.setBackupPath(
-                    backupPath.toString());
-        }
-
-        response.setFileSize(
-                Files.size(xhtmlPath));
-
-        response.setCharset(
-                StandardCharsets.UTF_8.name());
-
-        return response;
-    }
-
-    private String createImageNotFoundMessage(
-            ApplyAltTextRequest request) {
-
-        StringBuilder builder =
-                new StringBuilder(
-                        "대상 img 요소를 찾을 수 없습니다.");
-
-        if (!isBlank(request.getImageElementId())) {
-            builder.append(" id=")
-                    .append(request.getImageElementId());
-        }
-
-        if (!isBlank(request.getImageSrc())) {
-            builder.append(" src=")
-                    .append(request.getImageSrc());
-        }
-
-        if (request.getImageIndex() >= 0) {
-            builder.append(" index=")
-                    .append(request.getImageIndex());
-        }
-
-        return builder.toString();
+        /*
+         * Tool에서 임의 절삭하지 않습니다.
+         * 접근성 의미가 손실될 수 있으므로 Validation 단계에서
+         * 오류로 처리합니다.
+         */
+        return normalized;
     }
 
     private ToolResult failure(
@@ -977,12 +1035,23 @@ public final class ApplyAltTextTool implements AgentTool {
             String message) {
 
         return ToolResult.builder()
-                .toolName(TOOL_NAME)
-                .status(status)
-                .message(message)
+                .toolName(
+                        TOOL_NAME
+                )
+                .status(
+                        status
+                )
+                .message(
+                        message
+                )
                 .issues(
                         Collections.singletonList(
-                                issue(code, message)))
+                                issue(
+                                        code,
+                                        message
+                                )
+                        )
+                )
                 .build();
     }
 
@@ -991,9 +1060,15 @@ public final class ApplyAltTextTool implements AgentTool {
             String message) {
 
         return ToolIssue.builder()
-                .code(code)
-                .severity(ToolIssueSeverity.ERROR)
-                .message(message)
+                .code(
+                        code
+                )
+                .severity(
+                        ToolIssueSeverity.ERROR
+                )
+                .message(
+                        message
+                )
                 .build();
     }
 
@@ -1002,75 +1077,146 @@ public final class ApplyAltTextTool implements AgentTool {
             String key) {
 
         if (context == null
-                || key == null
-                || key.isBlank()) {
+                || isBlank(key)) {
 
             return null;
         }
 
-        String value =
-                context.getAttribute(
-                        key,
-                        String.class);
+        try {
+            String value =
+                    context.getAttribute(
+                            key,
+                            String.class
+                    );
 
-        return trimToNull(value);
+            return trimToNull(
+                    value
+            );
+
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 
-    private String normalizePathValue(
-            String value) {
+    private String readString(
+            Map<?, ?> map,
+            String key) {
+
+        Object value =
+                map.get(key);
 
         if (value == null) {
-            return "";
+            return null;
         }
 
-        return value.trim()
-                .replace('\\', '/');
+        return String.valueOf(
+                value
+        );
     }
 
-    private String extractFileName(
-            String path) {
+    /**
+     * 빈 문자열도 의미가 있는 속성을 읽습니다.
+     *
+     * <p>
+     * expectedCurrentAlt=""는 현재 alt="" 상태를
+     * 기대한다는 의미입니다.
+     * </p>
+     */
+    private String readStringAllowEmpty(
+            Map<?, ?> map,
+            String key) {
 
-        String normalized =
-                normalizePathValue(path);
-
-        int slashIndex =
-                normalized.lastIndexOf('/');
-
-        if (slashIndex < 0) {
-            return normalized;
+        if (!map.containsKey(key)) {
+            return null;
         }
 
-        return normalized.substring(
-                slashIndex + 1);
-    }
+        Object value =
+                map.get(key);
 
-    private String normalizeSeparator(
-            String path) {
-
-        return path.replace('\\', '/');
-    }
-
-    private boolean containsIgnoreCase(
-            String source,
-            String target) {
-
-        if (source == null
-                || target == null) {
-
-            return false;
+        if (value == null) {
+            return null;
         }
 
-        return source.toLowerCase()
-                .contains(
-                        target.toLowerCase());
+        return String.valueOf(
+                value
+        );
     }
 
-    private String emptyToNull(
-            String value) {
+    private Integer readInteger(
+            Map<?, ?> map,
+            String key) {
 
-        return isBlank(value)
-                ? null
-                : value;
+        Object value =
+                map.get(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+
+        try {
+            return Integer.valueOf(
+                    String.valueOf(value)
+                            .trim()
+            );
+
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private Boolean readBoolean(
+            Map<?, ?> map,
+            String key) {
+
+        Object value =
+                map.get(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof Boolean booleanValue) {
+            return booleanValue;
+        }
+
+        String text =
+                String.valueOf(
+                        value
+                ).trim();
+
+        if ("true".equalsIgnoreCase(text)) {
+            return Boolean.TRUE;
+        }
+
+        if ("false".equalsIgnoreCase(text)) {
+            return Boolean.FALSE;
+        }
+
+        return null;
+    }
+
+    private String firstNonBlank(
+            String first,
+            String second) {
+
+        if (!isBlank(first)) {
+            return first;
+        }
+
+        return second;
+    }
+
+    private Integer firstNonNull(
+            Integer first,
+            Integer second) {
+
+        return first != null
+                ? first
+                : second;
     }
 
     private String trimToNull(
@@ -1088,57 +1234,30 @@ public final class ApplyAltTextTool implements AgentTool {
                 || value.trim().isEmpty();
     }
 
-    private String buildExceptionMessage(
-            Exception exception) {
+    private String safeMessage(
+            Throwable throwable) {
 
-        if (exception == null) {
-            return "알 수 없는 오류가 발생했습니다.";
+        if (throwable == null
+                || throwable.getMessage() == null
+                || throwable
+                        .getMessage()
+                        .isBlank()) {
+
+            return "알 수 없는 오류";
         }
 
-        if (!isBlank(exception.getMessage())) {
-            return exception.getMessage();
-        }
-
-        return exception.getClass()
-                .getSimpleName()
-                + " 오류가 발생했습니다.";
-    }
-
-    private static final class ImageElementMatch {
-
-        private final Element element;
-        private final int imageIndex;
-        private final String matchedBy;
-
-        private ImageElementMatch(
-                Element element,
-                int imageIndex,
-                String matchedBy) {
-
-            this.element =
-                    Objects.requireNonNull(element);
-
-            this.imageIndex = imageIndex;
-            this.matchedBy = matchedBy;
-        }
-
-        public Element getElement() {
-            return element;
-        }
-
-        public int getImageIndex() {
-            return imageIndex;
-        }
-
-        public String getMatchedBy() {
-            return matchedBy;
-        }
+        return throwable
+                .getMessage()
+                .trim();
     }
 
     /**
-     * 대체 텍스트 적용 요청 DTO.
+     * ApplyAltTextTool 입력 DTO.
      *
-     * 프로젝트 구조에 따라 별도 파일로 분리할 수 있다.
+     * <p>
+     * 기존 Tool 계약과 새 접근성 계층의 계약 사이에서
+     * Adapter 역할을 합니다.
+     * </p>
      */
     public static final class ApplyAltTextRequest {
 
@@ -1147,21 +1266,37 @@ public final class ApplyAltTextTool implements AgentTool {
 
         private String imageElementId;
         private String imageSrc;
-        private int imageIndex = -1;
+
+        private String accessibilityType;
 
         private String altText;
+        private String detailedDescription;
+
+        private String expectedCurrentAlt;
+        private boolean expectedCurrentAltSpecified;
+
+        private int maxAltLength =
+                DEFAULT_MAX_ALT_LENGTH;
+
         private boolean decorative;
 
-        private int maxAltLength = 100;
-        private boolean truncateAltText = true;
+        private boolean overwriteExisting;
 
-        private boolean createBackup = true;
-        private boolean restrictToProject = true;
-        private boolean matchSourceFileNameOnly;
+        private boolean removeTitle;
+        private boolean removeAriaLabel;
 
-        private boolean applyDecorativeAttributes = true;
-        private boolean applyAriaLabel;
-        private boolean applyTitleAttribute;
+        private boolean applyPresentationRole =
+                true;
+
+        private boolean applyAriaHidden;
+
+        private boolean createBackup =
+                true;
+
+        private boolean dryRun;
+
+        private boolean restrictToProject =
+                true;
 
         public ApplyAltTextRequest() {
         }
@@ -1172,7 +1307,9 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setProjectRoot(
                 String projectRoot) {
-            this.projectRoot = projectRoot;
+
+            this.projectRoot =
+                    projectRoot;
         }
 
         public String getXhtmlPath() {
@@ -1181,7 +1318,9 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setXhtmlPath(
                 String xhtmlPath) {
-            this.xhtmlPath = xhtmlPath;
+
+            this.xhtmlPath =
+                    xhtmlPath;
         }
 
         public String getImageElementId() {
@@ -1190,6 +1329,7 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setImageElementId(
                 String imageElementId) {
+
             this.imageElementId =
                     imageElementId;
         }
@@ -1200,16 +1340,20 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setImageSrc(
                 String imageSrc) {
-            this.imageSrc = imageSrc;
+
+            this.imageSrc =
+                    imageSrc;
         }
 
-        public int getImageIndex() {
-            return imageIndex;
+        public String getAccessibilityType() {
+            return accessibilityType;
         }
 
-        public void setImageIndex(
-                int imageIndex) {
-            this.imageIndex = imageIndex;
+        public void setAccessibilityType(
+                String accessibilityType) {
+
+            this.accessibilityType =
+                    accessibilityType;
         }
 
         public String getAltText() {
@@ -1218,16 +1362,38 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setAltText(
                 String altText) {
-            this.altText = altText;
+
+            this.altText =
+                    altText;
         }
 
-        public boolean isDecorative() {
-            return decorative;
+        public String getDetailedDescription() {
+            return detailedDescription;
         }
 
-        public void setDecorative(
-                boolean decorative) {
-            this.decorative = decorative;
+        public void setDetailedDescription(
+                String detailedDescription) {
+
+            this.detailedDescription =
+                    detailedDescription;
+        }
+
+        public String getExpectedCurrentAlt() {
+            return expectedCurrentAlt;
+        }
+
+        public void setExpectedCurrentAlt(
+                String expectedCurrentAlt) {
+
+            this.expectedCurrentAlt =
+                    expectedCurrentAlt;
+
+            this.expectedCurrentAltSpecified =
+                    true;
+        }
+
+        public boolean hasExpectedCurrentAlt() {
+            return expectedCurrentAltSpecified;
         }
 
         public int getMaxAltLength() {
@@ -1236,114 +1402,9 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setMaxAltLength(
                 int maxAltLength) {
-            this.maxAltLength = maxAltLength;
-        }
 
-        public boolean isTruncateAltText() {
-            return truncateAltText;
-        }
-
-        public void setTruncateAltText(
-                boolean truncateAltText) {
-            this.truncateAltText =
-                    truncateAltText;
-        }
-
-        public boolean isCreateBackup() {
-            return createBackup;
-        }
-
-        public void setCreateBackup(
-                boolean createBackup) {
-            this.createBackup = createBackup;
-        }
-
-        public boolean isRestrictToProject() {
-            return restrictToProject;
-        }
-
-        public void setRestrictToProject(
-                boolean restrictToProject) {
-            this.restrictToProject =
-                    restrictToProject;
-        }
-
-        public boolean isMatchSourceFileNameOnly() {
-            return matchSourceFileNameOnly;
-        }
-
-        public void setMatchSourceFileNameOnly(
-                boolean matchSourceFileNameOnly) {
-            this.matchSourceFileNameOnly =
-                    matchSourceFileNameOnly;
-        }
-
-        public boolean isApplyDecorativeAttributes() {
-            return applyDecorativeAttributes;
-        }
-
-        public void setApplyDecorativeAttributes(
-                boolean applyDecorativeAttributes) {
-            this.applyDecorativeAttributes =
-                    applyDecorativeAttributes;
-        }
-
-        public boolean isApplyAriaLabel() {
-            return applyAriaLabel;
-        }
-
-        public void setApplyAriaLabel(
-                boolean applyAriaLabel) {
-            this.applyAriaLabel =
-                    applyAriaLabel;
-        }
-
-        public boolean isApplyTitleAttribute() {
-            return applyTitleAttribute;
-        }
-
-        public void setApplyTitleAttribute(
-                boolean applyTitleAttribute) {
-            this.applyTitleAttribute =
-                    applyTitleAttribute;
-        }
-    }
-
-    /**
-     * 대체 텍스트 적용 결과 DTO.
-     */
-    public static final class ApplyAltTextResponse {
-
-        private boolean applied;
-        private boolean decorative;
-        private boolean backupCreated;
-
-        private String xhtmlFileName;
-        private String relativePath;
-        private String absolutePath;
-        private String backupPath;
-
-        private String imageElementId;
-        private String imageSrc;
-        private int imageIndex;
-        private String matchedBy;
-
-        private String previousAlt;
-        private String appliedAlt;
-
-        private String charset;
-        private long fileSize;
-
-        public ApplyAltTextResponse() {
-        }
-
-        public boolean isApplied() {
-            return applied;
-        }
-
-        public void setApplied(
-                boolean applied) {
-            this.applied = applied;
+            this.maxAltLength =
+                    maxAltLength;
         }
 
         public boolean isDecorative() {
@@ -1352,127 +1413,97 @@ public final class ApplyAltTextTool implements AgentTool {
 
         public void setDecorative(
                 boolean decorative) {
-            this.decorative = decorative;
+
+            this.decorative =
+                    decorative;
         }
 
-        public boolean isBackupCreated() {
-            return backupCreated;
+        public boolean isOverwriteExisting() {
+            return overwriteExisting;
         }
 
-        public void setBackupCreated(
-                boolean backupCreated) {
-            this.backupCreated =
-                    backupCreated;
+        public void setOverwriteExisting(
+                boolean overwriteExisting) {
+
+            this.overwriteExisting =
+                    overwriteExisting;
         }
 
-        public String getXhtmlFileName() {
-            return xhtmlFileName;
+        public boolean isRemoveTitle() {
+            return removeTitle;
         }
 
-        public void setXhtmlFileName(
-                String xhtmlFileName) {
-            this.xhtmlFileName =
-                    xhtmlFileName;
+        public void setRemoveTitle(
+                boolean removeTitle) {
+
+            this.removeTitle =
+                    removeTitle;
         }
 
-        public String getRelativePath() {
-            return relativePath;
+        public boolean isRemoveAriaLabel() {
+            return removeAriaLabel;
         }
 
-        public void setRelativePath(
-                String relativePath) {
-            this.relativePath = relativePath;
+        public void setRemoveAriaLabel(
+                boolean removeAriaLabel) {
+
+            this.removeAriaLabel =
+                    removeAriaLabel;
         }
 
-        public String getAbsolutePath() {
-            return absolutePath;
+        public boolean isApplyPresentationRole() {
+            return applyPresentationRole;
         }
 
-        public void setAbsolutePath(
-                String absolutePath) {
-            this.absolutePath = absolutePath;
+        public void setApplyPresentationRole(
+                boolean applyPresentationRole) {
+
+            this.applyPresentationRole =
+                    applyPresentationRole;
         }
 
-        public String getBackupPath() {
-            return backupPath;
+        public boolean isApplyAriaHidden() {
+            return applyAriaHidden;
         }
 
-        public void setBackupPath(
-                String backupPath) {
-            this.backupPath = backupPath;
+        public void setApplyAriaHidden(
+                boolean applyAriaHidden) {
+
+            this.applyAriaHidden =
+                    applyAriaHidden;
         }
 
-        public String getImageElementId() {
-            return imageElementId;
+        public boolean isCreateBackup() {
+            return createBackup;
         }
 
-        public void setImageElementId(
-                String imageElementId) {
-            this.imageElementId =
-                    imageElementId;
+        public void setCreateBackup(
+                boolean createBackup) {
+
+            this.createBackup =
+                    createBackup;
         }
 
-        public String getImageSrc() {
-            return imageSrc;
+        public boolean isDryRun() {
+            return dryRun;
         }
 
-        public void setImageSrc(
-                String imageSrc) {
-            this.imageSrc = imageSrc;
+        public void setDryRun(
+                boolean dryRun) {
+
+            this.dryRun =
+                    dryRun;
         }
 
-        public int getImageIndex() {
-            return imageIndex;
+        public boolean isRestrictToProject() {
+            return restrictToProject;
         }
 
-        public void setImageIndex(
-                int imageIndex) {
-            this.imageIndex = imageIndex;
-        }
+        public void setRestrictToProject(
+                boolean restrictToProject) {
 
-        public String getMatchedBy() {
-            return matchedBy;
-        }
-
-        public void setMatchedBy(
-                String matchedBy) {
-            this.matchedBy = matchedBy;
-        }
-
-        public String getPreviousAlt() {
-            return previousAlt;
-        }
-
-        public void setPreviousAlt(
-                String previousAlt) {
-            this.previousAlt = previousAlt;
-        }
-
-        public String getAppliedAlt() {
-            return appliedAlt;
-        }
-
-        public void setAppliedAlt(
-                String appliedAlt) {
-            this.appliedAlt = appliedAlt;
-        }
-
-        public String getCharset() {
-            return charset;
-        }
-
-        public void setCharset(
-                String charset) {
-            this.charset = charset;
-        }
-
-        public long getFileSize() {
-            return fileSize;
-        }
-
-        public void setFileSize(
-                long fileSize) {
-            this.fileSize = fileSize;
+            this.restrictToProject =
+                    restrictToProject;
         }
     }
 }
