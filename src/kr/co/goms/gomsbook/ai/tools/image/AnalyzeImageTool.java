@@ -18,15 +18,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import kr.co.goms.gomsbook.ai.json.JsonMapper;
 import kr.co.goms.gomsbook.ai.llm.LlmClient;
 import kr.co.goms.gomsbook.ai.llm.LlmMessage;
 import kr.co.goms.gomsbook.ai.llm.LlmRequest;
 import kr.co.goms.gomsbook.ai.llm.LlmResponse;
-import kr.co.goms.gomsbook.ai.llm.LlmRole;
 import kr.co.goms.gomsbook.ai.tool.AgentTool;
 import kr.co.goms.gomsbook.ai.tool.ToolContext;
 import kr.co.goms.gomsbook.ai.tool.ToolIssue;
@@ -34,7 +30,6 @@ import kr.co.goms.gomsbook.ai.tool.ToolIssueSeverity;
 import kr.co.goms.gomsbook.ai.tool.ToolRequest;
 import kr.co.goms.gomsbook.ai.tool.ToolResult;
 import kr.co.goms.gomsbook.ai.tool.ToolStatus;
-import kr.co.goms.gomsbook.ai.tools.image.ApplyAltTextTool.ApplyAltTextRequest;
 
 /**
  * 이미지 파일을 Vision LLM으로 분석하는 Agent Tool.
