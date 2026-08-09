@@ -7,4 +7,6 @@ Bundle-Vendor: GOMSBOOK
 Automatic-Module-Name: kr.co.goms.gomsbook.ai
 Bundle-RequiredExecutionEnvironment: JavaSE-23
 Bundle-ClassPath: .,
- lib/gson-2.8.9.jar
+ lib/gson-2.8.9.jar,
+ lib/epubheck-5.3.0.jar,
+ lib/guava-33.4.8-jre.jar

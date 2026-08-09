@@ -850,7 +850,7 @@ public final class ToolContext {
         }
 
         /**
-         * 기존 projectPath 문자열 속성을 설정합니다.
+         * 현재 projectPath 문자열 속성을 설정합니다.
          */
         public Builder projectPath(
                 String projectPath) {
