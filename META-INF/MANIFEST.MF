@@ -1,12 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GomsBook-AI-Agent
-Bundle-SymbolicName: kr.co.goms.gomsbook.ai
+Bundle-SymbolicName: kr.co.goms.gomsbook.ai.agent
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: GOMSBOOK
-Automatic-Module-Name: kr.co.goms.gomsbook.ai
+Automatic-Module-Name: kr.co.goms.gomsbook.ai.agent
 Bundle-RequiredExecutionEnvironment: JavaSE-23
+Export-Package: kr.co.goms.gomsbook.ai.tool
 Bundle-ClassPath: .,
  lib/gson-2.8.9.jar,
- lib/epubheck-5.3.0.jar,
+ lib/epubcheck-5.3.0.jar,
  lib/guava-33.4.8-jre.jar
