@@ -6,7 +6,10 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: GOMSBOOK
 Automatic-Module-Name: kr.co.goms.gomsbook.ai.agent
 Bundle-RequiredExecutionEnvironment: JavaSE-23
-Export-Package: kr.co.goms.gomsbook.ai.tool
+Export-Package: kr.co.goms.gomsbook.ai.agent,
+ kr.co.goms.gomsbook.ai.llm,
+ kr.co.goms.gomsbook.ai.llm.model,
+ kr.co.goms.gomsbook.ai.tool
 Bundle-ClassPath: .,
  lib/gson-2.8.9.jar,
  lib/epubcheck-5.3.0.jar,
