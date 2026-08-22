@@ -26,7 +26,8 @@ public final class InMemoryVectorStore
     implements VectorStore {
 
     /**
-     * ID와 임베딩 모델명을 결합한 키로 레코드를 저장합니다.
+     * Project ID, Chunk ID, Embedding Model을
+     * 결합한 키로 레코드를 저장합니다.
      */
     private final Map<RecordKey, VectorRecord> records =
         new ConcurrentHashMap<>();
@@ -52,6 +53,7 @@ public final class InMemoryVectorStore
 
         try {
             RecordKey key = RecordKey.of(
+            	record.getProjectId(),
                 record.getId(),
                 record.getModel()
             );
@@ -87,6 +89,7 @@ public final class InMemoryVectorStore
                 }
 
                 RecordKey key = RecordKey.of(
+                	record.getProjectId(),
                     record.getId(),
                     record.getModel()
                 );
@@ -255,14 +258,19 @@ public final class InMemoryVectorStore
             requireText(model, "model");
 
         try {
-            return Optional.ofNullable(
-                records.get(
-                    RecordKey.of(
-                        normalizedId,
-                        normalizedModel
-                    )
+            return records.values()
+                .stream()
+                .filter(record ->
+                    record.getId().equals(normalizedId)
                 )
-            );
+                .filter(record ->
+                    record.isModel(normalizedModel)
+                )
+                .max(
+                    Comparator.comparingLong(
+                        VectorRecord::getIndexedAt
+                    )
+                );
 
         } catch (RuntimeException exception) {
             throw new VectorStoreException(
@@ -424,6 +432,100 @@ public final class InMemoryVectorStore
     }
 
     @Override
+    public List<VectorRecord> findByProjectAndModel(
+        String projectId,
+        String model
+    ) throws VectorStoreException {
+
+        ensureOpen(VectorStoreOperation.FIND);
+
+        String normalizedProjectId =
+            requireText(projectId, "projectId");
+
+        String normalizedModel =
+            requireText(model, "model");
+
+        try {
+            return records.values()
+                .stream()
+                .filter(record ->
+                    record.isProject(normalizedProjectId)
+                )
+                .filter(record ->
+                    record.isModel(normalizedModel)
+                )
+                .sorted(
+                    Comparator.comparing(
+                        VectorRecord::getId
+                    )
+                )
+                .toList();
+
+        } catch (RuntimeException exception) {
+            throw new VectorStoreException(
+                "Failed to find vector records by project and model",
+                VectorStoreOperation.FIND,
+                "",
+                normalizedModel,
+                exception
+            );
+        }
+    }
+
+    @Override
+    public List<VectorRecord> findByProjectAndSourcePath(
+        String projectId,
+        String sourcePath
+    ) throws VectorStoreException {
+
+        ensureOpen(VectorStoreOperation.FIND);
+
+        String normalizedProjectId =
+            requireText(projectId, "projectId");
+
+        String normalizedPath =
+            normalizePath(
+                requireText(
+                    sourcePath,
+                    "sourcePath"
+                )
+            );
+
+        try {
+            return records.values()
+                .stream()
+                .filter(record ->
+                    record.isProject(normalizedProjectId)
+                )
+                .filter(record ->
+                    normalizePath(
+                        record.getChunk()
+                            .getSourcePath()
+                    ).equals(normalizedPath)
+                )
+                .sorted(
+                    Comparator
+                        .comparingInt(
+                            (VectorRecord record) ->
+                                record.getChunk()
+                                    .getSequence()
+                        )
+                        .thenComparing(
+                            VectorRecord::getId
+                        )
+                )
+                .toList();
+
+        } catch (RuntimeException exception) {
+            throw new VectorStoreException(
+                "Failed to find vector records by project and source path",
+                VectorStoreOperation.FIND,
+                exception
+            );
+        }
+    }
+
+    @Override
     public List<VectorRecord> findBySourcePath(
         String sourcePath
     ) throws VectorStoreException {
@@ -484,15 +586,31 @@ public final class InMemoryVectorStore
             requireText(model, "model");
 
         try {
-            VectorRecord removed =
-                records.remove(
-                    RecordKey.of(
-                        normalizedId,
-                        normalizedModel
-                    )
-                );
+            boolean deleted = false;
 
-            return removed != null;
+            for (Map.Entry<RecordKey, VectorRecord> entry
+                : records.entrySet()) {
+
+                VectorRecord record =
+                    entry.getValue();
+
+                if (!record.getId().equals(normalizedId)) {
+                    continue;
+                }
+
+                if (!record.isModel(normalizedModel)) {
+                    continue;
+                }
+
+                if (records.remove(
+                    entry.getKey(),
+                    record
+                )) {
+                    deleted = true;
+                }
+            }
+
+            return deleted;
 
         } catch (RuntimeException exception) {
             throw new VectorStoreException(
@@ -611,6 +729,83 @@ public final class InMemoryVectorStore
         } catch (RuntimeException exception) {
             throw new VectorStoreException(
                 "Failed to delete vector records by source path and model",
+                VectorStoreOperation.DELETE,
+                "",
+                normalizedModel,
+                exception
+            );
+        }
+    }
+
+    @Override
+    public int deleteByProjectAndSourcePath(
+        String projectId,
+        String sourcePath,
+        String model
+    ) throws VectorStoreException {
+
+        ensureOpen(VectorStoreOperation.DELETE);
+
+        String normalizedProjectId =
+            requireText(projectId, "projectId");
+
+        String normalizedPath =
+            normalizePath(
+                requireText(
+                    sourcePath,
+                    "sourcePath"
+                )
+            );
+
+        String normalizedModel =
+            requireText(model, "model");
+
+        try {
+            int deletedCount = 0;
+
+            for (Map.Entry<RecordKey, VectorRecord> entry
+                : records.entrySet()) {
+
+                VectorRecord record =
+                    entry.getValue();
+
+                if (!record.isProject(
+                    normalizedProjectId
+                )) {
+                    continue;
+                }
+
+                if (!record.isModel(
+                    normalizedModel
+                )) {
+                    continue;
+                }
+
+                String recordPath =
+                    normalizePath(
+                        record.getChunk()
+                            .getSourcePath()
+                    );
+
+                if (!recordPath.equals(
+                    normalizedPath
+                )) {
+                    continue;
+                }
+
+                if (records.remove(
+                    entry.getKey(),
+                    record
+                )) {
+                    deletedCount++;
+                }
+            }
+
+            return deletedCount;
+
+        } catch (RuntimeException exception) {
+            throw new VectorStoreException(
+                "Failed to delete vector records by project and source path",
                 VectorStoreOperation.DELETE,
                 "",
                 normalizedModel,
@@ -819,18 +1014,22 @@ public final class InMemoryVectorStore
     }
 
     /**
-     * 동일 Chunk를 여러 임베딩 모델로 저장할 수 있도록
-     * ID와 모델명을 함께 키로 사용합니다.
+     * 서로 다른 EPUB 프로젝트에서 동일한 Chunk ID를
+     * 사용할 수 있도록 Project ID, Chunk ID, Embedding Model을
+     * 복합 키로 사용합니다.
      */
     private static final class RecordKey {
 
+        private final String projectId;
         private final String id;
         private final String model;
 
         private RecordKey(
+            String projectId,
             String id,
             String model
         ) {
+            this.projectId = requireText(projectId,"projectId");
             this.id = requireText(id, "id");
             this.model = requireText(
                 model,
@@ -839,10 +1038,11 @@ public final class InMemoryVectorStore
         }
 
         private static RecordKey of(
+        	String projectId,
             String id,
             String model
         ) {
-            return new RecordKey(id, model);
+            return new RecordKey(projectId, id, model);
         }
 
         @Override
@@ -856,20 +1056,35 @@ public final class InMemoryVectorStore
             }
 
             RecordKey other =
-                (RecordKey) object;
+                    (RecordKey) object;
 
-            return id.equals(other.id)
-                && model.equals(other.model);
+            return projectId.equals(
+                    other.projectId
+                )
+                && id.equals(
+                        other.id
+                )
+                && model.equals(
+                        other.model
+                );
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, model);
+            return Objects.hash(
+                    projectId,
+                    id,
+                    model
+            );
         }
 
         @Override
         public String toString() {
-            return id + '@' + model;
+            return projectId
+                + ':'
+                + id
+                + '@'
+                + model;
         }
     }
 }

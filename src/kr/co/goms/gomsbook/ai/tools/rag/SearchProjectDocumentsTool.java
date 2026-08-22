@@ -11,11 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import kr.co.goms.gomsbook.ai.project.CurrentProjectProvider;
+import kr.co.goms.gomsbook.ai.project.EpubProjectContext;
 import kr.co.goms.gomsbook.ai.rag.RagException;
 import kr.co.goms.gomsbook.ai.rag.RagService;
 import kr.co.goms.gomsbook.ai.rag.context.RagContext;
+import kr.co.goms.gomsbook.ai.rag.context.RagSource;
+import kr.co.goms.gomsbook.ai.rag.model.DocumentChunk;
+import kr.co.goms.gomsbook.ai.rag.index.ProjectIndexException;
+import kr.co.goms.gomsbook.ai.rag.index.ProjectIndexResult;
+import kr.co.goms.gomsbook.ai.rag.index.ProjectRagIndexer;
 import kr.co.goms.gomsbook.ai.rag.retrieval.RetrievalRequest;
-import kr.co.goms.gomsbook.ai.rag.retrieval.RetrievalResult;
 import kr.co.goms.gomsbook.ai.tool.AgentTool;
 import kr.co.goms.gomsbook.ai.tool.ToolContext;
 import kr.co.goms.gomsbook.ai.tool.ToolIssue;
@@ -50,13 +56,32 @@ public final class SearchProjectDocumentsTool
 
     private final RagService ragService;
 
-    public SearchProjectDocumentsTool(
-            RagService ragService) {
+    private final CurrentProjectProvider projectProvider;
 
-        this.ragService = Objects.requireNonNull(
-                ragService,
-                "ragService must not be null"
-        );
+    private final ProjectRagIndexer projectRagIndexer;
+
+    public SearchProjectDocumentsTool(
+            RagService ragService,
+            CurrentProjectProvider projectProvider,
+            ProjectRagIndexer projectRagIndexer) {
+
+        this.ragService =
+                Objects.requireNonNull(
+                        ragService,
+                        "ragService must not be null"
+                );
+
+        this.projectProvider =
+                Objects.requireNonNull(
+                        projectProvider,
+                        "projectProvider must not be null"
+                );
+
+        this.projectRagIndexer =
+                Objects.requireNonNull(
+                        projectRagIndexer,
+                        "projectRagIndexer must not be null"
+                );
     }
 
     @Override
@@ -251,8 +276,11 @@ public final class SearchProjectDocumentsTool
                     .build();
         }
 
-        Map<String, Object> arguments =
-                safeArguments(request);
+        Map<String, Object> arguments = safeArguments(request);
+
+        EpubProjectContext project =
+                projectProvider
+                        .getCurrentProject();
 
         String query =
                 readString(
@@ -279,8 +307,22 @@ public final class SearchProjectDocumentsTool
 
         try {
 
+            /*
+             * 검색 전에 현재 프로젝트의 RAG 인덱스를 자동 동기화합니다.
+             * 변경이 없으면 Embedding 없이 SKIP 처리됩니다.
+             */
+            ProjectIndexResult indexResult =
+                    projectRagIndexer
+                            .synchronize(
+                                    project
+                            );
+
+            String projectId =
+                    indexResult.getProjectId();
+
             RetrievalRequest retrievalRequest =
                     createRetrievalRequest(
+                            projectId,
                             query,
                             topK,
                             sourcePath
@@ -317,9 +359,11 @@ public final class SearchProjectDocumentsTool
 
             Map<String, Object> output =
                     createOutput(
+                            projectId,
                             query,
                             topK,
                             sourcePath,
+                            indexResult,
                             ragContext
                     );
 
@@ -337,6 +381,26 @@ public final class SearchProjectDocumentsTool
                     )
                     .data(
                             output
+                    )
+                    .build();
+
+        } catch (ProjectIndexException exception) {
+
+            return ToolResult.builder()
+                    .toolName(
+                            TOOL_NAME
+                    )
+                    .status(
+                            ToolStatus.FAILED
+                    )
+                    .message(
+                            "Automatic RAG index synchronization failed: "
+                                    + safeMessage(
+                                            exception
+                                    )
+                    )
+                    .cause(
+                            exception
                     )
                     .build();
 
@@ -411,19 +475,20 @@ public final class SearchProjectDocumentsTool
     }
 
     /**
-     * RetrievalRequest를 생성한다.
-     *
-     * <p>프로젝트의 실제 RetrievalRequest Builder에
-     * sourcePath 메서드가 존재하지 않는 경우 해당 부분만
-     * 제거하면 된다.</p>
+     * 현재 EPUB 프로젝트의 Project Scope를 포함한
+     * RetrievalRequest를 생성합니다.
      */
     private RetrievalRequest createRetrievalRequest(
+    		String projectId,
             String query,
             int topK,
             String sourcePath) {
 
         RetrievalRequest.Builder builder =
                 RetrievalRequest.builder()
+		                .projectId(
+		                        projectId
+		                )
                         .query(
                                 query
                         )
@@ -452,13 +517,20 @@ public final class SearchProjectDocumentsTool
      * RAG 검색 결과를 Tool 결과 구조로 변환한다.
      */
     private Map<String, Object> createOutput(
+            String projectId,
             String query,
             int topK,
             String sourcePath,
+            ProjectIndexResult indexResult,
             RagContext ragContext) {
 
         Map<String, Object> output =
                 new LinkedHashMap<>();
+
+        output.put(
+                "projectId",
+                projectId
+        );
 
         output.put(
                 "query",
@@ -468,6 +540,13 @@ public final class SearchProjectDocumentsTool
         output.put(
                 "topK",
                 topK
+        );
+
+        output.put(
+                "indexSync",
+                createIndexSyncOutput(
+                        indexResult
+                )
         );
 
         if (sourcePath != null) {
@@ -507,6 +586,16 @@ public final class SearchProjectDocumentsTool
         output.put(
                 "sources",
                 ragContext.getSources()
+        );
+        
+        /*
+         * Retrieval 검증용 Top-K 상세 결과.
+         */
+        output.put(
+                "topResults",
+                createTopResults(
+                        ragContext
+                )
         );
 
         /*
@@ -563,6 +652,62 @@ public final class SearchProjectDocumentsTool
         output.put(
                 "highestScore",
                 ragContext.getHighestScore()
+        );
+
+        return Collections.unmodifiableMap(
+                output
+        );
+    }
+    
+    private Map<String, Object> createIndexSyncOutput(
+            ProjectIndexResult result) {
+
+        Map<String, Object> output =
+                new LinkedHashMap<>();
+
+        output.put(
+                "changed",
+                result.isChanged()
+        );
+
+        output.put(
+                "newFiles",
+                result.getNewFiles()
+        );
+
+        output.put(
+                "reindexedFiles",
+                result.getReindexedFiles()
+        );
+
+        output.put(
+                "skippedFiles",
+                result.getSkippedFiles()
+        );
+
+        output.put(
+                "deletedFiles",
+                result.getDeletedFiles()
+        );
+
+        output.put(
+                "createdEmbeddings",
+                result.getCreatedEmbeddings()
+        );
+
+        output.put(
+                "storedVectors",
+                result.getStoredVectors()
+        );
+
+        output.put(
+                "deletedVectors",
+                result.getDeletedVectors()
+        );
+
+        output.put(
+                "vectorStoreSize",
+                result.getVectorStoreSize()
         );
 
         return Collections.unmodifiableMap(
@@ -627,6 +772,98 @@ public final class SearchProjectDocumentsTool
 
         return Collections.unmodifiableMap(
                 output
+        );
+    }
+    
+    private List<Map<String, Object>> createTopResults( RagContext ragContext) {
+
+        if (ragContext == null
+                || ragContext.getSources() == null
+                || ragContext.getSources().isEmpty()) {
+
+            return List.of();
+        }
+
+
+        List<Map<String, Object>> results = new ArrayList<>();
+
+
+        int rank = 1;
+
+
+        for (RagSource source : ragContext.getSources()) {
+
+            if (source == null) {
+                continue;
+            }
+
+
+            DocumentChunk chunk = source.getChunk();
+
+
+            if (chunk == null) {
+                continue;
+            }
+
+
+            Map<String, Object> item = new LinkedHashMap<>();
+
+
+            item.put(
+                    "rank",
+                    rank
+            );
+
+
+            item.put(
+                    "score",
+                    source.getScore()
+            );
+
+
+            item.put(
+                    "sourcePath",
+                    chunk.getSourcePath()
+            );
+
+
+            item.put(
+                    "chunkId",
+                    chunk.getId()
+            );
+
+
+            item.put(
+                    "heading",
+                    chunk.getTitle()
+            );
+
+
+            item.put(
+                    "type",
+                    chunk.getType()
+                            .name()
+            );
+
+
+            item.put(
+                    "text",
+                    chunk.getContent()
+            );
+
+
+            results.add(
+                    Collections.unmodifiableMap(
+                            item
+                    )
+            );
+
+            rank++;
+        }
+
+
+        return List.copyOf(
+                results
         );
     }
 

@@ -101,8 +101,21 @@ public final class RetrievalRequest {
      * false이면 유사도 점수 순서를 유지합니다.
      */
     private final boolean preserveDocumentOrder;
+    
+    /**
+     * 검색 대상 EPUB 프로젝트 식별자입니다.
+     */
+    private final String projectId;
 
     private RetrievalRequest(Builder builder) {
+    	
+    	this.projectId =
+    	        requireText(
+    	                builder.projectId,
+    	                "projectId"
+    	        );
+
+    	
         this.query = requireText(
             builder.query,
             "query"
@@ -192,6 +205,10 @@ public final class RetrievalRequest {
             .build();
     }
 
+    public String getProjectId() {
+        return projectId;
+    }
+    
     public String getQuery() {
         return query;
     }
@@ -489,6 +506,7 @@ public final class RetrievalRequest {
     public String toString() {
         return "RetrievalRequest{" +
             "query='" + query + '\'' +
+            ", projectId='" + projectId + '\'' + 
             ", topK=" + topK +
             ", minimumScore=" + minimumScore +
             ", similarityType=" + similarityType +
@@ -505,6 +523,8 @@ public final class RetrievalRequest {
 
     public static final class Builder {
 
+    	private String projectId;
+    	
         private String query;
 
         private int topK =
@@ -540,6 +560,15 @@ public final class RetrievalRequest {
         private Builder() {
         }
 
+        public Builder projectId(
+                String projectId) {
+
+            this.projectId =
+                    projectId;
+
+            return this;
+        }
+        
         public Builder query(String query) {
             this.query = query;
             return this;

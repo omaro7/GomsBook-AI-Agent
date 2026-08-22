@@ -7,7 +7,6 @@ package kr.co.goms.gomsbook.ai.rag.embedding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 임베딩 모델 실행 결과입니다.

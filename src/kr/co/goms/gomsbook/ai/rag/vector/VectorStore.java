@@ -197,6 +197,34 @@ public interface VectorStore extends AutoCloseable {
     }
 
     /**
+     * 특정 프로젝트와 임베딩 모델의 모든 레코드를 조회합니다.
+     *
+     * @param projectId EPUB 프로젝트 식별자
+     * @param model 임베딩 모델명
+     * @return 프로젝트/모델별 레코드 목록
+     * @throws VectorStoreException 조회 실패 시
+     */
+    default List<VectorRecord> findByProjectAndModel(
+        String projectId,
+        String model
+    ) throws VectorStoreException {
+
+        String normalizedProjectId =
+            validateText(projectId, "projectId");
+
+        String normalizedModel =
+            validateText(model, "model");
+
+        return findAll().stream()
+            .filter(record ->
+                record != null
+                    && record.isProject(normalizedProjectId)
+                    && record.isModel(normalizedModel)
+            )
+            .toList();
+    }
+
+    /**
      * 특정 원본 문서 경로의 모든 레코드를 조회합니다.
      *
      * @param sourcePath 원본 문서 상대 경로
@@ -217,6 +245,38 @@ public interface VectorStore extends AutoCloseable {
                 normalizePath(
                     record.getChunk().getSourcePath()
                 ).equals(normalizedPath)
+            )
+            .toList();
+    }
+
+    /**
+     * 특정 프로젝트와 원본 문서 경로의 모든 레코드를 조회합니다.
+     *
+     * @param projectId EPUB 프로젝트 식별자
+     * @param sourcePath 원본 문서 상대 경로
+     * @return 프로젝트/경로별 레코드 목록
+     * @throws VectorStoreException 조회 실패 시
+     */
+    default List<VectorRecord> findByProjectAndSourcePath(
+        String projectId,
+        String sourcePath
+    ) throws VectorStoreException {
+
+        String normalizedProjectId =
+            validateText(projectId, "projectId");
+
+        String normalizedPath =
+            normalizePath(
+                validateText(sourcePath, "sourcePath")
+            );
+
+        return findAll().stream()
+            .filter(record ->
+                record != null
+                    && record.isProject(normalizedProjectId)
+                    && normalizePath(
+                        record.getChunk().getSourcePath()
+                    ).equals(normalizedPath)
             )
             .toList();
     }
@@ -325,6 +385,59 @@ public interface VectorStore extends AutoCloseable {
 
         for (VectorRecord record : records) {
             if (!record.isModel(normalizedModel)) {
+                continue;
+            }
+
+            if (delete(
+                record.getId(),
+                normalizedModel
+            )) {
+                deletedCount++;
+            }
+        }
+
+        return deletedCount;
+    }
+
+    /**
+     * 특정 프로젝트, 원본 문서 경로, 임베딩 모델에 해당하는
+     * 모든 벡터 레코드를 삭제합니다.
+     *
+     * @param projectId EPUB 프로젝트 식별자
+     * @param sourcePath 원본 문서 상대 경로
+     * @param model 임베딩 모델명
+     * @return 삭제된 레코드 개수
+     * @throws VectorStoreException 삭제 실패 시
+     */
+    default int deleteByProjectAndSourcePath(
+        String projectId,
+        String sourcePath,
+        String model
+    ) throws VectorStoreException {
+
+        String normalizedProjectId =
+            validateText(projectId, "projectId");
+
+        String normalizedPath =
+            normalizePath(
+                validateText(sourcePath, "sourcePath")
+            );
+
+        String normalizedModel =
+            validateText(model, "model");
+
+        List<VectorRecord> records =
+            findByProjectAndSourcePath(
+                normalizedProjectId,
+                normalizedPath
+            );
+
+        int deletedCount = 0;
+
+        for (VectorRecord record : records) {
+            if (record == null
+                || !record.isModel(normalizedModel)) {
+
                 continue;
             }
 

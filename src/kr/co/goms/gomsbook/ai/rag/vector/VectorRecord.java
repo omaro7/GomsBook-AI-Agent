@@ -89,8 +89,20 @@ public final class VectorRecord {
      * VectorStore 스키마나 인덱싱 정책 변경 시 사용할 수 있습니다.
      */
     private final long version;
+    
+    /**
+     * 이 VectorRecord가 속한 EPUB 프로젝트 식별자입니다.
+     */
+    private final String projectId;
 
     private VectorRecord(Builder builder) {
+    	
+        this.projectId =
+                requireText(
+                        builder.projectId,
+                        "projectId"
+                );
+        
         this.id = requireText(builder.id, "id");
 
         this.chunk = Objects.requireNonNull(
@@ -128,12 +140,14 @@ public final class VectorRecord {
     /**
      * 기본 VectorRecord를 생성합니다.
      *
+     * @param projectId EPUB 프로젝트 식별자
      * @param chunk 문서 Chunk
      * @param vector 임베딩 벡터
      * @param model 임베딩 모델명
      * @return 벡터 레코드
      */
     public static VectorRecord of(
+        String projectId,
         DocumentChunk chunk,
         float[] vector,
         String model
@@ -144,12 +158,17 @@ public final class VectorRecord {
         );
 
         return builder()
+    		.projectId(projectId)
             .id(chunk.getId())
             .chunk(chunk)
             .vector(vector)
             .model(model)
             .indexedAt(System.currentTimeMillis())
             .build();
+    }
+    
+    public String getProjectId() {
+        return projectId;
     }
 
     public String getId() {
@@ -203,6 +222,18 @@ public final class VectorRecord {
         return version;
     }
 
+    public boolean isProject(
+            String projectId) {
+
+        if (projectId == null) {
+            return false;
+        }
+
+        return this.projectId.equals(
+                projectId.trim()
+        );
+    }
+    
     /**
      * 지정한 모델로 생성된 레코드인지 확인합니다.
      */
@@ -407,19 +438,32 @@ public final class VectorRecord {
         VectorRecord other =
             (VectorRecord) object;
 
-        return id.equals(other.id)
-            && model.equals(other.model);
+        return projectId.equals(
+                other.projectId
+            )
+            && id.equals(
+                    other.id
+            )
+            && model.equals(
+                    other.model
+            );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, model);
+
+        return Objects.hash(
+                projectId,
+                id,
+                model
+        );
     }
 
     @Override
     public String toString() {
         return "VectorRecord{" +
-            "id='" + id + '\'' +
+        	"projectId='" + projectId + '\'' +
+            ", id='" + id + '\'' +
             ", chunkType=" + chunk.getType() +
             ", sourcePath='" + chunk.getSourcePath() + '\'' +
             ", model='" + model + '\'' +
@@ -433,7 +477,7 @@ public final class VectorRecord {
     }
 
     public static final class Builder {
-
+    	private String projectId;
         private String id;
         private DocumentChunk chunk;
         private float[] vector;
@@ -447,6 +491,13 @@ public final class VectorRecord {
         private Builder() {
         }
 
+        public Builder projectId(String projectId) {
+            this.projectId =
+                    projectId;
+
+            return this;
+        }
+        
         public Builder id(String id) {
             this.id = id;
             return this;

@@ -23,6 +23,7 @@ import kr.co.goms.gomsbook.ai.rag.model.DocumentChunkType;
  * <pre>
  * VectorSearchRequest request =
  *     VectorSearchRequest.builder()
+ *         .projectId(projectId)
  *         .queryVector(queryVector)
  *         .model("nomic-embed-text")
  *         .topK(8)
@@ -37,8 +38,7 @@ public final class VectorSearchRequest {
 
     public static final double DEFAULT_MINIMUM_SCORE = 0.0;
 
-    public static final VectorSimilarityType DEFAULT_SIMILARITY_TYPE =
-        VectorSimilarityType.COSINE;
+    public static final VectorSimilarityType DEFAULT_SIMILARITY_TYPE = VectorSimilarityType.COSINE;
 
     /**
      * 검색 질의 임베딩 벡터입니다.
@@ -113,8 +113,20 @@ public final class VectorSearchRequest {
      * false이면 minimumScore 미만 결과를 제외합니다.
      */
     private final boolean includeRejected;
+    
+    /**
+     * 검색 대상 EPUB 프로젝트 식별자입니다.
+     */
+    private final String projectId;
 
     private VectorSearchRequest(Builder builder) {
+    	
+    	this.projectId =
+    	        requireText(
+    	                builder.projectId,
+    	                "projectId"
+    	        );
+
         this.queryVector = copyAndValidateVector(
             builder.queryVector
         );
@@ -166,15 +178,18 @@ public final class VectorSearchRequest {
     /**
      * 기본 벡터 검색 요청을 생성합니다.
      *
+     * @param projectId EPUB 프로젝트 식별자
      * @param queryVector 질의 벡터
      * @param model 임베딩 모델명
      * @return 검색 요청
      */
     public static VectorSearchRequest of(
+        String projectId,
         float[] queryVector,
         String model
     ) {
         return builder()
+            .projectId(projectId)
             .queryVector(queryVector)
             .model(model)
             .build();
@@ -183,23 +198,30 @@ public final class VectorSearchRequest {
     /**
      * 결과 개수가 지정된 검색 요청을 생성합니다.
      *
+     * @param projectId EPUB 프로젝트 식별자
      * @param queryVector 질의 벡터
      * @param model 임베딩 모델명
      * @param topK 최대 결과 개수
      * @return 검색 요청
      */
     public static VectorSearchRequest of(
+        String projectId,
         float[] queryVector,
         String model,
         int topK
     ) {
         return builder()
+            .projectId(projectId)
             .queryVector(queryVector)
             .model(model)
             .topK(topK)
             .build();
     }
 
+    public String getProjectId() {
+        return projectId;
+    }
+    
     public float[] getQueryVector() {
         return queryVector.clone();
     }
@@ -287,6 +309,14 @@ public final class VectorSearchRequest {
      */
     public boolean matches(VectorRecord record) {
         if (record == null) {
+            return false;
+        }
+        /*
+         * Project Scope
+         */
+        if (!record.isProject(
+            projectId
+        )) {
             return false;
         }
 
@@ -549,7 +579,8 @@ public final class VectorSearchRequest {
     @Override
     public String toString() {
         return "VectorSearchRequest{" +
-            "model='" + model + '\'' +
+            "projectId='" + projectId + '\'' +
+            ", model='" + model + '\'' +
             ", dimensions=" + queryVector.length +
             ", topK=" + topK +
             ", minimumScore=" + minimumScore +
@@ -564,7 +595,7 @@ public final class VectorSearchRequest {
     }
 
     public static final class Builder {
-
+    	private String projectId;
         private float[] queryVector;
         private String model;
         private int topK = DEFAULT_TOP_K;
@@ -593,6 +624,11 @@ public final class VectorSearchRequest {
         private Builder() {
         }
 
+        public Builder projectId(String projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+        
         public Builder queryVector(float[] queryVector) {
             this.queryVector = queryVector == null
                 ? null

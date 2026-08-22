@@ -7,8 +7,19 @@ Bundle-Vendor: GOMSBOOK
 Automatic-Module-Name: kr.co.goms.gomsbook.ai.agent
 Bundle-RequiredExecutionEnvironment: JavaSE-23
 Export-Package: kr.co.goms.gomsbook.ai.agent,
+ kr.co.goms.gomsbook.ai.json,
  kr.co.goms.gomsbook.ai.llm,
  kr.co.goms.gomsbook.ai.llm.model,
+ kr.co.goms.gomsbook.ai.llm.ollama,
+ kr.co.goms.gomsbook.ai.project,
+ kr.co.goms.gomsbook.ai.rag,
+ kr.co.goms.gomsbook.ai.rag.context,
+ kr.co.goms.gomsbook.ai.rag.document,
+ kr.co.goms.gomsbook.ai.rag.embedding,
+ kr.co.goms.gomsbook.ai.rag.index,
+ kr.co.goms.gomsbook.ai.rag.prompt,
+ kr.co.goms.gomsbook.ai.rag.retrieval,
+ kr.co.goms.gomsbook.ai.rag.vector,
  kr.co.goms.gomsbook.ai.tool
 Bundle-ClassPath: .,
  lib/gson-2.8.9.jar,

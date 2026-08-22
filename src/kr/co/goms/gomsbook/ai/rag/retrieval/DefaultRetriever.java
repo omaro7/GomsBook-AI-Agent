@@ -12,10 +12,13 @@ import java.util.Objects;
 import kr.co.goms.gomsbook.ai.rag.embedding.EmbeddingClient;
 import kr.co.goms.gomsbook.ai.rag.embedding.EmbeddingException;
 import kr.co.goms.gomsbook.ai.rag.embedding.EmbeddingModelProvider;
+import kr.co.goms.gomsbook.ai.rag.model.DocumentChunk;
+import kr.co.goms.gomsbook.ai.rag.vector.VectorRecord;
 import kr.co.goms.gomsbook.ai.rag.vector.VectorSearchRequest;
 import kr.co.goms.gomsbook.ai.rag.vector.VectorSearchResult;
 import kr.co.goms.gomsbook.ai.rag.vector.VectorStore;
 import kr.co.goms.gomsbook.ai.rag.vector.VectorStoreException;
+import kr.co.goms.gomsbook.ai.util.GomsStringUtil;
 
 /**
  * 기본 {@link Retriever} 구현체입니다.
@@ -130,16 +133,23 @@ public final class DefaultRetriever implements Retriever {
         String query
     ) throws RetrievalException {
 
-        String normalizedQuery = validateQuery(query);
+        String normalizedQuery =
+            validateQuery(query);
 
-        RetrievalRequest request =
-            RetrievalRequest.builder()
-                .query(normalizedQuery)
-                .topK(defaultTopK)
-                .minimumScore(defaultMinimumScore)
-                .build();
-
-        return retrieve(request);
+        /*
+         * Project Scope가 필수이므로 query 문자열만으로는
+         * 안전한 검색 요청을 만들 수 없습니다.
+         *
+         * 프로젝트 검색은 projectId가 포함된
+         * RetrievalRequest를 사용해야 합니다.
+         */
+        throw new RetrievalException(
+            "Project-scoped retrieval requires RetrievalRequest with projectId",
+            normalizedQuery,
+            "",
+            RetrievalOperation.VALIDATE,
+            null
+        );
     }
 
     /**
@@ -175,7 +185,8 @@ public final class DefaultRetriever implements Retriever {
                 searchVectorStore(
                     query,
                     model,
-                    searchRequest
+                    searchRequest,
+                    request.getMinimumScore()
                 );
 
             List<VectorSearchResult> finalResults =
@@ -261,13 +272,29 @@ public final class DefaultRetriever implements Retriever {
     ) throws RetrievalException {
 
         try {
+        	
+        	// 5개 rank를 15개를 가지고 와서 최종 TOP5를 가지고 오는 구조
+        	int candidateTopK =
+        	        Math.max(
+        	                request.getTopK(),
+        	                request.getTopK() * 3
+        	        );
+        	
             VectorSearchRequest.Builder builder =
                 VectorSearchRequest.builder()
+	                .projectId(request.getProjectId())
                     .queryVector(queryVector)
                     .model(model)
-                    .topK(request.getTopK())
+                    .topK(candidateTopK)
+
+                    /*
+                     * Raw Vector 단계에서는 후보를 제거하지 않는다.
+                     *
+                     * 실제 minimumScore는 Hybrid Rerank 이후
+                     * applyScoreThreshold()에서 적용한다.
+                     */
                     .minimumScore(
-                        request.getMinimumScore()
+                            -1.0
                     )
                     .similarityType(
                         request.getSimilarityType()
@@ -288,7 +315,7 @@ public final class DefaultRetriever implements Retriever {
                         request.getMetadataFilters()
                     )
                     .includeRejected(
-                        request.isIncludeRejected()
+                        true
                     );
 
             return builder.build();
@@ -310,14 +337,16 @@ public final class DefaultRetriever implements Retriever {
     private List<VectorSearchResult> searchVectorStore(
         String query,
         String model,
-        VectorSearchRequest searchRequest
+        VectorSearchRequest searchRequest,
+        double minimumScore
     ) throws RetrievalException {
 
         try {
-            List<VectorSearchResult> results =
-                vectorStore.search(searchRequest);
-
-            if (results == null) {
+        	
+        	// 기본 Search 결과
+            List<VectorSearchResult> searchResults = vectorStore.search(searchRequest);
+            
+            if (searchResults == null) {
                 throw new RetrievalException(
                     "VectorStore returned null search results",
                     query,
@@ -326,8 +355,24 @@ public final class DefaultRetriever implements Retriever {
                     null
                 );
             }
+            
+            // Hybrid Retriever or Hybrid Rerank를 통해서 가중치로 계산해서 결과를 전달함.
+            List<VectorSearchResult> rerankedResults =
+                    rerank(
+                    		query,
+                            searchResults
+                    );
+            
+            // Threshold 이상만 결과저장
+            List<VectorSearchResult> filteredResults =
+                    applyScoreThreshold(
+                            rerankedResults,
+                            minimumScore
+                    );
+            
+            logTopKResults( query, filteredResults, minimumScore );
 
-            return List.copyOf(results);
+            return List.copyOf(filteredResults);
 
         } catch (VectorStoreException exception) {
             throw new RetrievalException(
@@ -397,17 +442,27 @@ public final class DefaultRetriever implements Retriever {
                     )
             );
         }
+        
+        int resultCount =
+                Math.min(
+                        request.getTopK(),
+                        results.size()
+                );
 
         List<VectorSearchResult> rankedResults =
-            new ArrayList<>(results.size());
+                new ArrayList<>(
+                        resultCount
+                );
 
         for (int index = 0;
-             index < results.size();
-             index++) {
+                index < resultCount;
+                index++) {
 
             rankedResults.add(
-                results.get(index)
-                    .withRank(index + 1)
+                    results.get(index)
+                            .withRank(
+                                    index + 1
+                            )
             );
         }
 
@@ -425,6 +480,18 @@ public final class DefaultRetriever implements Retriever {
             throw new RetrievalException(
                 "Retrieval request must not be null",
                 "",
+                "",
+                RetrievalOperation.VALIDATE,
+                null
+            );
+        }
+
+        if (request.getProjectId() == null
+            || request.getProjectId().isBlank()) {
+
+            throw new RetrievalException(
+                "Retrieval projectId must not be blank",
+                request.getQuery(),
                 "",
                 RetrievalOperation.VALIDATE,
                 null
@@ -537,6 +604,161 @@ public final class DefaultRetriever implements Retriever {
         }
     }
 
+    /**
+     * rank에 가중치 계산
+     * @param query
+     * @param results
+     * @return
+     */
+    private List<VectorSearchResult> rerank( String query, List<VectorSearchResult> results) {
+
+        if (results == null || results.isEmpty()) {
+            return List.of();
+        }
+
+        String normalizedQuery =
+                GomsStringUtil.normalize(
+                        query
+                );
+
+        List<VectorSearchResult> reranked = new ArrayList<>();
+
+        for (VectorSearchResult result : results) {
+
+            VectorRecord record = result.getRecord();
+
+            DocumentChunk chunk = record.getChunk();
+
+            double score = result.getScore();
+
+            String title =
+            		GomsStringUtil.normalize(
+                            chunk.getTitle()
+                    );
+
+            String content =
+            		GomsStringUtil.normalize(
+                            chunk.getContent()
+                    );
+
+            //유사도에 가중치 주기
+            if (!normalizedQuery.isBlank()) {
+
+                if (!title.isBlank()
+                        && title.contains(
+                                normalizedQuery
+                        )) {
+                    score += 0.15;
+                }
+
+                if (!content.isBlank()
+                        && content.contains(
+                                normalizedQuery
+                        )) {
+
+                    score += 0.10;
+                }
+            }
+
+            reranked.add(
+                    VectorSearchResult.builder()
+                            .record(
+                                    record
+                            )
+                            .score(
+                                    score
+                            )
+                            .similarityType(
+                                    result.getSimilarityType()
+                            )
+                            .accepted(
+                                    result.isAccepted()
+                            )
+                            .build()
+            );
+        }
+
+        reranked.sort(
+                Comparator
+                        .comparingDouble(
+                                VectorSearchResult::getScore
+                        )
+                        .reversed()
+        );
+
+        List<VectorSearchResult> ranked = new ArrayList<>();
+
+        for (int i = 0; i < reranked.size(); i++) {
+
+            ranked.add(
+                    reranked.get(i)
+                            .withRank(
+                                    i + 1
+                            )
+            );
+        }
+
+        return List.copyOf(
+                ranked
+        );
+    }
+    
+    /**
+     * Threshold 적용, 최종 Threshold는 rerank 이후 finalScore 기준으로 적용
+     * @param results
+     * @param minimumScore
+     * @return
+     */
+    private List<VectorSearchResult> applyScoreThreshold(
+            List<VectorSearchResult> results,
+            double minimumScore) {
+
+        if (results == null
+                || results.isEmpty()) {
+
+            return List.of();
+        }
+
+        List<VectorSearchResult> filtered =
+                new ArrayList<>();
+
+        for (VectorSearchResult result : results) {
+
+            if (result == null) {
+                continue;
+            }
+
+            if (result.getScore()
+                    < minimumScore) {
+
+                continue;
+            }
+
+            filtered.add(
+                    result
+            );
+        }
+
+        List<VectorSearchResult> ranked =
+                new ArrayList<>();
+
+        for (int i = 0;
+                i < filtered.size();
+                i++) {
+
+            ranked.add(
+                    filtered.get(i)
+                            .withRank(
+                                    i + 1
+                            )
+            );
+        }
+
+        return List.copyOf(
+                ranked
+        );
+    }
+    
     @Override
     public boolean isAvailable() {
         String model;
@@ -555,7 +777,126 @@ public final class DefaultRetriever implements Retriever {
         return embeddingClient.isAvailable(model)
             && vectorStore.isAvailable();
     }
+    
+    private void logTopKResults(
+            String query,
+            List<VectorSearchResult> results,
+            double threshold) {
 
+        System.out.println(
+                "[RAG] ========================================"
+        );
+
+        System.out.println(
+                "[RAG] Retrieval query = "
+                        + query
+        );
+
+        System.out.println(
+                "[RAG] Result count = "
+                        + (results == null
+                                ? 0
+                                : results.size())
+        );
+
+        System.out.println(
+                "[RAG] Retrieval threshold = "
+                        + threshold
+        );
+        
+        if (results == null
+                || results.isEmpty()) {
+
+            System.out.println(
+                    "[RAG] No retrieval results."
+            );
+
+            System.out.println(
+                    "[RAG] ========================================"
+            );
+
+            return;
+        }
+
+
+        int rank = 1;
+
+        for (VectorSearchResult result : results) {
+
+            if (result == null) {
+                continue;
+            }
+
+
+            VectorRecord record = result.getRecord();
+
+
+            if (record == null) {
+                continue;
+            }
+
+
+            DocumentChunk chunk = record.getChunk();
+
+
+            if (chunk == null) {
+                continue;
+            }
+
+
+            System.out.println(
+                    "[RAG][TOP-"
+                            + rank
+                            + "]"
+            );
+
+            System.out.println(
+                    "score      = "
+                            + String.format(
+                                    java.util.Locale.ROOT,
+                                    "%.6f",
+                                    result.getScore()
+                            )
+            );
+
+            System.out.println(
+                    "sourcePath = "
+                            + chunk.getSourcePath()
+            );
+
+            System.out.println(
+                    "chunkId    = "
+                            + chunk.getId()
+            );
+
+            System.out.println(
+                    "heading    = "
+                            + chunk.getTitle()
+            );
+
+            System.out.println(
+                    "type       = "
+                            + chunk.getType()
+            );
+
+            System.out.println(
+                    "text       = "
+                            + GomsStringUtil.abbreviate(
+                                    chunk.getContent(),
+                                    300
+                            )
+            );
+
+            rank++;
+        }
+
+
+        System.out.println();
+        System.out.println(
+                "[RAG] ========================================"
+        );
+    }
+    
     public EmbeddingClient getEmbeddingClient() {
         return embeddingClient;
     }

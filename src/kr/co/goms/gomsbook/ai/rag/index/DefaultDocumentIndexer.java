@@ -1061,7 +1061,7 @@ public class DefaultDocumentIndexer implements DocumentIndexer {
         setFeatureSafely(
             factory,
             "http://apache.org/xml/features/disallow-doctype-decl",
-            true
+            false
         );
 
         setFeatureSafely(

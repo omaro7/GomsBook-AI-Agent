@@ -8,6 +8,12 @@ package kr.co.goms.gomsbook.ai.tool;
 import java.util.Objects;
 
 import kr.co.goms.gomsbook.ai.tools.epub.InspectEpubTool;
+import kr.co.goms.gomsbook.ai.tools.project.InspectCurrentProjectTool;
+import kr.co.goms.gomsbook.ai.tools.rag.IndexProjectDocumentsTool;
+import kr.co.goms.gomsbook.ai.tools.rag.SearchProjectDocumentsTool;
+import kr.co.goms.gomsbook.ai.project.CurrentProjectProvider;
+import kr.co.goms.gomsbook.ai.rag.RagService;
+import kr.co.goms.gomsbook.ai.rag.index.ProjectRagIndexer;
 
 /**
  * Default implementation of {@link AgentToolRegistrar}.
@@ -23,8 +29,38 @@ import kr.co.goms.gomsbook.ai.tools.epub.InspectEpubTool;
  * by {@link ToolExecutor} and {@link ToolDefinitionProvider}.
  * </p>
  */
-public final class DefaultAgentToolRegistrar
-        implements AgentToolRegistrar {
+public final class DefaultAgentToolRegistrar implements AgentToolRegistrar {
+
+	private final CurrentProjectProvider currentProjectProvider;
+	
+	private final RagService ragService;
+	
+	private final ProjectRagIndexer projectRagIndexer;
+	
+	
+	public DefaultAgentToolRegistrar(
+	        CurrentProjectProvider currentProjectProvider,
+	        RagService ragService,
+	        ProjectRagIndexer projectRagIndexer) {
+
+	    this.currentProjectProvider =
+	            Objects.requireNonNull(
+	                    currentProjectProvider,
+	                    "currentProjectProvider must not be null"
+	            );
+
+	    this.ragService =
+	            Objects.requireNonNull(
+	                    ragService,
+	                    "ragService must not be null"
+	            );
+
+	    this.projectRagIndexer =
+	            Objects.requireNonNull(
+	                    projectRagIndexer,
+	                    "projectRagIndexer must not be null"
+	            );
+	}
 
     /**
      * Registers the default Agent Tools.
@@ -50,6 +86,16 @@ public final class DefaultAgentToolRegistrar
                 new EchoTool()
         );
 
+        /*
+         * Current EPUB project inspection.
+         */
+        registerIfAbsent(
+                registry,
+                new InspectCurrentProjectTool(
+                        currentProjectProvider
+                )
+        );
+        
 
         /*
          * EPUB inspection.
@@ -58,6 +104,28 @@ public final class DefaultAgentToolRegistrar
                 registry,
                 new InspectEpubTool()
         );
+        
+
+        /*
+         * Current EPUB project RAG indexing.
+         */
+        registerIfAbsent(
+                registry,
+                new IndexProjectDocumentsTool(
+                        currentProjectProvider,
+                        projectRagIndexer
+                )
+        );
+        
+        registerIfAbsent(
+                registry,
+                new SearchProjectDocumentsTool(
+                        ragService,
+                        currentProjectProvider,
+                        projectRagIndexer
+                )
+        );
+        
     }
 
     /**
