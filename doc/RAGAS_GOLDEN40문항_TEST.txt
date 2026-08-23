@@ -1,0 +1,1206 @@
+1.정식 RAG 품질 평가, 40문항
+  eval/dataset/rag-golden-v1.json
+
+[RAG-EVAL] ========================================
+[RAG-EVAL] Golden Test Complete
+[RAG-EVAL] Dataset       = rag-golden-v1
+[RAG-EVAL] Cases         = 40
+[RAG-EVAL] Average Score = 0.7094
+[RAG-EVAL] ========================================
+
+[RAG-EVAL] Case ID       = RAG-GOLD-001
+[RAG-EVAL] Question      = 서울시립미술관은 점심시간에 어떤 장점이 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 0.8250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by Context 2, which explicitly states that the space is open to everyone for free and can be visited without burden during lunch hours.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by explaining that the Seoul Museum of Art is introduced as an open space that people can visit without burden during their lunch break.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = Context 2 directly provides the core answer regarding the museum being a free, open space accessible during lunch. Context 1 and 5 provide supporting thematic and locational context. However, Contexts 3 and 4 are completely irrelevant to the specific question about the museum's advantages during lunch, which lowers the overall precision score.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover the facts that the Seoul Museum of Art is a free, open space that can be visited without burden during lunch hours. However, the specific claim that 'busy office workers can sufficiently look around in about an hour' is not mentioned in any of the provided contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-002
+[RAG-EVAL] Question      = 서울시립미술관에서 본 전시 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer states that the exhibition title seen at the Seoul Museum of Art was 『유영국: 산의 내 안에 있다』. This is supported by Context 2, which mentions the exhibition title, and Context 4, which states that the author's steps naturally led to the Seoul Museum of Art.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by providing the specific title of the exhibition seen at the Seoul Museum of Art.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary pieces of information to answer the question: Context 4 establishes the location as the Seoul Museum of Art, and Context 2 explicitly names the exhibition as 『유영국: 산의 내 안에 있다』, which matches the reference answer perfectly.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the exhibition seen at the Seoul Museum of Art was 'Yoo Youngkuk: The Mountain is Within Me'. Context 4 establishes that the person went to the Seoul Museum of Art, and Context 2 explicitly identifies the exhibition they encountered as 'Yoo Youngkuk: The Mountain is Within Me'. Together, the contexts provide all the necessary information.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-003
+[RAG-EVAL] Question      = 예전의 저자에게 덕수궁 돌담길은 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 5, which explicitly states that for the author at that time, the Deoksugung Stone Wall Path was not 'leisure' but a 'race against time'.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question about the meaning of Deoksugung Stone Wall Path to the author in the past.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = Context 5 directly provides the core answer ('여유'가 아니라 '시간과의 경주'), and Context 1 provides the supporting detail of running (뛰었다) to illustrate that race against time. The retrieved contexts are highly relevant and sufficient to construct the reference answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that for the author in the past, Deoksugung Stone Wall Path was not a space of leisure but a race against time to avoid missing the last bus. Context 5 explicitly states that for the author at that time, the path was 'not leisure' but a 'race against time'. While the specific mention of the 'last bus' is not explicitly in the retrieved contexts, the core meaning and the specific phrasing ('leisure' vs 'race against time') are fully captured in Context 5, and Context 1 supports the action of running. The essential meaning of the reference answer is fully supported.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-004
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회는 어떤 모습이었나요?
+[RAG-EVAL] Overall Score = 0.8000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the information provided in the contexts. It correctly identifies that there is no explicit mention of a 'concert' (음악회) as a named event, but it faithfully describes the scene mentioned in the contexts: passing by Ewha Girls' High School, hearing cello sounds, and seeing four cellists sitting side by side on a stage.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by describing the scene of the concert (hearing a cello from afar and seeing four cellists sitting side by side), even while noting that the specific phrase 'accidentally encountered' wasn't explicitly in the context.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = The retrieved contexts provide several key pieces of information found in the reference answer: the location (이화여고 앞) and the performers (네 명의 첼리스트). However, it misses the specific name of the concert ('평화를 위한 화목 음악회') and the reaction of the citizens. While the contexts are relevant, they are fragmented and incomplete compared to the full reference answer.
+[RAG-EVAL] context_recall = 0.6000
+[RAG-EVAL] reason = The retrieved contexts cover the location (in front of Ewha Girls' High School) and the performers (four cellists). However, they fail to mention the specific name of the concert ('Harmony Concert for Peace') and the detail that citizens spending their lunch break stopped to listen.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-005
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss walking, Jeju travel, and mountains.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by stating that the required information is not available in the provided context. In a RAG system, explicitly stating the absence of information is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information about Haeundae Beach is not present in the provided context, which aligns perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-006
+[RAG-EVAL] Question      = 한여름 점심시간에 저자가 서울시립미술관으로 향하게 된 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.7750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain the reason why the author headed to the Seoul Museum of Art. While the contexts mention it was midsummer and discuss lunch breaks, they never explicitly state the motivation or reason for the author's visit to the museum.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the provided context does not contain the information. In a RAG evaluation, when the answer honestly reports the absence of information rather than hallucinating or being evasive, it is considered a relevant response to the query given the constraints of the provided data.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = The retrieved contexts provide fragmented pieces of the answer. Context 2 and 4 establish the 'hot summer' and 'difficulty of walking under the sun,' which aligns with the reference answer. However, none of the contexts explicitly state the author's decision to go to the Seoul Museum of Art specifically to find a cool place to walk, which is the core reason. The contexts provide the 'why' (the heat) but miss the 'action' (choosing the museum as the solution).
+[RAG-EVAL] context_recall = 0.5000
+[RAG-EVAL] reason = The retrieved contexts support the part of the answer regarding the difficulty of walking under the hot midsummer sun (Context 2, 4). However, they do not explicitly mention the author's specific intention to 'walk slowly in a cool place' or the final action of 'visiting the Seoul Museum of Art' as the solution to the heat.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-007
+[RAG-EVAL] Question      = 유영국의 산 그림을 보며 저자는 자신의 삶을 어떻게 돌아보게 되었나요?
+[RAG-EVAL] Overall Score = 0.8000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 2 explicitly states that while looking at the mountains, the author found themselves looking back at their own life. Context 5 describes the reflection on their past (running toward the future) and present (walking while looking at today).
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by explaining how the author reflected on their life (shifting from racing toward the future to walking while focusing on the present) while looking at the painting.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = The retrieved contexts provide some key elements: Context 3 identifies the exhibition ('Yoo Young-kuk: The Mountain is Inside Me'), and Context 2 explicitly mentions the author looking back at their life while looking at the mountains. However, the contexts lack the specific detail from the reference answer regarding 'simple lines and colors' and the explicit realization that 'the mountain is not outside but inside me' as a reflective conclusion, although the exhibition title hints at it. The contexts are relevant but incomplete.
+[RAG-EVAL] context_recall = 0.6000
+[RAG-EVAL] reason = The retrieved contexts support the claim that the author looked back at their life while looking at the mountains (Context 2) and provide the title of the exhibition which hints at the idea that the mountain is inside (Context 3). However, the contexts do not explicitly mention that the mountains were expressed with 'simple lines and colors' or explicitly state the realization that 'the mountain is not outside but also inside me' as a reflective thought, although it is implied by the exhibition title.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-008
+[RAG-EVAL] Question      = 서울에 처음 올라왔을 때 저자는 시간이 날 때마다 무엇을 찾아다녔나요?
+[RAG-EVAL] Overall Score = 0.3000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about what the author looked for whenever they had time after first coming to Seoul. While the contexts mention walking and the Seoul Museum of Art, they do not explicitly state that the author 'looked for' these things 'whenever they had time' specifically upon 'first coming to Seoul'.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing information in the context. It does not provide any information that addresses the user's question.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = The retrieved contexts mention a museum (Seoul Museum of Art) and the fact that it was a free, open space, which hints at the 'free exhibitions' mentioned in the reference answer. However, none of the contexts explicitly state that the author 'searched for free performances or exhibitions whenever they had time' upon first coming to Seoul. The contexts are fragmented and lack the direct causal link and specific activities (performances) required to fully answer the question.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts do not mention the author moving to Seoul, studying during the day, or specifically seeking out free performances and exhibitions during their spare time. While Context 2 and 4 mention a free open space and the Seoul Museum of Art, they do not provide the narrative context required to support the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-009
+[RAG-EVAL] Question      = 정동극장 무료 시사회를 본 뒤 저자가 덕수궁 돌담길을 뛰어야 했던 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.6000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain the reason why the author had to run along the stone wall path after the screening. While Context 3 and 4 mention running toward the last train, they are not explicitly linked to the event of the free screening at Jeongdong Theater in a way that provides a causal reason for that specific occasion.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing information in the context. While it is an honest response regarding the provided data, it does not provide any of the information requested by the user's question.
+[RAG-EVAL] context_precision = 0.7000
+[RAG-EVAL] reason = The retrieved contexts contain the necessary pieces of information to construct the answer: Context 1 establishes the event (free screening at Jeongdong Theater) and the time (night), and Context 3 and 4 mention running toward the last train and the subway station. However, the connection between the screening and the act of running is fragmented across multiple contexts rather than being presented as a cohesive narrative, and the specific mention of 'Deoksugung Stone Wall Path' as the location of the run is only implied by the general context of the path in Context 3.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover the key elements: the author watched a free screening at Jeongdong Theater, it was night when they left (Context 1), and they were running toward the last train/subway station (Context 3, 4). However, the specific detail that they were running 'along the Deoksugung Stone Wall Path' (덕수궁 돌담길) while wearing a bag is only partially implied by Context 3 mentioning the stone wall path in a reflective sense, rather than explicitly stating they ran that specific path immediately after the screening in the same narrative sequence as the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-010
+[RAG-EVAL] Question      = 시간이 흐른 뒤 덕수궁 돌담길을 걷는 저자의 태도는 과거와 어떻게 달라졌나요?
+[RAG-EVAL] Overall Score = 0.9000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 4 mentions the past need to not miss the last bus to go home, and Context 5 describes the author now walking slowly along the stone wall path while remembering their younger self who used to run toward the last bus.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and accurately addresses the question by contrasting the author's past behavior (running to catch the last bus) with their current attitude (walking slowly), providing a clear explanation of the change.
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = The retrieved contexts contain the key elements needed to construct the reference answer: the past urgency of catching the last train (Context 4), the current act of walking slowly (Context 5), and the appreciation of the scenery like trees and seasonal light (Context 3). While the contexts are fragmented, they provide the necessary factual basis to answer the question.
+[RAG-EVAL] context_recall = 0.8000
+[RAG-EVAL] reason = The retrieved contexts cover most of the key points: the past urgency of catching the last train (Context 4), the current act of walking slowly (Context 5), and the observation of trees and seasonal light (Context 3). However, the specific contrast of 'looking only at the destination' in the past and 'looking at today' in the present is not explicitly stated in the contexts, although it is strongly implied.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-011
+[RAG-EVAL] Question      = 정동길 음악회 무대에는 몇 명의 첼리스트가 앉아 있었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer states that there were four cellists sitting side by side on the stage, which is directly supported by Context 1 ('무대 위에는 네 명의 첼리스트가 나란히 앉아 있었다').
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by specifying the exact number of cellists on the stage.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = Context 1 contains the exact answer required to satisfy the reference answer ('네 명의 첼리스트가 나란히 앉아 있었다'). While other contexts provide background narrative, the primary piece of information needed is present and ranked first.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that four cellists were sitting side by side on the stage, and this exact information is explicitly provided in Context 1.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-012
+[RAG-EVAL] Question      = 정동길에서 열린 음악회는 어떤 장소와 분위기에서 진행되었나요?
+[RAG-EVAL] Overall Score = 0.4500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about a concert held on Jeongdong-gil. While the contexts mention a small stage and cello sounds, they never mention 'Jeongdong-gil', making the answer faithful to the provided text.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the context. It does not provide any information regarding the location or atmosphere of the concert, thus failing to address the user's question.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = Contexts 1, 2, and 4 provide partial information regarding the setting (small stage, open space, cello sounds) and the atmosphere (accessible during lunch), which aligns with parts of the reference answer. However, critical details such as the specific location (in front of Ewha Girls' High School), the name of the concert ('Harmony Concert for Peace'), and the number of performers (four cellists) are missing. Contexts 3 and 5 are completely irrelevant.
+[RAG-EVAL] context_recall = 0.4000
+[RAG-EVAL] reason = The retrieved contexts cover some details: the presence of a small stage (Context 1), the sound of a cello (Context 4), and the fact that people could visit during lunch time (Context 2). However, they completely omit critical information from the reference answer, such as the specific location (in front of Ewha Girls' High School), the name of the concert ('Harmony Concert for Peace'), the number of cellists (four), and the specific behavior of the citizens stopping to listen.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-013
+[RAG-EVAL] Question      = 서소문성지 역사박물관 내부는 저자에게 어떤 공간으로 느껴졌나요?
+[RAG-EVAL] Overall Score = 0.8750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by Context 4 and Context 5, which explicitly state that the museum felt more like a space for reflecting on one's heart than a place to gain knowledge, and that the entire space calmed the author's mind.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by describing how the author perceived the interior of the Seosomun Shrine History Museum (as a place for reflection rather than knowledge, and a place that calms the mind).
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = The retrieved contexts contain the core elements of the reference answer: that the space is for reflecting on one's heart rather than gaining knowledge (Context 4) and that it is a calming space (Context 5). However, it misses the specific detail about the contrast with the city center (being in the middle of the city but quiet) and the effect on the author's behavior (lowering voice and steps).
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover the claims that the space is for reflecting on one's heart rather than gaining knowledge (Context 4) and that it is calm/settling (Context 5). However, they do not mention the specific detail that it felt unbelievable that the museum was in the middle of the city center, nor the specific detail about naturally lowering one's voice and steps.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-014
+[RAG-EVAL] Question      = 서소문 일대 옛 철길 건널목에서 차단기가 내려오면 어떤 소리가 들렸나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer states that a '땡땡땡' bell sound was heard when the barrier came down, which is directly supported by Context 1.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by specifying the sound ('땡땡땡' bell sound) that occurred when the barrier lowered.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = Context 1 directly provides the specific sound ('땡땡땡' 하는 종소리) mentioned in the reference answer. While other contexts provide background information, Context 1 is perfectly aligned with the user's question and the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that a '땡땡땡' bell sound rang when the barrier came down. Context 1 explicitly mentions that when the barrier came down, a '땡땡땡' bell sound rang, providing all the necessary information to support the answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-015
+[RAG-EVAL] Question      = 점심시간에 찾은 서울도서관은 저자에게 단순히 쉬어 가는 곳 이상으로 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about the author visiting the Seoul Library during lunch or what meaning it held for them. While the contexts mention lunch breaks and a 'open space' (Context 2), they never explicitly name the 'Seoul Library' or define its specific meaning to the author.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing context. It does not provide any information that addresses the user's question about the meaning of the Seoul Library to the author.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain the information needed to answer the question. The reference answer specifies that the library was a place that inspired the author to write again and led them toward tomorrow's manuscript, but the provided contexts only describe the author's lunch routine and general thoughts on books, without mentioning the specific meaning of the Seoul Library to the author.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts describe the author's lunch break routine and general thoughts on books, but none of them mention that the Seoul Library specifically inspired the author to write again or led them toward tomorrow's manuscript, which is the core of the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-016
+[RAG-EVAL] Question      = 저자가 점심을 먹고 사무실로 바로 돌아가지 않고 걷기로 한 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.5750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly links the author's decision to walk after lunch (Context 1) to the fact that their lunch time was the first thing to change after receiving health checkup results (Context 3).
+[RAG-EVAL] answer_relevancy = 0.6000
+[RAG-EVAL] reason = The answer attempts to address the reason why the author decided to walk, but the phrasing '점심시간이 가장 먼저 바뀌었기 때문입니다' (because lunch time was the first thing to change) is logically awkward and incomplete. It suggests a causal link but doesn't clearly explain the motivation (e.g., needing exercise due to health results), making the answer partially relevant but poorly articulated.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = The retrieved contexts mention that the author decided to walk instead of returning to the office (Context 1) and that their lunch routine changed after receiving health checkup results (Context 3). However, the specific reason—that moving after meals helps manage blood sugar levels which were higher than expected—is missing from all the provided contexts. The contexts provide the 'what' and a vague 'when', but not the 'why' required by the reference answer.
+[RAG-EVAL] context_recall = 0.3000
+[RAG-EVAL] reason = The retrieved contexts mention that the author decided to walk instead of returning to the office (Context 1) and that their lunch break changed after receiving health checkup results (Context 3). However, the specific reason—that the fasting blood sugar level was higher than expected and that moving after meals helps manage blood sugar—is completely missing from the contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-017
+[RAG-EVAL] Question      = 서울시립미술관을 다녀온 점심시간은 평소의 점심시간과 어떻게 달랐나요?
+[RAG-EVAL] Overall Score = 0.5000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the information provided in the retrieved contexts. Context 2 describes the usual lunch routine, and Context 4 explicitly states that the lunch hour on that specific day (when visiting the museum) was different.
+[RAG-EVAL] answer_relevancy = 0.3000
+[RAG-EVAL] reason = The answer acknowledges that the lunch break was different from usual, but it fails to explain *how* it was different. It describes the 'usual' routine but provides no specific details about the experience at the Seoul Museum of Art, leaving the core of the user's question unanswered.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = The retrieved contexts provide the setup for the answer (Context 2 describes the usual routine and Context 4 states that this day was different), but they completely miss the core of the reference answer: the specific details about walking for health, the experience of self-reflection through culture, and the feeling of a 'lighter heart' rather than just blood sugar. The most critical parts of the expected answer are missing from the retrieved contexts.
+[RAG-EVAL] context_recall = 0.3000
+[RAG-EVAL] reason = The retrieved contexts only support the first part of the reference answer (that the person usually returns to the office with coffee after eating). They fail to mention the key elements of the experience: starting walking for health, the encounter with culture, the time for self-reflection, and the feeling of the heart becoming lighter than the blood sugar level.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-018
+[RAG-EVAL] Question      = 젊은 시절 저자에게 덕수궁 돌담길의 아름다움이 보이지 않았던 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.7000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 5, which states that the stone wall was a landscape that had to be passed by without having the leisure to be beautiful.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the question by explaining why the author did not perceive the beauty of the Deoksugung stone wall path during their youth.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = Context 5 mentions that the wall was a scenery that had to be passed without time to feel its beauty, and Context 1 mentions running toward the last bus. However, the retrieved contexts are fragmented and missing the core causal explanation found in the reference answer (the specific act of running with a bag and checking the watch to avoid missing the last bus). The contexts provide hints but not the complete information required to answer the question accurately.
+[RAG-EVAL] context_recall = 0.4000
+[RAG-EVAL] reason = The retrieved contexts mention that the author used to run toward the last bus (Context 1) and that the stone wall was a scenery they had to pass without time to feel its beauty (Context 5). However, they miss several key details from the reference answer: carrying a bag, running with all their might, and repeatedly checking the watch.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-019
+[RAG-EVAL] Question      = 저자가 '사람은 같은 길을 걸어도 같은 길을 만나지 않는다'고 이해하게 된 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.5750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately states that while the context mentions the author came to understand the phrase, the specific reason why is not provided in the retrieved texts. This is a faithful representation of the provided information.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by stating that the provided context does not contain the specific reason requested. In a RAG evaluation, when the information is missing from the context, an honest admission of that absence is the most relevant and correct response.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = Context 1 confirms that the author came to understand the phrase, but none of the retrieved contexts provide the 'reason' why (the change in the author's perspective and pace of walking) as specified in the reference answer. The other contexts are irrelevant to the specific cause of this realization.
+[RAG-EVAL] context_recall = 0.1000
+[RAG-EVAL] reason = The retrieved contexts only mention that the author came to understand the phrase 'people do not meet the same road even if they walk the same path' (Context 1), but they fail to provide the actual reason explained in the reference answer: that the author's perspective changed from focusing only on the destination to noticing the stone walls, trees, and seasonal light while walking slowly.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-020
+[RAG-EVAL] Question      = 정동길에서 저자가 음악회를 발견하게 된 직접적인 계기는 무엇이었나요?
+[RAG-EVAL] Overall Score = 0.3750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about 'Jeongdong-gil' or a 'concert', nor the specific reason the author discovered one. While Context 1 mentions following a sound to a small stage, it does not specify the location as Jeongdong-gil or the event as a concert, making the answer's claim about the lack of specific information accurate.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing context. It does not provide any information that addresses the user's question about how the author discovered the concert.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = Only Context 1 provides a small piece of the answer (following the sound to a small stage), but it misses the critical details mentioned in the reference answer, such as the location (in front of Ewha Girls' High School) and the specific instrument (cello). The other contexts are general reflections and completely irrelevant to the specific question.
+[RAG-EVAL] context_recall = 0.3000
+[RAG-EVAL] reason = The reference answer contains three key pieces of information: 1) the location (passing by Ewha Girls' High School), 2) the trigger (hearing a cello sound from afar), and 3) the result (following the sound to find a small stage and concert). The retrieved contexts only mention following a sound to find a small stage (Context 1), missing the specific location and the specific instrument (cello).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-021
+[RAG-EVAL] Question      = 정동길 음악회가 일반적인 대형 공연과 달랐던 점은 무엇인가요?
+[RAG-EVAL] Overall Score = 0.8750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 1 confirms it was not a fancy venue or a concert hall with hundreds of people, Context 4 mentions citizens stopping during lunch break to listen, and Context 5 mentions the small stage.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the question by contrasting the specific characteristics of the Jeongdong-gil concert (small stage, spontaneous audience of citizens during lunch) with those of typical large-scale performances (grand venues, concert halls with hundreds of spectators).
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = The retrieved contexts contain almost all the key elements of the reference answer: the lack of a grand venue (Context 1), the presence of a small stage (Context 5), and the spontaneous gathering of citizens during lunch (Context 4). The only missing detail is the specific mention of 'four cellists'. Contexts 2 and 3 are irrelevant, but the relevant contexts are highly precise.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover most of the reference answer: the lack of a fancy venue or large concert hall (Context 1), the small stage (Context 5), and citizens stopping during lunch to listen (Context 4). However, the specific detail that 'four cellists' performed is missing from all retrieved contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-022
+[RAG-EVAL] Question      = 서소문성지 역사박물관을 저자가 실제로 처음 들어가 본 시점은 언제였나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 5, which states that the author actually entered the museum after starting their 'lunch walk' (점심걷기).
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by specifying the exact timing of when the author first entered the museum.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary information to construct the reference answer. Context 2 identifies the location (Seosomun Shrine History Museum), and Context 5 explicitly states that the author actually entered the place after starting 'lunch walks' (점심걷기). The combination of these contexts directly supports the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the author had passed the place many times but actually entered after starting 'lunch walks'. Context 2 confirms they had passed the Seosomun Shrine History Museum many times, and Context 5 explicitly states that they actually entered after starting 'lunch walks'. All factual claims in the reference answer are supported.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-023
+[RAG-EVAL] Question      = 서소문성지 역사박물관 주변의 철길과 고가도로 기억은 저자에게 어떤 의미로 남아 있나요?
+[RAG-EVAL] Overall Score = 0.7500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the provided contexts. It correctly identifies that there is no mention of 'railroads' and that the information regarding the 'overpass' is limited to its disappearance and the author's heavy heart upon hearing about a collapse, concluding that there is insufficient information to define the specific 'meaning' of these memories.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer is highly relevant because it directly addresses the user's question by explaining what information is and is not available in the provided context. Instead of hallucinating or providing irrelevant information, it accurately states that the specific 'meaning' requested is not present, while summarizing the related mentions of the overpass.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = The retrieved contexts contain some of the key elements mentioned in the reference answer (the disappearance of the Seosomun overpass and the collapse accident). However, they are fragmented and missing the crucial synthesis: that these memories represent a 'personal history' where the city's time and the author's memories overlap. The contexts provide the 'what' but not the 'meaning' (the 'why') requested by the question.
+[RAG-EVAL] context_recall = 0.6000
+[RAG-EVAL] reason = The retrieved contexts mention the disappearance of the Seosomun Overpass (Context 2) and the author's reaction to the overpass collapse accident (Context 3). However, there is no mention of the 'bell sound of the old railroad crossing' or the specific interpretation that these memories represent a 'personal history where the time Seoul has passed and the author's own memories overlap.' The contexts provide the raw events but not the synthesized meaning described in the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-024
+[RAG-EVAL] Question      = 서울도서관에 들어섰을 때 바깥 서울광장과 내부 공간은 어떻게 대비되나요?
+[RAG-EVAL] Overall Score = 0.3500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the contrast between the interior of the Seoul Library and the exterior Seoul Plaza. The contexts only describe the interior atmosphere and accessibility.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the provided context. It does not provide any information regarding the contrast between Seoul Plaza and the interior of the Seoul Library, thus failing to address the user's question.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = The retrieved contexts mention that the space is 'open', 'calm', and a place to 'reflect on one's heart', which vaguely aligns with the 'quiet' aspect of the reference answer. However, they completely fail to mention the specific contrast with the outside Seoul Plaza (noise, tourists, traffic) which is the core of the user's question. The contexts provide general impressions of the interior but no comparative information.
+[RAG-EVAL] context_recall = 0.2000
+[RAG-EVAL] reason = The reference answer describes a specific contrast between the noisy exterior (Seoul Plaza with people, tourists, and cars) and the quiet interior of the library. The retrieved contexts mention that the space is 'open' and 'calm' (Context 5), but they completely fail to mention the exterior environment (Seoul Plaza) or the specific contrast between the city noise and the library's silence.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-025
+[RAG-EVAL] Question      = 서울도서관의 책들을 바라보며 저자는 책을 어떤 존재로 생각하게 되었나요?
+[RAG-EVAL] Overall Score = 0.7500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the provided contexts. It correctly identifies that the specific location 'Seoul Library' is not mentioned in the text and accurately quotes the author's perception of books as 'a person's lived time' rather than just printed letters, which is explicitly stated in Context 4.
+[RAG-EVAL] answer_relevancy = 0.7000
+[RAG-EVAL] reason = The answer explicitly states that the specific context of 'Seoul Library' is missing, but it still provides the core information requested (how the author views books). While it is partially incomplete due to the missing location context, it directly addresses the essence of the user's question.
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = Context 4 directly provides the core answer to the question, stating that books are not just printed letters but the time a person has lived. However, the other contexts (1, 2, 3, 5) are largely irrelevant or only provide atmospheric background, which slightly reduces the overall precision of the retrieved set.
+[RAG-EVAL] context_recall = 0.5000
+[RAG-EVAL] reason = The retrieved contexts (specifically Context 4) support the main conclusion that the author views books as 'the time a person has lived' rather than just 'printed letters on paper'. However, the contexts fail to provide the supporting reasoning mentioned in the reference answer: that thousands of books each contain a person's time, some containing lifelong research and others recording their lives.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-026
+[RAG-EVAL] Question      = 서울시립미술관은 누구나 관람료 없이 들어갈 수 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 0.9000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is supported by the combination of Context 1 and Context 4. Context 4 establishes that the author's destination was the Seoul Museum of Art, and Context 1 describes that place as an open space where anyone could enter for free.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and accurately addresses the user's question, confirming that the Seoul Museum of Art is introduced as a space that anyone can enter for free.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = Context 1 directly supports the reference answer by stating that anyone can enter for free and it is an open space. Context 4 identifies the location as the Seoul Museum of Art, which links the description in Context 1 to the specific entity in the question. However, Contexts 2, 3, and 5 are irrelevant to the specific question about admission fees and the nature of the space, which lowers the overall precision.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the Seoul Museum of Art is introduced as an open space that is free for everyone and can be visited without burden even during lunch hours. Context 1 explicitly confirms that 'anyone could enter for free' and it was 'an open space that could be visited without burden even during lunch hours,' and Context 4 identifies the location as the Seoul Museum of Art. Together, they fully support all claims in the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-027
+[RAG-EVAL] Question      = 건강을 위해 시작한 점심걷기가 서울시립미술관 방문을 통해 어떤 의미로 확장되었나요?
+[RAG-EVAL] Overall Score = 0.9000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the information provided in the contexts. Context 1 explicitly states that walking for health met culture, which in turn led the author to look at themselves more slowly. Context 2 connects this process to the visit to the Seoul Museum of Art.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the question by explaining how the act of walking for health expanded into a meaningful experience of self-reflection through the encounter with culture (the museum visit).
+[RAG-EVAL] context_precision = 0.9000
+[RAG-EVAL] reason = The retrieved contexts collectively provide all the necessary components to construct the reference answer: the initial motivation (health/health checkup in Context 3 and 4), the destination (Seoul Museum of Art in Context 2), and the expanded meaning (meeting culture and reflecting on oneself in Context 1). While the specific mention of 'fasting blood sugar' is missing, the overall narrative arc required to answer the question is fully present.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover the core transition: starting walking for health (Context 4), visiting the Seoul Museum of Art (Context 2), and the expansion into encountering culture and reflecting on oneself (Context 1). However, the specific detail about 'managing fasting blood sugar' (공복혈당 관리) mentioned in the reference answer is not explicitly present in the retrieved contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-028
+[RAG-EVAL] Question      = 젊은 시절 저자가 무료 시사회를 보기 위해 찾았던 곳은 어디인가요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about where the author went to watch a free screening in their youth. None of the retrieved contexts mention 'youth' or 'free screenings'.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the context. It does not provide the information requested by the user, making it irrelevant to the actual question asked.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts mention '정동극장' (Jeongdong Theater) or the author's visit to a free preview/screening. The contexts discuss walking, culture, and general reflections, but provide no specific information to answer the question.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer states that the author visited 'Jeongdong Theater' (정동극장) for a free preview, but none of the retrieved contexts mention 'Jeongdong Theater' or the specific purpose of seeing a preview.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-029
+[RAG-EVAL] Question      = 덕수궁 돌담길에서 과거의 저자와 현재의 저자가 시간을 대하는 방식은 어떻게 대비되나요?
+[RAG-EVAL] Overall Score = 0.7250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the information provided in the contexts. Context 3 explicitly states that for the past self, the path was a 'race against time' rather than 'leisure', and Context 2 mentions running with a bag. Context 4 confirms that the current self is walking the path and has changed significantly.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the contrast in how the past and present authors perceive and treat time at the Deoksugung Stone Wall Path, specifically contrasting 'racing against time' (past) with 'walking' (present).
+[RAG-EVAL] context_precision = 0.5000
+[RAG-EVAL] reason = The retrieved contexts provide information about the 'past self' (running, racing against time), which aligns with the first part of the reference answer. However, they completely lack information about the 'present self's' approach to time (slowing down, observing the scenery), which is essential for the contrast requested in the question. The contexts are relevant but incomplete.
+[RAG-EVAL] context_recall = 0.4000
+[RAG-EVAL] reason = The retrieved contexts support the part of the reference answer regarding the past author (running, 'race against time'), but they provide no information about the current author's specific behavior (slowing down, looking at walls, trees, and light). The contrast is only vaguely implied by the statement that the author has 'changed,' but the specific details of the current approach to time are missing.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-030
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회의 이름은 무엇인가요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the name of the concert. The contexts describe a scene with cellists on a stage, but no specific name for the concert is mentioned.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing context. It does not provide the name of the concert requested by the user, making it irrelevant to the goal of answering the question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain the name of the concert ('평화를 위한 화목 음악회'). While they describe the scene of encountering music on Jeongdong-gil, they fail to provide the specific piece of information required to answer the question.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer specifies the name of the concert as '평화를 위한 화목 음악회', but none of the retrieved contexts mention the name of the concert or any specific title.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-031
+[RAG-EVAL] Question      = 정동길에서의 우연한 음악 경험이 저자에게 특별했던 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.3500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding why the musical experience was special to the author, which is accurate as the contexts only mention citizens stopping to listen to music without explaining the author's personal feelings or reasons for it being special.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer explicitly states that it cannot find the information requested in the provided context. While it is an honest response regarding the available data, it does not provide any information that addresses the user's question about why the experience was special.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = The retrieved contexts are largely irrelevant. Only Context 2 mentions people listening to music during lunch time, which partially relates to the question. However, none of the contexts explain *why* the experience was special to the author (forgetting work, the lingering feeling of the music), which is the core of the reference answer. Contexts 1, 3, 4, and 5 provide no useful information for answering the specific question.
+[RAG-EVAL] context_recall = 0.2000
+[RAG-EVAL] reason = The reference answer states that the experience was special because the author encountered unplanned music during lunch, allowing them to forget busy work and feel the lingering effect of classical music into the afternoon. The retrieved contexts only mention that citizens stopped to listen to music during lunch (Context 2), but they completely omit the author's personal feelings, the ability to forget work, the specific genre of music (classical), and the lasting emotional impact.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-032
+[RAG-EVAL] Question      = 서소문성지 역사박물관에서 저자가 발걸음을 자연스럽게 늦추게 된 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.7000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately states that the specific reason for slowing down is not explicitly mentioned, while correctly summarizing the related contextual information provided in the retrieved texts.
+[RAG-EVAL] answer_relevancy = 0.7000
+[RAG-EVAL] reason = The answer honestly states that the specific reason is not explicitly mentioned in the provided context, but it attempts to provide relevant surrounding information (the atmosphere of the space) that might explain the behavior. While it doesn't provide a direct 'reason', it is a relevant response given the constraints of the available information.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = Context 3 directly mentions that the author's steps slowed down and their voice lowered. However, the retrieved contexts fail to provide the specific reason mentioned in the reference answer (that the interior was surprisingly quiet and calm despite being in the middle of the city). While the contexts provide the 'what' (slowing down), they lack the 'why' (the atmosphere of the museum), which is the core of the question.
+[RAG-EVAL] context_recall = 0.5000
+[RAG-EVAL] reason = The retrieved contexts confirm that the author's steps slowed down and their voice was lowered (Context 3), but they fail to provide the specific reason mentioned in the reference answer: that the interior was surprisingly quiet and calm despite being in the middle of the city center.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-033
+[RAG-EVAL] Question      = 서소문 일대에서 사라진 도시 풍경을 떠올리는 일이 역사박물관 관람과 어떻게 연결되나요?
+[RAG-EVAL] Overall Score = 0.5000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information explaining the specific connection between recalling the disappeared city landscape (Seosomun Overpass) and visiting the history museum. While the contexts mention both the museum and the overpass, they do not describe the relationship or connection between the two as requested by the question.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the provided context. It does not provide any information that addresses the user's question, making it irrelevant in terms of content delivery.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = The retrieved contexts provide some key elements mentioned in the reference answer, such as the visit to the Seosomun museum (Context 1, 2) and the mention of the disappeared Seosomun overpass (Context 3). However, they lack the explicit connection and synthesis found in the reference answer—specifically, the idea that the museum visit triggered personal memories and transformed the experience into a reflection on both the city's history and the author's own life. The contexts are fragmented pieces of the narrative rather than a cohesive explanation.
+[RAG-EVAL] context_recall = 0.4000
+[RAG-EVAL] reason = The retrieved contexts mention visiting the museum (Context 2) and the disappearance of the Seosomun Overpass (Context 3), which are key elements of the reference answer. However, they fail to mention the 'railroad crossing' (철길 건널목) and do not explicitly describe the synthesis of the experience—how the museum visit led the author to connect the city's history with their own personal memories.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-034
+[RAG-EVAL] Question      = 서울도서관에서 저자는 책을 읽다가 무엇을 꺼내 들었나요?
+[RAG-EVAL] Overall Score = 0.5000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about what the author took out while reading at the Seoul Library. This is an accurate reflection of the retrieved contexts.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation, an honest admission of missing information is considered a relevant response to the user's query when the data is absent.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain the information needed to answer the question. The reference answer states that the author took out a notepad (메모장), but this detail is completely absent from all five provided contexts.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer states that the author took out a notepad while reading a book at the Seoul Library. However, none of the retrieved contexts mention the author taking out a notepad or any specific action related to writing or using a notepad.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-035
+[RAG-EVAL] Question      = 서울도서관에서 책을 읽는 경험은 저자의 글쓰기와 어떻게 연결되었나요?
+[RAG-EVAL] Overall Score = 0.2750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not mention 'Seoul Library' specifically, nor do they explain how the experience of reading connects to the author's writing. The contexts describe a general library-like setting and reflections on books, but they do not contain the specific information requested in the question.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the provided context. It does not provide any information that addresses the user's question.
+[RAG-EVAL] context_precision = 0.1000
+[RAG-EVAL] reason = The retrieved contexts describe the atmosphere of the library and the author's general thoughts on books, but they completely miss the core connection requested: how the experience led the author to want to write again and how the library served as a space that led them back to their manuscript. None of the contexts mention the notepad, the desire to write, or the specific link between reading and the author's own writing process.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts describe the atmosphere of the Seoul Library and the author's general thoughts on books, but they completely fail to mention the specific sequence of events in the reference answer: the author taking out a notepad, the desire to write again, the idea that a single sentence can change one's thoughts, or the library acting as a space that leads the author back to their manuscript.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-036
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss walking, Jeju travel, and mountains.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG setting, explicitly stating the absence of information is a relevant and correct response to avoid hallucination.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information about Haeundae Beach is not present in the provided context, which aligns perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-037
+[RAG-EVAL] Question      = 저자가 제주 성산일출봉을 걸으며 느낀 점은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about the author's feelings while walking at Seongsan Ilchulbong in Jeju. None of the retrieved contexts mention Seongsan Ilchulbong or the author's specific feelings during a walk there.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation, admitting the absence of information is a relevant and correct response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information is not available in the provided context, aligning perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-038
+[RAG-EVAL] Question      = 서울시립미술관에서 저자가 관람한 피카소 전시는 어떤 내용이었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately states that the provided contexts do not contain information about a Picasso exhibition, which is correct as the contexts only mention the Seoul Museum of Art and an exhibition by Yoo Youngkuk.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information about a Picasso exhibition is not present in the provided context, while correctly identifying what exhibition was actually mentioned. This is a relevant and honest response when the source material does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the information about a Picasso exhibition is not present in the provided context and accurately points out the actual exhibition mentioned (Yoo Youngkuk), thereby avoiding hallucination.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-039
+[RAG-EVAL] Question      = 덕수궁 돌담길에서 저자가 만난 재즈 공연의 연주자는 누구였나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about a jazz performance or a performer, which is accurate as the contexts only discuss the author's memories and feelings regarding the Deoksugung Stone Wall Path.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG setting, explicitly stating that the information is missing is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information is not present in the provided context, aligning perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-040
+[RAG-EVAL] Question      = 서울도서관에서 저자가 대출한 인공지능 관련 책의 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the Seoul Library or the title of an AI-related book borrowed by the author. This is an accurate reflection of the retrieved contexts.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation for relevancy, admitting the absence of information when it is truly missing is considered a relevant and correct response to the user's query.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information is not present in the provided context, aligning perfectly with the reference.
+
+
+구간			문항 수	해석
+--------------------------------------------------------------
+1.0000		11		완전 성공
+0.8000 이상		19		실사용 수준에 가까움
+0.7000 이상		25		대체로 성공
+0.5000 미만		9		개선 우선 대상
+전체 평균		0.7094	Golden Dataset 1차 기준선
+
+
+반면 가장 약한 문항은 다음 9개입니다.
+
+Case	Score		핵심 문제
+008	0.300		무료 공연/전시 Chunk 검색 실패
+012	0.450		음악회 전체 문맥 Recall 부족
+015	0.250		서울도서관 글쓰기 의미 검색 실패
+020	0.375		이화여고→첼로→무대 연결 실패
+024	0.350		서울광장↔도서관 대비 Context 부족
+028	0.250		정동극장 factual Chunk 검색 실패
+030	0.250		음악회 명칭 검색 실패
+031	0.350		음악 경험의 의미/감정 Chunk 검색 실패
+035	0.275		서울도서관 독서→글쓰기 연결 실패
+
+현재 0.7094를 Golden Baseline v1으로 저장해두고, 다음 Context Expansion 구현 후 다시 40문항을 실행해 Baseline → New Score → Delta를 비교진행
+
+2.Context Expansion 구현 후 다시 40문항 실행
+
+기존 흐름이 대략
+Query → Retriever → Rerank → TopK → LLM → RAGAS
+
+라면 다음과 같이 변경하겠습니다.
+Query → Retriever → Rerank → TopK → ContextExpander → Expanded Context → LLM → RAGAS
+
+chunk 4
+chunk 5  ← 검색됨
+chunk 6
+
+따라서 RAGAS에 전달할 context는 chunk 4 + chunk 5 + chunk 6 으로 확장합니다.
+이것이 1차 Context Expansion입니다.
+
+[RAG-EVAL] ========================================
+[RAG-EVAL] Golden Test Complete
+[RAG-EVAL] Dataset       = rag-golden-v1
+[RAG-EVAL] Cases         = 40
+[RAG-EVAL] Average Score = 0.8488
+[RAG-EVAL] ========================================
+
+[RAG-EVAL] Case ID       = RAG-GOLD-001
+[RAG-EVAL] Question      = 서울시립미술관은 점심시간에 어떤 장점이 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 4 states that it is an open space where anyone can enter for free and visit without burden during lunch time, and Context 5 mentions that it is beneficial for busy office workers as they can sufficiently look around in about an hour.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the question by explaining that the museum is an open space accessible for free and is convenient for busy office workers to visit within an hour during their lunch break.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain all the necessary information to construct the reference answer. Specifically, Context 4 mentions that it is a free, open space accessible during lunch, and Context 5 mentions that busy office workers can tour it in about an hour. The contexts are highly relevant and directly support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all the key claims in the reference answer: Context 4 confirms that anyone can enter for free and it is an open space that can be visited without burden during lunch time, and Context 5 confirms that busy office workers can sufficiently look around in about an hour.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-002
+[RAG-EVAL] Question      = 서울시립미술관에서 본 전시 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 10 states the user went to the Seoul Museum of Art (서울시립미술관), and Context 4 explicitly identifies the exhibition seen there as 『유영국: 산의 내 안에 있다』.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by providing the specific title of the exhibition seen at the Seoul Museum of Art.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary information to answer the question. Context 10 and 2 establish the location as the Seoul Museum of Art (서울시립미술관), and Context 4 explicitly states the title of the exhibition as 『유영국: 산의 내 안에 있다』, which matches the reference answer perfectly.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the exhibition seen at the Seoul Museum of Art was 『유영국: 산의 내 안에 있다』. Context 10 explicitly mentions that the author went to the Seoul Museum of Art, and Context 4 explicitly identifies the exhibition seen that day as 『유영국: 산의 내 안에 있다』. Therefore, all necessary information is present.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-003
+[RAG-EVAL] Question      = 예전의 저자에게 덕수궁 돌담길은 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 13, which explicitly states that for the author in the past, the Deoksugung stone wall path was not 'leisure' but a 'race against time'.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by explaining the specific meaning of Deoksugung Stone Wall Path to the author in the past.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary information to construct the reference answer. Specifically, Context 13 explicitly states that the path was 'not leisure but a race against time,' and Contexts 1, 2, and 12 provide the supporting detail that the author had to run to avoid missing the last train. The contexts are highly relevant and directly support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that for the author in the past, Deoksugung Stone Wall Path was not a space of leisure but a race against time to avoid missing the last train. This is explicitly supported by Context 13 ('to me back then, Deoksugung Stone Wall Path was not 'leisure' but a 'race against time'') and Context 1 ('it was a time when I must not miss the last train to go home').
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-004
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회는 어떤 모습이었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts: Context 6 mentions it was not a fancy venue or a concert hall with hundreds of spectators, Context 11 mentions a small stage was prepared, and Context 5 states that four cellists were sitting side by side.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by describing the visual appearance and setting of the concert encountered on Jeongdong-gil.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary details found in the reference answer: the location (이화여고 앞, 작은 무대), the name of the concert (평화를 위한 화목 음악회), the performers (네 명의 첼리스트), and the context of the audience (점심시간). While the information is split across multiple short contexts, together they fully support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = All key factual claims in the reference answer are supported by the retrieved contexts: the location ('이화여고 앞' in Context 9, '작은 무대' in Context 11), the name of the concert ('평화를 위한 화목 음악회' in Context 4), the performers ('네 명의 첼리스트' in Context 5), and the audience's behavior ('점심시간' in Context 3, '발걸음이 이곳으로 향한다' in Context 3).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-005
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss walking, the Seoul Museum of Art, and an exhibition by Yoo Youngkuk.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by stating that the required information is not available in the provided context. In a RAG system, explicitly stating the absence of information is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information about Haeundae Beach is not present in the provided context, which aligns perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-006
+[RAG-EVAL] Question      = 한여름 점심시간에 저자가 서울시립미술관으로 향하게 된 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 5 and Context 6, which state that it was a midsummer day with hot sunlight and the author thought it would be better to walk slowly in a cool place rather than walking blindly through the streets where sweat flows.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by explaining the specific reason why the author went to the Seoul Museum of Art during a midsummer lunch break.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain all the necessary information to construct the reference answer. Specifically, Context 4, 5, and 6 directly explain that it was a hot midsummer day, walking under the sun was too much, and the author decided to walk slowly in a cool place instead of the sweaty streets. The contexts are highly relevant and precisely support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary information to support the reference answer. Context 4 and 5 establish the setting (midsummer in Seoul) and the difficulty of walking under the hot sun. Context 6 explicitly states the author's reasoning: instead of walking the sweaty streets, they wanted to walk slowly in a cool place. Together, these contexts fully cover the claims made in the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-007
+[RAG-EVAL] Question      = 유영국의 산 그림을 보며 저자는 자신의 삶을 어떻게 돌아보게 되었나요?
+[RAG-EVAL] Overall Score = 0.9750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. The claim that the mountains were not a direct copy of actual scenery is in Context 9, the part about simple lines and colors evoking inner landscapes is in Context 4, the act of reflecting on life while looking at the mountains is in Context 5, and the realization that the mountain is inside the author is in Context 6.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the question by explaining that the author reflected on their life through the simplified lines and colors of the painting, leading to the realization that the mountain exists within themselves as well as outside.
+[RAG-EVAL] context_precision = 0.9000
+[RAG-EVAL] reason = The retrieved contexts contain all the key elements required to construct the reference answer. Context 4 mentions the 'simple lines and colors' and 'landscapes in the heart', Context 5 explicitly mentions 'looking back at my life', Context 6 provides the specific realization that 'the mountain is not outside but inside me', and Context 8 identifies the artist as Yoo Young-kuk. While there are some irrelevant contexts (e.g., Context 7, 10, 12), the core information is present and highly relevant.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all factual claims in the reference answer: Context 4 mentions the 'simple lines and colors' and 'landscapes in the heart', Context 5 explicitly states the author was 'looking back at their life', and Context 6 provides the specific realization that 'the mountain is not outside but also inside me'.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-008
+[RAG-EVAL] Question      = 서울에 처음 올라왔을 때 저자는 시간이 날 때마다 무엇을 찾아다녔나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The retrieved contexts describe the author's current habits of walking and visiting the Seoul Museum of Art during lunch breaks, but they do not contain any information about what the author looked for when they first moved to Seoul. Therefore, the answer correctly states that the information is not provided.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing information in the context. It does not provide any information that addresses the user's question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = The retrieved contexts describe the author's current habit of visiting the Seoul Museum of Art during lunch breaks as a working professional. However, none of the contexts mention the author's activities when they 'first came to Seoul' or the specific detail of seeking out 'free performances and exhibitions' while studying, which is required by the reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer states that when the author first came to Seoul, they studied during the day and visited free performances or exhibitions in their spare time. However, the retrieved contexts only discuss the author's current habit of walking during lunch breaks as an office worker and visiting the Seoul Museum of Art. There is no mention of the author's activities when they first arrived in Seoul or their habit of studying during the day.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-009
+[RAG-EVAL] Question      = 정동극장 무료 시사회를 본 뒤 저자가 덕수궁 돌담길을 뛰어야 했던 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 2 states that it was night when the author left the theater after the free screening, and Context 3 explains that it was a time when the author could not miss the last train to get home.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the question by explaining the specific reason (the need to catch the last transport home because it was already night) why the author had to run along the Deoksugung stone wall path.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary components to construct the reference answer. Context 2 establishes the location (Jeongdong Theater) and the time (night), Context 3 explains the urgency (not missing the last bus/train), and Contexts 7, 9, and 10 confirm the action of running through the Deoksugung stone wall path to reach the station. While the information is spread across several snippets, they are highly relevant and precisely target the answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all the key factual claims in the reference answer: the author watched a free screening at Jeongdong Theater (Context 2), it was already night when they left (Context 2), they had to catch the last bus/train to go home (Context 3), and they ran along the Deoksugung stone wall path (Context 7, 9, 10).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-010
+[RAG-EVAL] Question      = 시간이 흐른 뒤 덕수궁 돌담길을 걷는 저자의 태도는 과거와 어떻게 달라졌나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 8 explicitly states that in the past only the destination was visible, but now the scenery is seen first. Context 11 describes the author running to catch the last train in the past, and Context 13 describes the author walking slowly now and recalling their younger self.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the question by contrasting the author's past attitude (focusing only on the destination and rushing) with their current attitude (appreciating the scenery and walking slowly while reflecting on the past).
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary information to construct the reference answer. Contexts 10 and 11 describe the past attitude (worrying about the last train and running toward the destination), while Contexts 6, 7, 8, and 13 describe the current attitude (walking slowly, noticing the scenery, trees, and the light of the seasons). The contexts are highly relevant and directly support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all key claims in the reference answer: the past behavior of running toward a destination while worrying about the last train (Contexts 10, 11), and the current behavior of walking slowly while observing the stone walls, trees, and seasonal light (Contexts 6, 7, 8, 13).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-011
+[RAG-EVAL] Question      = 정동길 음악회 무대에는 몇 명의 첼리스트가 앉아 있었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer states that there were four cellists sitting side by side on the stage, which is directly supported by Context 2 ('무대 위에는 네 명의 첼리스트가 나란히 앉아 있었다'). The context of the location (Jeongdong-gil) is supported by Context 6.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by specifying the exact number of cellists on the stage.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = Context 2 directly provides the exact answer to the question ('four cellists were sitting side by side on the stage'), matching the reference answer perfectly. While other contexts provide background information, the presence of the specific answer in the retrieved set makes it highly relevant.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that four cellists were sitting side by side on the stage, and this exact information is explicitly provided in Context 2.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-012
+[RAG-EVAL] Question      = 정동길에서 열린 음악회는 어떤 장소와 분위기에서 진행되었나요?
+[RAG-EVAL] Overall Score = 0.6250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the retrieved contexts. It correctly states that there is no specific mention of 'Jeongdong-gil' in the contexts, while faithfully reporting the information about the 'Harmony Concert for Peace' taking place on a small stage as mentioned in Context 2 and 3.
+[RAG-EVAL] answer_relevancy = 0.3000
+[RAG-EVAL] reason = The answer explicitly states that it cannot find information about a concert on 'Jeongdong-gil', which is the core of the user's question. While it attempts to provide a related piece of information about a 'Harmony Concert for Peace', it does not answer the specific question asked.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = The retrieved contexts contain the key elements needed to answer the question: the location (이화여고 앞 - Context 9), the setting (작은 무대 - Context 2), and the name of the event (평화를 위한 화목 음악회 - Context 3). However, the precision is lowered because there is a significant amount of irrelevant noise (Contexts 4, 5, 6, 7, 8, 10, 11, 12) which discusses a museum and a book about Jeju, which are unrelated to the music concert.
+[RAG-EVAL] context_recall = 0.6000
+[RAG-EVAL] reason = The retrieved contexts cover the location (in front of Ewha Girls' High School), the sound (cello), the stage size (small), and the name of the concert ('Harmony Concert for Peace'). However, they completely omit the fact that four cellists performed and the detail that citizens stopped to listen during their lunch break.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-013
+[RAG-EVAL] Question      = 서소문성지 역사박물관 내부는 저자에게 어떤 공간으로 느껴졌나요?
+[RAG-EVAL] Overall Score = 0.9750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 10, which states that the place felt more like a space to look back on one's heart rather than a place to gain knowledge.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by explaining how the author perceived the space (as a place for self-reflection rather than just acquiring knowledge).
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain all the key elements of the reference answer: the feeling of it being unexpectedly quiet for the city center (Context 12), the calm atmosphere (Context 13), and the perception of it being a space for self-reflection rather than just acquiring knowledge (Context 10). The information is directly present and highly relevant.
+[RAG-EVAL] context_recall = 0.9000
+[RAG-EVAL] reason = The retrieved contexts cover almost all the key claims: the museum being surprisingly quiet for being in the city center (Context 12), the calm atmosphere (Context 13), and it being a place for self-reflection rather than acquiring knowledge (Context 10). The only minor detail missing is the specific mention of 'naturally lowering one's voice and steps,' although the overall sentiment of quietness and calmness is well-supported.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-014
+[RAG-EVAL] Question      = 서소문 일대 옛 철길 건널목에서 차단기가 내려오면 어떤 소리가 들렸나요?
+[RAG-EVAL] Overall Score = 0.9500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 2, which states that when the barrier came down, a '땡땡땡' bell sound rang.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by specifying the exact sound ('땡땡땡') that occurred when the barrier came down at the old railroad crossing in the Seosomun area.
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = Context 2 directly provides the answer ('땡땡땡' 하는 종소리), and Context 1 provides the necessary location context (철길 건널목). While there are several irrelevant contexts (Contexts 4-9), the most critical information is present and ranked highly, allowing for a correct answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that a '땡땡땡' bell sound rang when the barrier came down. Context 2 explicitly confirms this by stating, '차단기가 내려오고, 땡땡땡' 하는 종소리가 울리면' (When the barrier came down and the 'tteng-tteng-tteng' bell sound rang). All necessary information is present.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-015
+[RAG-EVAL] Question      = 점심시간에 찾은 서울도서관은 저자에게 단순히 쉬어 가는 곳 이상으로 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 0.2750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the provided contexts do not contain information about the author visiting the Seoul Library specifically during lunch time, nor do they explain the deeper meaning of the library to the author beyond a brief mention of it making one feel calm. The answer is faithful to the provided text.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer explicitly states that it cannot find the information requested in the provided context. While it is an honest response regarding the available data, it does not provide any relevant information to answer the user's specific question.
+[RAG-EVAL] context_precision = 0.1000
+[RAG-EVAL] reason = The retrieved contexts fail to provide the specific meaning of the Seoul Library to the author as described in the reference answer. While Context 15 mentions that the library makes the author feel calm, it does not mention that the library inspires them to write again or leads them toward tomorrow's manuscript. Furthermore, several contexts (4, 5, 6) refer to the Seoul Museum of Art, which is irrelevant to the question about the library.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer states that the Seoul Library was a place that made the author want to write again and led them toward tomorrow's manuscript. However, the retrieved contexts do not mention writing, manuscripts, or the library's role in inspiring the author to write. Context 15 only mentions that the library makes the author feel calm.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-016
+[RAG-EVAL] Question      = 저자가 점심을 먹고 사무실로 바로 돌아가지 않고 걷기로 한 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.8250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 1 mentions the high fasting blood sugar levels, Context 2 states the decision to walk instead of returning to the office, and Context 3 confirms it was initially a walk for health.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by providing the specific reason why the author decided to walk instead of returning immediately to the office.
+[RAG-EVAL] context_precision = 0.7000
+[RAG-EVAL] reason = The retrieved contexts contain the key elements needed to answer the question: the high fasting blood sugar level (Context 1) and the decision to walk after lunch instead of returning to the office (Context 2). However, the specific causal link—that moving after a meal helps manage blood sugar—is not explicitly stated in the provided snippets, although it is strongly implied by the sequence of Context 1, 2, and 8. Some contexts (4-7, 9-14) are irrelevant to the specific question.
+[RAG-EVAL] context_recall = 0.6000
+[RAG-EVAL] reason = The retrieved contexts cover the fact that the author's fasting blood sugar levels were higher than expected (Context 1) and that they decided to walk after lunch instead of returning to the office (Context 2). However, the specific reasoning mentioned in the reference answer—that moving the body after a meal helps with blood sugar management—is not explicitly stated in the provided contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-017
+[RAG-EVAL] Question      = 서울시립미술관을 다녀온 점심시간은 평소의 점심시간과 어떻게 달랐나요?
+[RAG-EVAL] Overall Score = 0.7500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the information provided in the retrieved contexts. Context 4 describes the usual lunch routine (eating, having coffee, and returning to the office), and Context 5 explicitly states that the lunch hour on that day was different.
+[RAG-EVAL] answer_relevancy = 0.5000
+[RAG-EVAL] reason = The answer acknowledges the difference and describes the 'usual' lunch time, but it fails to actually describe how the lunch time spent at the Seoul Museum of Art was different. It stops just as it is about to provide the relevant information, making the answer incomplete.
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = The retrieved contexts provide most of the key elements found in the reference answer: the usual routine of returning to the office with coffee (Context 4) and the shift toward walking for health and self-reflection through culture (Context 9). However, the specific detail about 'blood sugar' (혈당) and the feeling of the 'heart becoming lighter' mentioned in the reference answer is missing from the provided contexts.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover most of the reference answer: the usual routine of returning to work with coffee (Context 4) and the transition from walking for health to reflecting on oneself through culture (Context 9). However, the specific detail that the author felt their 'heart became lighter before their blood sugar' (혈당보다 마음이 먼저 가벼워졌다) upon leaving the museum is missing from the provided contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-018
+[RAG-EVAL] Question      = 젊은 시절 저자에게 덕수궁 돌담길의 아름다움이 보이지 않았던 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.9750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 6 explicitly states that in the past, the author only saw the destination ('예전에는 목적지만 보였지만'), and Context 9 states that the stone wall was a scenery that had to be passed by without time to be beautiful ('아름다울 겨를도 없이 그저 지나쳐야 하는 풍경이었다').
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by explaining the specific reason why the author could not see the beauty of the Deoksugung stone wall path in their youth.
+[RAG-EVAL] context_precision = 0.9000
+[RAG-EVAL] reason = The retrieved contexts contain all the key elements required to construct the reference answer: running with a bag (Context 8), checking the watch repeatedly while rushing to the station (Context 10), and the fact that the stone wall was a scenery to be passed by without time to feel its beauty (Context 9). While the information is split across multiple fragments, the precision is very high as there is almost no irrelevant noise, and the specific reasons are explicitly present.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all the key factual claims in the reference answer: running with a bag (Context 8), checking the watch multiple times (Context 10), and the stone wall under the streetlights being a scenery passed by without time to feel its beauty (Context 9). While the specific mention of 'missing the last train' is implied by 'running toward the last train' in Context 2 and 'running to the subway station' in Context 10, the core reasons for the lack of appreciation are fully supported.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-019
+[RAG-EVAL] Question      = 저자가 '사람은 같은 길을 걸어도 같은 길을 만나지 않는다'고 이해하게 된 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.8000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that while the context mentions the author understood the phrase, it does not explicitly provide the specific reason why. The retrieved contexts contain various reflections on walking and scenery, but none directly link a cause-and-effect relationship to the understanding of that specific quote.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by stating that the provided context does not contain the specific reason requested. In a RAG evaluation, admitting the absence of information in the source is a relevant and correct response to avoid hallucination.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = The retrieved contexts contain the core logic needed to answer the question: Context 1 mentions that previously only the destination was visible but now the scenery is seen first, and Context 3 explains the shift from running toward the future to walking while looking at today. These directly support the reference answer's explanation of the author's change in perspective. However, the precision is lowered because many of the retrieved contexts (Contexts 4-14) are irrelevant to the specific question, introducing significant noise.
+[RAG-EVAL] context_recall = 0.6000
+[RAG-EVAL] reason = The retrieved contexts support the core reason: the author previously focused only on the destination (Context 1, 3) but now walks while looking at the scenery/today (Context 1, 3). However, the contexts do not specifically mention 'Deoksugung Stone Wall Path' (덕수궁 돌담길) or the specific details of 'stone walls, trees, and the light of the seasons' (돌담과 나무, 계절의 빛) mentioned in the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-020
+[RAG-EVAL] Question      = 정동길에서 저자가 음악회를 발견하게 된 직접적인 계기는 무엇이었나요?
+[RAG-EVAL] Overall Score = 0.9250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the provided contexts. It correctly identifies that the retrieved text does not explicitly mention 'Jeongdong-gil' and correctly identifies the direct cause of discovering the concert as hearing the cello sound from afar and following it, as stated in Context 1 and Context 2.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by explaining the specific trigger (hearing the sound of a cello and following it) that led the author to discover the concert, while also clarifying a discrepancy regarding the location mentioned in the question.
+[RAG-EVAL] context_precision = 0.7000
+[RAG-EVAL] reason = The retrieved contexts contain all the necessary pieces of information to construct the reference answer: passing by Ewha Girls' High School (Context 6), hearing the cello sound (Context 1), following the sound (Context 2), and finding the concert (Context 3). However, the precision is slightly lowered because the contexts are fragmented into very short sentences, and there are many irrelevant contexts (Contexts 4, 5, 7-13) that do not contribute to answering the specific question.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the author discovered the concert by following the sound of a cello while passing in front of Ewha Girls' High School. This is fully supported by the retrieved contexts: Context 6 mentions passing in front of Ewha Girls' High School, Context 1 mentions hearing the cello sound from afar, and Context 2 and 3 describe following the sound to find a small stage and a concert.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-021
+[RAG-EVAL] Question      = 정동길 음악회가 일반적인 대형 공연과 달랐던 점은 무엇인가요?
+[RAG-EVAL] Overall Score = 0.9750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 2 explicitly states it was not a fancy venue or a concert hall with hundreds of spectators, and Context 3 describes citizens stopping their steps during lunch break to listen to the music.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by contrasting the Jeongdong-gil concert (spontaneous, open-air, citizen-led) with typical large-scale performances (grand venues, concert halls with hundreds of spectators).
+[RAG-EVAL] context_precision = 0.9000
+[RAG-EVAL] reason = The retrieved contexts contain all the key elements required to construct the reference answer: the number of cellists (Context 1), the lack of a grand venue/concert hall (Context 2), the presence of citizens during lunch break (Context 3), and the small stage (Context 12). While there are some irrelevant contexts (5-11), the most critical information is present and highly relevant.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = All factual claims in the reference answer are supported by the retrieved contexts: the absence of a fancy venue or large concert hall (Context 2), the presence of four cellists on a small stage (Context 1, Context 12), and the fact that citizens spending their lunch break stopped to listen (Context 3).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-022
+[RAG-EVAL] Question      = 서소문성지 역사박물관을 저자가 실제로 처음 들어가 본 시점은 언제였나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 5, which states that the author actually entered the museum after starting 'lunch walks' (점심걷기).
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by specifying the exact timing of when the author first entered the museum.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain the exact information needed to answer the question. Specifically, Context 4 and Context 5 directly state that although the author had passed by the museum many times, they actually entered it after starting their 'lunch walks' (점심걷기), which perfectly matches the reference answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the author had passed the place many times but actually entered it after starting 'lunch walks'. Context 4 explicitly mentions passing the Seosomun Shrine History Museum several times, and Context 5 explicitly states that entering it happened after starting 'lunch walks'. All factual claims in the reference answer are fully supported.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-023
+[RAG-EVAL] Question      = 서소문성지 역사박물관 주변의 철길과 고가도로 기억은 저자에게 어떤 의미로 남아 있나요?
+[RAG-EVAL] Overall Score = 0.9500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the provided contexts. It correctly identifies that there is no mention of 'railroads' (철길) and faithfully summarizes the author's mentions of the Seosomun Overpass (disappearance and the heavy heart upon hearing of a collapse) and the feeling of remembering old memories while walking the surrounding paths.
+[RAG-EVAL] answer_relevancy = 0.8000
+[RAG-EVAL] reason = The answer directly addresses the part of the question regarding the elevated road (고가도로) by explaining the author's feelings of heaviness and nostalgia. It also honestly states that information about the railroad (철길) is missing from the provided context. While it is partially incomplete due to the missing information in the source, the response is highly relevant and transparent based on the available data.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary components to construct the reference answer. Context 3 mentions the bell sound (철길 건널목의 종소리), Context 4 mentions the disappeared Seosomun Overpass (서소문고가도로), Context 5 mentions the overpass collapse accident (고가도로 붕괴 사고), and Context 7 explicitly links these memories to the time Seoul has passed and the author's own memories (서울이 지나온 시간과 내 기억). The contexts are highly relevant and directly support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all key elements of the reference answer: the bell sound (Context 3), the disappeared Seosomun Overpass (Context 4), the overpass collapse accident (Context 5), and the meaning that these memories overlap with the time Seoul has passed and the author's own memories (Context 7).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-024
+[RAG-EVAL] Question      = 서울도서관에 들어섰을 때 바깥 서울광장과 내부 공간은 어떻게 대비되나요?
+[RAG-EVAL] Overall Score = 0.4000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the contrast between the interior of the Seoul Library and the exterior Seoul Plaza. The contexts mention 'Seoul Library' as a heading but do not describe its spatial relationship or contrast with Seoul Plaza.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the provided context. It does not provide any information regarding the contrast between the interior of the Seoul Library and the exterior Seoul Plaza, thus failing to address the user's question.
+[RAG-EVAL] context_precision = 0.3000
+[RAG-EVAL] reason = The retrieved contexts mention the Seoul Library (Context 2) and describe a quiet atmosphere in a city center (Context 12) and a space that calms the mind (Context 9), which partially aligns with the reference answer. However, the contexts are fragmented and completely miss the specific contrast with the noise of Seoul Plaza (people, tourists, vehicles) mentioned in the reference answer. The information is too generic and lacks the direct evidence needed to fully answer the question.
+[RAG-EVAL] context_recall = 0.3000
+[RAG-EVAL] reason = The reference answer describes a specific contrast between the noise of Seoul Plaza (people, tourists, cars) and the quiet interior of the library. The retrieved contexts mention that the space is quiet and that it's hard to believe it's in the middle of the city (Context 12), but they completely fail to mention the specific details about Seoul Plaza, the sounds of tourists, or the specific act of entering the library doors to experience this transition.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-025
+[RAG-EVAL] Question      = 서울도서관의 책들을 바라보며 저자는 책을 어떤 존재로 생각하게 되었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer directly reflects the information provided in Context 9, which states that the author felt books are not just letters printed on paper but the time a person has lived.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question by explaining the author's perception of books after looking at them in the Seoul Library.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain all the necessary information to construct the reference answer. Specifically, Context 5 mentions that each book contains a person's time, Context 8 explains that some spent a lifetime researching while others recorded their lives, and Context 9 explicitly states the author's conclusion that a book is not just printed letters but the time a person has lived. The contexts are highly relevant and directly support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all the factual claims in the reference answer: Context 5 mentions that each of the thousands of books contains a person's time; Context 8 mentions that some spent a lifetime researching and others recorded their lives; and Context 9 explicitly states the author's conclusion that books are not just printed letters on paper but the time a person has lived.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-026
+[RAG-EVAL] Question      = 서울시립미술관은 누구나 관람료 없이 들어갈 수 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 0.8500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer states that the Seoul Museum of Art is an open space where anyone can enter for free. This is directly supported by Context 2 ('누구나 무료로 들어갈 수 있었고... 열린 공간이었다') and Context 10, which identifies the location as the Seoul Museum of Art.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the user's question, confirming that the Seoul Museum of Art is introduced as a space that anyone can enter for free.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = Context 2 directly contains the information needed to answer the question (that it is a free, open space). However, the overall precision is lowered because 9 out of 10 retrieved contexts are irrelevant to the specific question about admission fees and the nature of the space, containing instead personal reflections and descriptions of the artwork.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the Seoul Museum of Art is introduced as an open space that is free for everyone and can be visited without burden even during lunch hours. Context 2 explicitly confirms that 'anyone could enter for free' and it was 'an open space that could be visited without burden even during lunch hours'. Combined with Context 10, which identifies the location as the Seoul Museum of Art, all factual claims in the reference answer are fully supported.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-027
+[RAG-EVAL] Question      = 건강을 위해 시작한 점심걷기가 서울시립미술관 방문을 통해 어떤 의미로 확장되었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is directly supported by Context 2, which states that the walking started for health met culture, and culture in turn made the author look at themselves more slowly.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and concisely addresses the question by explaining how the act of walking for health expanded into a meaningful experience of self-reflection through cultural engagement (visiting the museum).
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts provide all the necessary components to construct the reference answer. Contexts 8, 9, 10, 11, and 12 explain that the walking started for health reasons (specifically managing fasting blood sugar). Contexts 4 and 5 explain the visit to the Seoul Museum of Art. Contexts 2 and 3 explicitly describe how the activity expanded from health management to encountering culture and reflecting on oneself ('looking at myself more slowly' and 'heart feeling lighter than blood sugar').
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts cover all key claims in the reference answer: 1) The walking started for health/blood sugar management (Contexts 8, 9, 10, 11, 12), 2) The person visited the Seoul Museum of Art (Context 5), and 3) The activity expanded from health management to encountering culture and reflecting on oneself (Context 2).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-028
+[RAG-EVAL] Question      = 젊은 시절 저자가 무료 시사회를 보기 위해 찾았던 곳은 어디인가요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about the author visiting a free preview/screening in their youth. The contexts discuss the author visiting the Seoul Museum of Art during a lunch break, but there is no mention of 'youth' or 'free previews'.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the context. It does not provide the information requested by the user, making it irrelevant to the actual question asked.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts mention '정동극장' (Jeongdong Theater) or the author's experience of visiting a free preview/screening in their youth. The contexts focus on the author's visits to the Seoul Museum of Art and general reflections on walking and scenery.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer states that the author visited the Jeongdong Theater (정동극장) for a free preview, but none of the retrieved contexts mention the Jeongdong Theater or a free preview. The contexts focus on the author visiting the Seoul Museum of Art (서울시립미술관).
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-029
+[RAG-EVAL] Question      = 덕수궁 돌담길에서 과거의 저자와 현재의 저자가 시간을 대하는 방식은 어떻게 대비되나요?
+[RAG-EVAL] Overall Score = 0.9250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 7 and 9 explicitly state that in the past, the author viewed the path as a 'race against time' (시간과의 경주) and was running toward the future. Context 9 and 11 confirm that the current author walks slowly while looking at 'today' (오늘을 바라보며 걷고 있다).
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and clearly addresses the contrast in how the past and present authors perceive time while walking along the Deoksugung stone wall path, providing a specific comparison between 'racing against time' and 'walking slowly while focusing on today'.
+[RAG-EVAL] context_precision = 0.9000
+[RAG-EVAL] reason = The retrieved contexts provide almost all the necessary information to construct the reference answer. Contexts 3, 4, 6, and 7 clearly describe the past author's perspective (rushing for the last train, checking the watch, treating the path as a 'race against time'). Contexts 8, 9, and 11 describe the current author's perspective (walking slowly, looking at 'today'). While there isn't a specific mention of 'trees' or 'seasonal light' as mentioned in the reference answer, the core contrast between 'racing against time' and 'looking at today' is fully supported.
+[RAG-EVAL] context_recall = 0.8000
+[RAG-EVAL] reason = The retrieved contexts strongly support the contrast between the past and present. The past author's behavior (checking the watch, running to avoid missing the last train, treating the path as a race against time) is well-documented in Contexts 3, 4, 6, and 7. The present author's behavior (walking slowly, looking at 'today' rather than the future) is supported by Contexts 9 and 11. However, the specific details mentioned in the reference answer regarding 'looking at the stone walls, trees, and the light of the season' are not explicitly detailed in the contexts, although Context 2 describes a watercolor illustration of such elements, it is not presented as the author's current action.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-030
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회의 이름은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies the name of the concert as '평화를 위한 화목 음악회', which is explicitly stated in Context 6.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly and completely addresses the user's question by providing the specific name of the concert.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain the exact name of the concert ('평화를 위한 화목 음악회') mentioned in the reference answer. While the contexts are broken into small fragments, Context 6 directly provides the answer, and the surrounding contexts provide the necessary narrative support to confirm it was a concert encountered while walking.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that the concert encountered on Jeongdong-gil was named '평화를 위한 화목 음악회'. Context 6 explicitly mentions that '평화를 위한 화목 음악회' was being held, and the surrounding contexts (Context 2, 4, 5) establish the setting of walking along Jeongdong-gil and following the sound of music to a stage.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-031
+[RAG-EVAL] Question      = 정동길에서의 우연한 음악 경험이 저자에게 특별했던 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 0.6000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain the specific reason why the musical experience was special to the author. While the contexts mention the author listening to music on Jeongdong-gil (Contexts 4, 5, 6), they do not explain the 'reason' for it being 'special'.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the provided context does not contain the specific reason why the experience was special. In a RAG evaluation, admitting the absence of information in the source is a relevant and correct response to avoid hallucination.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = The retrieved contexts provide some situational background (walking on Jeongdong-gil during lunch break, people stopping to listen to music), but they completely fail to provide the core reason why the experience was 'special' as described in the reference answer (forgetting busy work and the lingering emotion of the music). Most of the contexts are generic reflections on scenery or administrative metadata.
+[RAG-EVAL] context_recall = 0.2000
+[RAG-EVAL] reason = The retrieved contexts mention that the author encountered music during lunch time on Jeongdong-gil (Contexts 3, 5, 6), but they completely fail to mention the key reasons why the experience was special: that it allowed the author to forget busy work/tasks and that the lingering feeling of the classical music remained until the afternoon.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-032
+[RAG-EVAL] Question      = 서소문성지 역사박물관에서 저자가 발걸음을 자연스럽게 늦추게 된 이유는 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 6 states that the atmosphere of the space was particularly impressive ('무엇보다 인상 깊었던 것은 공간의 분위기였다'), and Context 7 states that as a result, the author's steps naturally slowed down ('걸음도 자연스럽게 느려졌다').
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by explaining the reason why the author slowed their pace at the Seosomun Shrine History Museum.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain all the necessary information to construct the reference answer. Specifically, Context 13 mentions that it was unbelievably quiet for being in the middle of the city, and Context 7 explicitly states that the author's steps naturally slowed down and their voice was lowered. Together, these contexts directly support the expected answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The retrieved contexts contain all the necessary information to support the reference answer. Context 13 mentions that it was so quiet that it was hard to believe it was in the middle of the city, and Context 7 explicitly states that the author lowered their voice and their pace naturally slowed down.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-033
+[RAG-EVAL] Question      = 서소문 일대에서 사라진 도시 풍경을 떠올리는 일이 역사박물관 관람과 어떻게 연결되나요?
+[RAG-EVAL] Overall Score = 0.8750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. It correctly links the feeling of walking through Seoul's time and personal memories (Context 5, 6) with the specific memories of the bell sound (Context 7) and the disappeared Seosomun Overpass (Context 8) in the context of visiting the Seosomun Shrine History Museum.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by explaining that visiting the museum serves as a catalyst for the author to recall the vanished urban landscape (specifically the Seosomun Overpass) and connect it with the passage of time in Seoul.
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = The retrieved contexts contain the key elements needed to construct the reference answer: the visit to the Seosomun museum (Context 2, 5), the mention of the disappeared Seosomun overpass (Context 8), and the conclusion that the experience was about walking through both Seoul's time and the author's own memories (Context 6). While the contexts are fragmented, they provide the necessary factual basis to answer the question.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts support the main conclusion that the museum visit was an experience of retracing both Seoul's time and the author's memories (Context 5, 6) and mention the disappearance of the Seosomun Overpass (Context 8). However, the specific mention of the 'railroad crossing' (철길 건널목) found in the reference answer is missing from the retrieved contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-034
+[RAG-EVAL] Question      = 서울도서관에서 저자는 책을 읽다가 무엇을 꺼내 들었나요?
+[RAG-EVAL] Overall Score = 0.5000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about what the author took out while reading at the Seoul Library. After reviewing all 11 contexts, there is no mention of the author taking any object out.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer is relevant because it directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation, admitting the absence of information is a correct and relevant response when the context is insufficient.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain the information mentioned in the reference answer. There is no mention of the author taking out a notepad (메모장) while reading a book.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer states that the author took out a notepad while reading a book, but none of the retrieved contexts mention a notepad or the action of taking one out.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-035
+[RAG-EVAL] Question      = 서울도서관에서 책을 읽는 경험은 저자의 글쓰기와 어떻게 연결되었나요?
+[RAG-EVAL] Overall Score = 0.3000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The retrieved contexts describe the author's feelings and observations at the Seoul Library, but they do not explain how the experience of reading there specifically connects to the author's own process or act of writing. Therefore, the answer correctly states that the information is not provided.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the provided context. While it is an honest response regarding the source material, it does not provide any information that addresses the user's question, making it irrelevant to the actual query.
+[RAG-EVAL] context_precision = 0.2000
+[RAG-EVAL] reason = The retrieved contexts provide a general description of the atmosphere of the Seoul Library and the author's reflections on books and reading. However, they completely omit the specific causal link mentioned in the reference answer: that the author took out a notepad while reading, felt the desire to write again, and that a single sentence can lead to new writing. The contexts describe the setting but fail to provide the core information needed to answer how the experience specifically connected to the author's writing process.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts describe the atmosphere of the Seoul Library and the author's general reflections on books and the city, but they do not mention the specific details found in the reference answer: the author taking out a notepad, the desire to write again, the idea that a single sentence can change one's thoughts, or the library specifically leading the author back to 'tomorrow's manuscript'.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-036
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss walking, the Seoul Museum of Art, and an exhibition by Yoo Youngkuk.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG system, explicitly stating the absence of information is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information about Haeundae Beach is not present in the provided context, which aligns perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-037
+[RAG-EVAL] Question      = 저자가 제주 성산일출봉을 걸으며 느낀 점은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about the author's feelings while walking at Seongsan Ilchulbong in Jeju. The contexts discuss general reflections on landscapes, a visit to an exhibition, and a walk for health reasons, but none mention Seongsan Ilchulbong.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation, admitting the absence of information is a relevant and correct response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information is not available in the provided context, aligning perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-038
+[RAG-EVAL] Question      = 서울시립미술관에서 저자가 관람한 피카소 전시는 어떤 내용이었나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately states that the provided contexts do not contain information about a Picasso exhibition and correctly identifies the exhibition the author actually visited as 『유영국: 산의 내 안에 있다』, which is explicitly mentioned in Context 4.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the information about a Picasso exhibition is not present in the provided context and clarifies which exhibition the author actually visited. In a RAG setting, explicitly stating that the information is missing is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the information about a Picasso exhibition is not present in the provided context and accurately points out the actual exhibition mentioned in the documents.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-039
+[RAG-EVAL] Question      = 덕수궁 돌담길에서 저자가 만난 재즈 공연의 연주자는 누구였나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about a jazz performance or a performer, which is accurate as the contexts only discuss the author's memories of running and walking along the Deoksugung Stone Wall Path.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation, when the answer honestly reports the absence of information rather than hallucinating or being evasive, it is considered a relevant response to the query given the constraints.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information is not present in the provided context, aligning perfectly with the reference.
+
+[RAG-EVAL] Case ID       = RAG-GOLD-040
+[RAG-EVAL] Question      = 서울도서관에서 저자가 대출한 인공지능 관련 책의 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the title of an AI-related book borrowed by the author from the Seoul Library. This is an accurate reflection of the retrieved contexts.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG evaluation for relevancy, admitting the absence of information when it is truly missing is considered a relevant and correct response to the user's query.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information is not present in the provided context, aligning perfectly with the reference.
+
+
+Before Context Expansion : 0.7125
+After  Context Expansion : 0.8488
+절대 개선                : +0.1363
+상대 개선                : 약 +19.1%
+
+Context Expansion 결과를 다음처럼 평가하겠습니다.
+항목				평가
+----------------------------------------------------------------
+기능 연결			성공
+Context Recall 개선	매우 큼
+Answer 품질 개선		큼
+Faithfulness		매우 안정적
+Context Precision		전반 개선, 일부 noise 문제
+NO_ANSWER		안정적
+전체 Score			0.7125 → 0.8488
+현재 ±1 전략		유효함
+
+따라서 Context Expansion 1차 구현은 성공으로 판정해도 됩니다.
+
+상당히 좋은 실험 결과입니다.
+
+Baseline RAGAS score: 0.7125
+Context Expansion (±1 chunk): 0.8488
+Absolute improvement: +0.1363
+Relative improvement: +19.1%
+
+그리고 단순 score 상승이 아니라, 인접 문맥 누락 때문에 실패하던 multi-chunk 질문의 Context Recall이 다수 1.0으로 개선되었다는 분석까지 제시할 수 있습니다.
+
