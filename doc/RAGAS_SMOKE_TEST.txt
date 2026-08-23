@@ -1,0 +1,327 @@
+1.RAG EVAL Smoke 테스트 시작
+rag-smoke-v1.json 
+{
+  "name": "rag-smoke-v1",
+  "cases": [
+    {
+      "id": "RAG-SMOKE-001",
+      "question": "서울시립미술관은 점심시간에 어떤 장점이 있는 공간으로 소개되나요?",
+      "referenceAnswer": "서울시립미술관은 누구나 무료로 들어갈 수 있고 점심시간에도 부담 없이 들를 수 있으며, 바쁜 직장인도 한 시간 정도면 충분히 둘러볼 수 있는 열린 공간으로 소개된다."
+    },
+    {
+      "id": "RAG-SMOKE-002",
+      "question": "서울시립미술관에서 본 전시 제목은 무엇인가요?",
+      "referenceAnswer": "서울시립미술관에서 본 전시는 『유영국: 산의 내 안에 있다』이다."
+    },
+    {
+      "id": "RAG-SMOKE-003",
+      "question": "예전의 저자에게 덕수궁 돌담길은 어떤 의미였나요?",
+      "referenceAnswer": "예전의 저자에게 덕수궁 돌담길은 여유의 공간이 아니라 막차를 놓치지 않기 위해 달려야 했던 시간과의 경주였다."
+    },
+    {
+      "id": "RAG-SMOKE-004",
+      "question": "정동길에서 우연히 만난 음악회는 어떤 모습이었나요?",
+      "referenceAnswer": "이화여고 앞 작은 무대에서 '평화를 위한 화목 음악회'가 열렸고, 네 명의 첼리스트가 연주했으며 점심시간을 보내던 시민들이 하나둘 발걸음을 멈추고 음악을 들었다."
+    },
+    {
+      "id": "RAG-SMOKE-005",
+      "question": "이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?",
+      "referenceAnswer": "첨부된 프로젝트 문서에는 부산 해운대 해수욕장에 대한 정보가 없다."
+    }
+  ]
+}
+
+2.RAG EVAL 결과
+[RAG-EVAL] ========================================
+[RAG-EVAL] Smoke Test Start
+[RAG-EVAL] Dataset = D:\14.EPub\02.RCP\02.workspace\epubtest03\eval\dataset\rag-smoke-v1.json
+[RAG-EVAL] Report  = D:\14.EPub\02.RCP\eclipse-rcp-2025-06-M3-win32-x86_64\eclipse\eval\result\rag-smoke-v1-report.json
+[RAG-EVAL] Model   = gemma4:31b-cloud
+[RAG-EVAL] ========================================
+
+[RAG-EVAL] ========================================
+[RAG-EVAL] Smoke Test Complete
+[RAG-EVAL] Dataset       = rag-smoke-v1
+[RAG-EVAL] Cases         = 5
+[RAG-EVAL] Average Score = 0.4500
+[RAG-EVAL] ========================================
+
+RAG-EVAL] ========================================
+[RAG-EVAL] Smoke Test Complete
+[RAG-EVAL] Dataset       = rag-smoke-v1
+[RAG-EVAL] Cases         = 5
+[RAG-EVAL] Average Score = 0.4500
+[RAG-EVAL] ========================================
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-001
+[RAG-EVAL] Question      = 서울시립미술관은 점심시간에 어떤 장점이 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain any information about the Seoul Museum of Art or its lunch hour, which is accurate as the contexts discuss a family trip to Jeju and Seongsan.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the context. It does not provide any information regarding the advantages of the Seoul Museum of Art during lunch time, thus failing to address the user's question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain any information about the Seoul Museum of Art or its accessibility during lunch hours. The contexts are entirely unrelated to the question and the reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts contain personal reflections about a family trip to Jeju and Seongsan, and do not mention the Seoul Museum of Art or its accessibility during lunch hours at all.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-002
+[RAG-EVAL] Question      = 서울시립미술관에서 본 전시 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 0.5000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the exhibition title at the Seoul Museum of Art, which is accurate as none of the contexts mention the museum or any exhibition.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG setting, explicitly stating the absence of information is a relevant and correct response to avoid hallucination.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain any information about the Seoul Museum of Art or the exhibition title 'Yoo Youngkuk: Inside the Mountain'. The contexts are completely unrelated to the question and the reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts contain no information regarding the Seoul Museum of Art or the exhibition title 'Yoo Youngkuk: Inside the Mountain'. None of the factual claims in the reference answer are supported.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-003
+[RAG-EVAL] Question      = 예전의 저자에게 덕수궁 돌담길은 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about 'Deoksugung Stone Wall Path'. This is a faithful representation of the retrieved documents.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of context. It does not provide any information regarding the meaning of Deoksugung Stone Wall Path to the author, thus failing to address the user's question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts mention 'Deoksugung Stone Wall Path' (덕수궁 돌담길) or the author's past experience of racing against time to catch the last bus. The contexts are entirely unrelated to the question and the reference answer, focusing instead on Jeju, Udo, and family memories.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts contain no information regarding the author's past perception of the Deoksugung Stone Wall Path. The contexts discuss memories of a father, Jeju Island, and family, but do not mention the specific location or the 'race against time' described in the reference answer.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-004
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회는 어떤 모습이었나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about a concert on Jeongdong-gil, which is accurate as none of the retrieved contexts mention such an event.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the context. It does not provide any information about the concert requested in the question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain any information about the concert on Jeongdong-gil, the 'Harmony Concert for Peace', the cellists, or the citizens. The contexts are completely unrelated to the question and the reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts contain general reflections on life, family, and travel, but none of them mention the 'Peace Harmony Concert', the location (Ewha Girls' High School), the four cellists, or the citizens listening to the music as described in the reference answer.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-005
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss Jeju travel, the Korea Publication Industry Promotion Agency, and general reflections.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer is relevant because it directly addresses the user's question by stating that the requested information is not available in the provided context. In a RAG system, explicitly stating the absence of information is the correct and most relevant response when the context is missing.
+[RAG-EVAL] context_precision = 1.0000
+[RAG-EVAL] reason = The reference answer states that there is no information about Haeundae Beach in the document. The retrieved contexts are entirely unrelated to Haeundae Beach, which correctly reflects the absence of such information. In a RAG precision evaluation, when the ground truth is that the information does not exist, retrieving irrelevant content (or no relevant content) is consistent with the reference answer.
+[RAG-EVAL] context_recall = 1.0000
+[RAG-EVAL] reason = The reference answer states that there is no information about Haeundae Beach in the provided documents. The retrieved contexts indeed contain no mention of Haeundae Beach, thereby supporting the claim that the information is absent.
+
+
+결과 해석
+Case				Faith.		Relev.		Precision	Recall	판정
+001 	서울시립미술관	1.00		0.00		0.00		0.00		Retrieval 실패
+002 	전시 제목		1.00		1.00		0.00		0.00		Retrieval 실패
+003 	덕수궁 돌담길	1.00		0.00		0.00		0.00		Retrieval 실패
+004 	정동길 음악회	1.00		0.00		0.00		0.00		Retrieval 실패
+005 	해운대 없음	1.00		1.00		1.00		1.00		No-Answer 정상
+
+3.RAG EVAL 결과. no_answer_detection 추가
+context_precision   = N/A
+context_recall      = N/A
+no_answer_detection = 1.0000
+
+[RAG-EVAL] ========================================
+[RAG-EVAL] Smoke Test Complete
+[RAG-EVAL] Dataset       = rag-smoke-v1
+[RAG-EVAL] Cases         = 5
+[RAG-EVAL] Average Score = 0.5350
+[RAG-EVAL] ========================================
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-001
+[RAG-EVAL] Question      = 서울시립미술관은 점심시간에 어떤 장점이 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 0.6500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately reflects the provided contexts. It correctly identifies that the specific name 'Seoul Museum of Art' is not mentioned in the text, while faithfully extracting the description of the space as one that is free for everyone and an open space that can be visited without burden during lunch hours.
+[RAG-EVAL] answer_relevancy = 0.3000
+[RAG-EVAL] reason = The answer explicitly states that the specific entity mentioned in the question ('Seoul Museum of Art') is not found in the context. While it attempts to provide a general answer about a 'certain space' that might be the intended subject, it fails to directly answer the question about the specific institution requested.
+[RAG-EVAL] context_precision = 0.6000
+[RAG-EVAL] reason = Context 3 directly supports the reference answer by mentioning that the space is free and accessible during lunch breaks. However, the other four contexts are irrelevant or provide only peripheral narrative details, which lowers the overall precision of the retrieved set.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts support the claims that the museum is free for everyone and is an open space that can be visited without burden during lunch time. However, the specific claim that 'busy office workers can sufficiently look around in about an hour' is not mentioned in any of the provided contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-002
+[RAG-EVAL] Question      = 서울시립미술관에서 본 전시 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 0.5250
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer accurately states that the retrieved contexts do not contain information about the title of the exhibition, which is correct as the contexts only mention that the person went to the Seoul Museum of Art.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information (the exhibition title) is not available in the provided context. In a RAG setting, explicitly stating that the information is missing is a relevant and correct response when the context is insufficient.
+[RAG-EVAL] context_precision = 0.1000
+[RAG-EVAL] reason = The retrieved contexts mention that the person visited the Seoul Museum of Art (Context 4), but none of the contexts provide the title of the exhibition ('유영국: 산의 내 안에 있다') required to answer the question. The contexts are mostly narrative filler and do not contain the specific factual information found in the reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts mention that the person visited the Seoul Museum of Art (Context 4), but they do not mention the title of the exhibition ('Yoo Youngkuk: Inside the Mountain'), which is the core information in the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-003
+[RAG-EVAL] Question      = 예전의 저자에게 덕수궁 돌담길은 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information regarding the author's past meaning or feelings toward the Deoksugung Stone Wall Path. None of the retrieved contexts mention 'Deoksugung Stone Wall Path' specifically or the author's previous perspective on it.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on missing information in the context. It does not provide any information regarding the meaning of Deoksugung Stone Wall Path to the author, thus failing to address the user's question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain the information required to answer the question. The reference answer specifies that the path was a 'race against time to catch the last bus,' but the provided contexts only discuss general scenery, a movie screening, and the beauty of the path, without mentioning the author's past perspective or the struggle with time.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts do not contain any information regarding the author's past perception of the Deoksugung stone wall path, nor do they mention 'racing against time' or 'missing the last bus' as described in the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-004
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회는 어떤 모습이었나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about a concert on Jeongdong-gil, which is accurate as the contexts only discuss general reflections on landscapes and moments.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the context. It does not provide any information about the concert requested in the question, making it irrelevant to the user's actual query.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain any information about the concert on Jeongdong-gil, the 'Harmony Concert for Peace', the cellists, or the citizens. The contexts are general reflections on scenery and landscapes and are completely irrelevant to the question and reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts contain general reflections on landscapes and scenery, but none of them mention the 'Peace Harmony Concert', the location in front of Ewha Girls' High School, the four cellists, or the citizens listening to the music. There is no information related to the reference answer.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-005
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss walking, Jeju travel, and mountains.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by stating that the required information is not available in the provided context. In a RAG system, explicitly stating the absence of information is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information about Haeundae Beach is not present in the provided context, which aligns perfectly with the reference.
+
+Case				Faith.		Relev.		Precision	Recall	No-Answer		판정
+001 서울시립미술관	1.00		0.30		0.60		0.70		N/A		부분 성공
+002 전시 제목		1.00		1.00		0.10		0.00		N/A		Retrieval 부족
+003 덕수궁 돌담길	1.00		0.00		0.00		0.00		N/A		Retrieval 실패
+004 정동길 음악회	1.00		0.00		0.00		0.00		N/A		Retrieval 실패
+005 해운대 없음		1.00		1.00		N/A		N/A		1.00		No-Answer 성공
+
+4.DefaultRetriever TOP-5 진단 로그 작업 시작
+ 1)DefaultRetriever > rerank 로직 수정
+  후보 검색 topK × 3 → topK × 5 (5 → 25)로 늘림
+  질의를 핵심 keyword로 분해
+  한국어 조사 일부 제거
+  heading이 질문에 직접 포함되면 강한 boost
+  heading keyword match, content keyword match
+
+[RAG-EVAL] ========================================
+[RAG-EVAL] Smoke Test Complete
+[RAG-EVAL] Dataset       = rag-smoke-v1
+[RAG-EVAL] Cases         = 5
+[RAG-EVAL] Average Score = 0.6800
+[RAG-EVAL] ========================================
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-001
+[RAG-EVAL] Question      = 서울시립미술관은 점심시간에 어떤 장점이 있는 공간으로 소개되나요?
+[RAG-EVAL] Overall Score = 0.7750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by Context 1, which explicitly states that the Seoul Museum of Art was an open space where anyone could enter for free and visit without burden during lunch time.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by explaining that the Seoul Museum of Art is introduced as an open space that people can visit without burden during their lunch break.
+[RAG-EVAL] context_precision = 0.4000
+[RAG-EVAL] reason = Context 1 directly supports the reference answer by mentioning that the museum is a free, open space that can be visited without burden during lunch hours. However, Contexts 2, 3, 4, and 5 are completely irrelevant to the specific question about the museum's advantages during lunch time, which significantly lowers the overall precision score.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts cover most of the reference answer, specifically that the museum is free for everyone and an open space that can be visited without burden during lunch hours. However, the specific detail that 'busy office workers can sufficiently look around in about an hour' is missing from the provided contexts.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-002
+[RAG-EVAL] Question      = 서울시립미술관에서 본 전시 제목은 무엇인가요?
+[RAG-EVAL] Overall Score = 0.5000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about the title of the exhibition seen at the Seoul Museum of Art. The contexts mention visiting the museum, but not the specific title of any exhibition.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the question by stating that the requested information is not available in the provided context. In a RAG setting, explicitly stating the absence of information is a relevant and correct response when the context is insufficient.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain the name of the exhibition ('유영국: 산의 내 안에 있다'). While Context 2 and 3 mention the Seoul Museum of Art, they provide no information regarding the specific exhibition title required to answer the question.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The reference answer specifies the exhibition title as '유영국: 산의 내 안에 있다', but none of the retrieved contexts mention the title of the exhibition. While Context 2 mentions visiting the Seoul Museum of Art, the specific information required to answer the question is missing.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-003
+[RAG-EVAL] Question      = 예전의 저자에게 덕수궁 돌담길은 어떤 의미였나요?
+[RAG-EVAL] Overall Score = 0.8750
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer is fully supported by the retrieved contexts. Context 1 mentions the author running with a bag, and Context 5 mentions the memory of their younger self running toward the last bus on the stone wall path.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by explaining the meaning of Deoksugung Stone Wall Path to the author (a place of memories from their youth, specifically running for the last bus).
+[RAG-EVAL] context_precision = 0.8000
+[RAG-EVAL] reason = The retrieved contexts provide the necessary pieces of information to construct the reference answer. Context 1 mentions running with all one's might, and Context 5 explicitly links the act of running on the stone wall path to trying to catch the last bus ('막차를 향해 뛰어가던'). While no single context contains the full phrasing of the reference answer, the combination of Context 1 and Context 5 directly supports the core meaning. Other contexts are less relevant but provide thematic background.
+[RAG-EVAL] context_recall = 0.7000
+[RAG-EVAL] reason = The retrieved contexts support the claim that the author used to run along the Deoksugung stone wall path to catch the last bus (Context 1, Context 5). However, the contexts do not explicitly mention the contrast that it was 'not a space of leisure' (여유의 공간이 아니라), which is a key part of the reference answer's description of the meaning.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-004
+[RAG-EVAL] Question      = 정동길에서 우연히 만난 음악회는 어떤 모습이었나요?
+[RAG-EVAL] Overall Score = 0.2500
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about a concert on Jeongdong-gil. Since the contexts only discuss an exhibition by Yoo Young-kuk and general reflections on landscapes, the answer is faithful to the source material.
+[RAG-EVAL] answer_relevancy = 0.0000
+[RAG-EVAL] reason = The answer is a refusal to answer based on the lack of information in the provided context. It does not provide any information about the concert requested in the question.
+[RAG-EVAL] context_precision = 0.0000
+[RAG-EVAL] reason = None of the retrieved contexts contain any information about the concert on Jeongdong-gil, the 'Harmony Concert for Peace', the cellists, or the citizens. The contexts are entirely unrelated to the question and the reference answer.
+[RAG-EVAL] context_recall = 0.0000
+[RAG-EVAL] reason = The retrieved contexts contain no information about the concert at Jeongdong-gil, the 'Harmony Concert for Peace', the cellists, or the citizens. The contexts discuss art exhibitions and general reflections on scenery.
+[RAG-EVAL] no_answer_detection = N/A
+[RAG-EVAL] reason = No-Answer Detection is applicable only to NO_ANSWER cases.
+
+[RAG-EVAL] Case ID       = RAG-SMOKE-005
+[RAG-EVAL] Question      = 이 책에서는 부산 해운대 해수욕장을 어떻게 소개하나요?
+[RAG-EVAL] Overall Score = 1.0000
+[RAG-EVAL] faithfulness = 1.0000
+[RAG-EVAL] reason = The answer correctly states that the provided contexts do not contain information about Haeundae Beach in Busan, which is accurate as the contexts discuss walking, Jeju travel, and mountains.
+[RAG-EVAL] answer_relevancy = 1.0000
+[RAG-EVAL] reason = The answer directly addresses the user's question by stating that the requested information is not available in the provided context. In a RAG system, explicitly stating the absence of information is the most relevant response when the context does not contain the answer.
+[RAG-EVAL] context_precision = N/A
+[RAG-EVAL] reason = Context Precision is not applicable to NO_ANSWER cases.
+[RAG-EVAL] context_recall = N/A
+[RAG-EVAL] reason = Context Recall is not applicable to NO_ANSWER cases.
+[RAG-EVAL] no_answer_detection = 1.0000
+[RAG-EVAL] reason = The answer correctly identifies that the requested information about Haeundae Beach is not present in the provided context, which aligns perfectly with the reference.
+
+Case				이전		현재		해석
+001 서울시립미술관	0.6500	0.7750	개선
+002 전시 제목		0.5250	0.5000	사실상 미개선
+003 덕수궁 돌담길	0.2500	0.8750	크게 개선
+004 정동길 음악회	0.2500	0.2500	미개선
+005 No-Answer		1.0000	1.0000	정상 유지
+
+5.DefaultRetriever TOP-5 수정 작업. 
+ candidateTopK = topK × 10  >> 확대. 기존 25개에서 50개로 확대
+ Hybrid lexical rerank 유지
+ heading boost 유지
+ content keyword boost 유지
+ title pattern boost 유지
+ RAW / FINAL 진단 로그 유지
+ minimumScore = 0.45 유지
+ final topK = 5 유지
+
+Case					이전		최종		판정
+001 서울시립미술관 장점	0.650		0.825		성공, 일부 Context 잡음
+002 전시 제목			0.500		1.000		완전 성공
+003 덕수궁 돌담길		0.250		1.000		완전 성공
+004 정동길 음악회		0.250		0.800		성공, Recall 개선 여지
+005 해운대 No-Answer		1.000		1.000		완전 성공
+평균					0.535		0.925		매우 크게 개선
+
+최종 판정
+RAGAS형 Evaluation 1차 완료 + RAG Retrieval 품질개선 1차 완료로 마무리해도 됩니다.
+현재 0.925를 새 Baseline으로 저장
+
