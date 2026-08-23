@@ -5,38 +5,28 @@
 package kr.co.goms.gomsbook.ai.llm.ollama;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
-import kr.co.goms.gomsbook.ai.json.JsonMapper;
-import kr.co.goms.gomsbook.ai.llm.LlmAttachment;
 import kr.co.goms.gomsbook.ai.llm.LlmClient;
-import kr.co.goms.gomsbook.ai.llm.LlmException;
-import kr.co.goms.gomsbook.ai.llm.LlmFinishReason;
+import kr.co.goms.gomsbook.ai.json.JsonMapper;
 import kr.co.goms.gomsbook.ai.llm.LlmMessage;
 import kr.co.goms.gomsbook.ai.llm.LlmRequest;
 import kr.co.goms.gomsbook.ai.llm.LlmResponse;
-import kr.co.goms.gomsbook.ai.llm.LlmResponseFormatType;
 import kr.co.goms.gomsbook.ai.llm.LlmRole;
 import kr.co.goms.gomsbook.ai.llm.LlmToolCall;
 import kr.co.goms.gomsbook.ai.llm.LlmToolCallFunction;
 import kr.co.goms.gomsbook.ai.llm.LlmToolDefinition;
-import kr.co.goms.gomsbook.ai.llm.LlmUsage;
 
 
 /**

@@ -18,14 +18,14 @@ package kr.co.goms.gomsbook.ai.llm;
  * 실제 구현체가 담당합니다.
  * </p>
  * LlmClient client = new OllamaLlmClient(...);
-	client.requireAvailable();
-	LlmRequest request = LlmRequest.chat(
-            "qwen2.5:7b",
-            "당신은 EPUB3 XHTML 생성 전문가입니다.",
-            "다음 원고를 XHTML로 생성해 주세요."
-    );
-	LlmResponse response = client.generate(request);
-	System.out.println(response.firstText());
+ * 	client.requireAvailable();
+ * 	LlmRequest request = LlmRequest.chat(
+ *             "qwen2.5:7b",
+ *             "당신은 EPUB3 XHTML 생성 전문가입니다.",
+ *             "다음 원고를 XHTML로 생성해 주세요."
+ *     );
+ * 	LlmResponse response = client.generate(request);
+ * 	System.out.println(response.firstText());
  */
 public interface LlmClient {
 

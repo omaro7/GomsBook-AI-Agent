@@ -7,9 +7,9 @@ package kr.co.goms.gomsbook.ai.xhtml;
 import java.util.List;
 import java.util.Objects;
 
+import kr.co.goms.gomsbook.ai.llm.LlmClient;
 import kr.co.goms.gomsbook.ai.dto.xhtml.XhtmlGenerationRequest;
 import kr.co.goms.gomsbook.ai.dto.xhtml.XhtmlGenerationResponse;
-import kr.co.goms.gomsbook.ai.llm.LlmClient;
 import kr.co.goms.gomsbook.ai.llm.LlmMessage;
 import kr.co.goms.gomsbook.ai.llm.LlmRequest;
 import kr.co.goms.gomsbook.ai.llm.LlmResponse;

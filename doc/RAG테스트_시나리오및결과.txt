@@ -71,6 +71,3 @@ topK Rerank처리
 현재 TEXT 폴더의 문서를 Embedding 해줘
 [GomsBook AI] Tool Message = {"toolName":"index_project_documents","status":"SUCCESS","message":"Incremental EPUB document indexing and stale-vector cleanup completed.","data":{"projectName":"lunchwork_seoul","textDirectory":"C:\\1004.GomsBook\\03.Project\\lunchwork_seoul\\OEBPS\\Text","discoveredFiles":19,"processedFiles":19,"newFiles":1,"reindexedFiles":0,"skippedFiles":18,"createdChunks":19,"createdEmbeddings":19,"storedVectors":19,"deletedVectors":0,"vectorStoreSize":172,"embeddingModel":"nomic-embed-text","indexedFiles":["OEBPS/Text/quiz.xhtml"],"skippedFilePaths":["OEBPS/Text/chapter00_1.xhtml","OEBPS/Text/chapter10_1.xhtml","OEBPS/Text/chapter10_10.xhtml","OEBPS/Text/chapter10_11.xhtml","OEBPS/Text/chapter10_12.xhtml","OEBPS/Text/chapter10_2.xhtml","OEBPS/Text/chapter10_3.xhtml","OEBPS/Text/chapter10_4.xhtml","OEBPS/Text/chapter10_5.xhtml","OEBPS/Text/chapter10_6.xhtml","OEBPS/Text/chapter10_7.xhtml","OEBPS/Text/chapter10_8.xhtml","OEBPS/Text/chapter10_9.xhtml","OEBPS/Text/copyright.xhtml","OEBPS/Text/cover.xhtml","OEBPS/Text/epilogue.xhtml","OEBPS/Text/nav.xhtml","OEBPS/Text/part01.xhtml"],"deletedFiles":0,"deletedFilePaths":[]}}
 
-nav.xhtml 목차 읽기 Tool 구현
-최종적으로 RAG 자동화
-

@@ -20,13 +20,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-
-import kr.co.goms.gomsbook.ai.json.JsonMapper;
 import kr.co.goms.gomsbook.ai.llm.LlmClient;
+import kr.co.goms.gomsbook.ai.json.JsonMapper;
 import kr.co.goms.gomsbook.ai.llm.LlmMessage;
 import kr.co.goms.gomsbook.ai.llm.LlmRequest;
 import kr.co.goms.gomsbook.ai.llm.LlmResponse;
-import kr.co.goms.gomsbook.ai.llm.LlmRole;
 import kr.co.goms.gomsbook.ai.tool.AgentTool;
 import kr.co.goms.gomsbook.ai.tool.ToolContext;
 import kr.co.goms.gomsbook.ai.tool.ToolIssue;
@@ -34,7 +32,6 @@ import kr.co.goms.gomsbook.ai.tool.ToolIssueSeverity;
 import kr.co.goms.gomsbook.ai.tool.ToolRequest;
 import kr.co.goms.gomsbook.ai.tool.ToolResult;
 import kr.co.goms.gomsbook.ai.tool.ToolStatus;
-import kr.co.goms.gomsbook.ai.tools.metadata.ApplyMetadataTool.ApplyMetadataRequest;
 
 /**
  * EPUB 3 패키지 문서에 사용할 메타데이터를 생성하는 Tool.

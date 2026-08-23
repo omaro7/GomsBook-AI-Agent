@@ -8,6 +8,7 @@ package kr.co.goms.gomsbook.ai.tool;
 import java.util.Objects;
 
 import kr.co.goms.gomsbook.ai.tools.epub.InspectEpubTool;
+import kr.co.goms.gomsbook.ai.tools.epub.ReadEpubNavigationTool;
 import kr.co.goms.gomsbook.ai.tools.project.InspectCurrentProjectTool;
 import kr.co.goms.gomsbook.ai.tools.rag.IndexProjectDocumentsTool;
 import kr.co.goms.gomsbook.ai.tools.rag.SearchProjectDocumentsTool;
@@ -123,6 +124,13 @@ public final class DefaultAgentToolRegistrar implements AgentToolRegistrar {
                         ragService,
                         currentProjectProvider,
                         projectRagIndexer
+                )
+        );
+        
+        registerIfAbsent(
+                registry,
+                new ReadEpubNavigationTool(
+                        currentProjectProvider
                 )
         );
         
