@@ -105,7 +105,7 @@ public final class DocumentChunk {
     public static Builder builder() {
         return new Builder();
     }
-
+    
     public String getId() {
         return id;
     }

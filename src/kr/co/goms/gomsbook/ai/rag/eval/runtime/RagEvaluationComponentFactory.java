@@ -29,6 +29,7 @@ import kr.co.goms.gomsbook.ai.rag.eval.report.RagEvaluationReportWriter;
 import kr.co.goms.gomsbook.ai.rag.eval.runner.DefaultRagExecutionAdapter;
 import kr.co.goms.gomsbook.ai.rag.eval.runner.RagEvaluationRunner;
 import kr.co.goms.gomsbook.ai.rag.eval.runner.RagExecutionAdapter;
+import kr.co.goms.gomsbook.ai.rag.expansion.ContextExpander;
 import kr.co.goms.gomsbook.ai.rag.index.ProjectRagIndexer;
 import kr.co.goms.gomsbook.ai.rag.retrieval.Retriever;
 
@@ -42,6 +43,7 @@ import kr.co.goms.gomsbook.ai.rag.retrieval.Retriever;
  *                 projectProvider,
  *                 projectRagIndexer,
  *                 retriever,
+ *                 contextExpander,
  *                 llmClient,
  *                 "gemma4:31b-cloud");
  *                 
@@ -55,12 +57,14 @@ public final class RagEvaluationComponentFactory {
             CurrentProjectProvider projectProvider,
             ProjectRagIndexer projectRagIndexer,
             Retriever retriever,
+            ContextExpander contextExpander,
             LlmClient llmClient,
             String model) {
 
         Objects.requireNonNull(projectProvider, "projectProvider must not be null");
         Objects.requireNonNull(projectRagIndexer, "projectRagIndexer must not be null");
         Objects.requireNonNull(retriever, "retriever must not be null");
+        Objects.requireNonNull(contextExpander, "contextExpander must not be null");
         Objects.requireNonNull(llmClient, "llmClient must not be null");
 
         RagJudge judge = createJudge(llmClient, model);
@@ -70,6 +74,7 @@ public final class RagEvaluationComponentFactory {
                 projectProvider,
                 projectRagIndexer,
                 retriever,
+                contextExpander,
                 llmClient,
                 model);
 
@@ -107,18 +112,21 @@ public final class RagEvaluationComponentFactory {
             CurrentProjectProvider projectProvider,
             ProjectRagIndexer projectRagIndexer,
             Retriever retriever,
+            ContextExpander contextExpander,
             LlmClient llmClient,
             String model) {
 
         Objects.requireNonNull(projectProvider, "projectProvider must not be null");
         Objects.requireNonNull(projectRagIndexer, "projectRagIndexer must not be null");
         Objects.requireNonNull(retriever, "retriever must not be null");
+        Objects.requireNonNull(contextExpander, "contextExpander must not be null");
         Objects.requireNonNull(llmClient, "llmClient must not be null");
 
         return new DefaultRagExecutionAdapter(
                 projectProvider,
                 projectRagIndexer,
                 retriever,
+                contextExpander,
                 llmClient,
                 model);
     }

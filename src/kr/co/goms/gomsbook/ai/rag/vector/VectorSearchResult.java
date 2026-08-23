@@ -26,8 +26,7 @@ import kr.co.goms.gomsbook.ai.rag.model.DocumentChunkType;
  * List&lt;VectorSearchResult&gt;
  * </pre>
  */
-public final class VectorSearchResult
-    implements Comparable<VectorSearchResult> {
+public final class VectorSearchResult implements Comparable<VectorSearchResult> {
 
     /**
      * 검색된 벡터 레코드입니다.
@@ -68,20 +67,10 @@ public final class VectorSearchResult
     private final Map<String, String> metadata;
 
     private VectorSearchResult(Builder builder) {
-        this.record = Objects.requireNonNull(
-            builder.record,
-            "record must not be null"
-        );
-
+        this.record = Objects.requireNonNull(builder.record, "record must not be null");
         this.score = validateScore(builder.score);
-
         this.rank = validateRank(builder.rank);
-
-        this.similarityType = Objects.requireNonNullElse(
-            builder.similarityType,
-            VectorSimilarityType.COSINE
-        );
-
+        this.similarityType = Objects.requireNonNullElse(builder.similarityType, VectorSimilarityType.COSINE);
         this.accepted = builder.accepted;
         this.metadata = immutableMetadata(builder.metadata);
     }
@@ -97,10 +86,7 @@ public final class VectorSearchResult
      * @param score 유사도 점수
      * @return 검색 결과
      */
-    public static VectorSearchResult of(
-        VectorRecord record,
-        double score
-    ) {
+    public static VectorSearchResult of(VectorRecord record, double score) {
         return builder()
             .record(record)
             .score(score)
@@ -116,11 +102,7 @@ public final class VectorSearchResult
      * @param rank 결과 순위
      * @return 검색 결과
      */
-    public static VectorSearchResult of(
-        VectorRecord record,
-        double score,
-        int rank
-    ) {
+    public static VectorSearchResult of(VectorRecord record, double score, int rank) {
         return builder()
             .record(record)
             .score(score)
@@ -184,11 +166,7 @@ public final class VectorSearchResult
      * 점수가 지정한 최소 점수 이상인지 확인합니다.
      */
     public boolean meetsMinimumScore(double minimumScore) {
-        validateFinite(
-            minimumScore,
-            "minimumScore"
-        );
-
+        validateFinite(minimumScore, "minimumScore");
         return score >= minimumScore;
     }
 
@@ -215,11 +193,8 @@ public final class VectorSearchResult
     /**
      * 지정된 Chunk 유형인지 확인합니다.
      */
-    public boolean isChunkType(
-        DocumentChunkType type
-    ) {
-        return type != null
-            && record.getChunk().getType() == type;
+    public boolean isChunkType(DocumentChunkType type) {
+        return type != null && record.getChunk().getType() == type;
     }
 
     /**
@@ -239,9 +214,7 @@ public final class VectorSearchResult
     /**
      * 현재 검색 결과에 승인 여부를 적용한 복사본을 반환합니다.
      */
-    public VectorSearchResult withAccepted(
-        boolean newAccepted
-    ) {
+    public VectorSearchResult withAccepted(boolean newAccepted) {
         return builder()
             .record(record)
             .score(score)
@@ -260,28 +233,18 @@ public final class VectorSearchResult
      */
     @Override
     public int compareTo(VectorSearchResult other) {
-        Objects.requireNonNull(
-            other,
-            "other must not be null"
-        );
+        Objects.requireNonNull(other, "other must not be null");
 
-        int scoreComparison =
-            Double.compare(other.score, this.score);
+        int scoreComparison = Double.compare(other.score, this.score);
 
         if (scoreComparison != 0) {
             return scoreComparison;
         }
 
-        int thisRank = this.rank == 0
-            ? Integer.MAX_VALUE
-            : this.rank;
+        int thisRank = this.rank == 0 ? Integer.MAX_VALUE : this.rank;
+        int otherRank = other.rank == 0 ? Integer.MAX_VALUE : other.rank;
 
-        int otherRank = other.rank == 0
-            ? Integer.MAX_VALUE
-            : other.rank;
-
-        int rankComparison =
-            Integer.compare(thisRank, otherRank);
+        int rankComparison = Integer.compare(thisRank, otherRank);
 
         if (rankComparison != 0) {
             return rankComparison;
@@ -297,38 +260,26 @@ public final class VectorSearchResult
 
     private static int validateRank(int rank) {
         if (rank < 0) {
-            throw new IllegalArgumentException(
-                "rank must be greater than or equal to zero"
-            );
+            throw new IllegalArgumentException("rank must be greater than or equal to zero");
         }
 
         return rank;
     }
 
-    private static void validateFinite(
-        double value,
-        String fieldName
-    ) {
+    private static void validateFinite(double value, String fieldName) {
         if (!Double.isFinite(value)) {
-            throw new IllegalArgumentException(
-                fieldName + " must be finite"
-            );
+            throw new IllegalArgumentException(fieldName + " must be finite");
         }
     }
 
-    private static Map<String, String> immutableMetadata(
-        Map<String, String> metadata
-    ) {
+    private static Map<String, String> immutableMetadata(Map<String, String> metadata) {
         if (metadata == null || metadata.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        Map<String, String> copy =
-            new LinkedHashMap<>();
+        Map<String, String> copy = new LinkedHashMap<>();
 
-        for (Map.Entry<String, String> entry
-            : metadata.entrySet()) {
-
+        for (Map.Entry<String, String> entry : metadata.entrySet()) {
             String key = normalize(entry.getKey());
             String value = normalize(entry.getValue());
 
@@ -341,9 +292,7 @@ public final class VectorSearchResult
     }
 
     private static String normalize(String value) {
-        return value == null
-            ? ""
-            : value.trim();
+        return value == null ? "" : value.trim();
     }
 
     @Override
@@ -356,8 +305,7 @@ public final class VectorSearchResult
             return false;
         }
 
-        VectorSearchResult other =
-            (VectorSearchResult) object;
+        VectorSearchResult other = (VectorSearchResult) object;
 
         return record.equals(other.record)
             && Double.compare(score, other.score) == 0
@@ -367,12 +315,7 @@ public final class VectorSearchResult
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-            record,
-            score,
-            rank,
-            similarityType
-        );
+        return Objects.hash(record, score, rank, similarityType);
     }
 
     @Override
@@ -395,12 +338,9 @@ public final class VectorSearchResult
         private VectorRecord record;
         private double score;
         private int rank;
-        private VectorSimilarityType similarityType =
-            VectorSimilarityType.COSINE;
+        private VectorSimilarityType similarityType = VectorSimilarityType.COSINE;
         private boolean accepted = true;
-
-        private final Map<String, String> metadata =
-            new LinkedHashMap<>();
+        private final Map<String, String> metadata = new LinkedHashMap<>();
 
         private Builder() {
         }
@@ -420,9 +360,7 @@ public final class VectorSearchResult
             return this;
         }
 
-        public Builder similarityType(
-            VectorSimilarityType similarityType
-        ) {
+        public Builder similarityType(VectorSimilarityType similarityType) {
             this.similarityType = similarityType;
             return this;
         }
@@ -432,36 +370,23 @@ public final class VectorSearchResult
             return this;
         }
 
-        public Builder metadata(
-            String key,
-            String value
-        ) {
+        public Builder metadata(String key, String value) {
             String normalizedKey = normalize(key);
 
             if (!normalizedKey.isBlank()) {
-                metadata.put(
-                    normalizedKey,
-                    normalize(value)
-                );
+                metadata.put(normalizedKey, normalize(value));
             }
 
             return this;
         }
 
-        public Builder metadata(
-            Map<String, String> metadata
-        ) {
+        public Builder metadata(Map<String, String> metadata) {
             if (metadata == null) {
                 return this;
             }
 
-            for (Map.Entry<String, String> entry
-                : metadata.entrySet()) {
-
-                metadata(
-                    entry.getKey(),
-                    entry.getValue()
-                );
+            for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                metadata(entry.getKey(), entry.getValue());
             }
 
             return this;

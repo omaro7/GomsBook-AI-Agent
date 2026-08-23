@@ -15,6 +15,8 @@ import kr.co.goms.gomsbook.ai.llm.LlmRequest;
 import kr.co.goms.gomsbook.ai.llm.LlmResponse;
 import kr.co.goms.gomsbook.ai.project.CurrentProjectProvider;
 import kr.co.goms.gomsbook.ai.project.EpubProjectContext;
+import kr.co.goms.gomsbook.ai.rag.expansion.ContextExpander;
+import kr.co.goms.gomsbook.ai.rag.expansion.ContextExpansionRequest;
 import kr.co.goms.gomsbook.ai.rag.index.ProjectIndexException;
 import kr.co.goms.gomsbook.ai.rag.index.ProjectIndexResult;
 import kr.co.goms.gomsbook.ai.rag.index.ProjectRagIndexer;
@@ -22,7 +24,9 @@ import kr.co.goms.gomsbook.ai.rag.model.DocumentChunk;
 import kr.co.goms.gomsbook.ai.rag.retrieval.RetrievalException;
 import kr.co.goms.gomsbook.ai.rag.retrieval.RetrievalRequest;
 import kr.co.goms.gomsbook.ai.rag.retrieval.RetrievalResult;
+import kr.co.goms.gomsbook.ai.rag.retrieval.RetrievedDocument;
 import kr.co.goms.gomsbook.ai.rag.retrieval.Retriever;
+import kr.co.goms.gomsbook.ai.rag.vector.VectorSearchResult;
 
 /**
  * GomsBook RAG Core와 Evaluation Runner를 연결하는 기본 Adapter.
@@ -36,6 +40,7 @@ public final class DefaultRagExecutionAdapter implements RagExecutionAdapter {
     private final CurrentProjectProvider projectProvider;
     private final ProjectRagIndexer projectRagIndexer;
     private final Retriever retriever;
+    private final ContextExpander contextExpander;
     private final LlmClient llmClient;
     private final String model;
 
@@ -43,12 +48,14 @@ public final class DefaultRagExecutionAdapter implements RagExecutionAdapter {
             CurrentProjectProvider projectProvider,
             ProjectRagIndexer projectRagIndexer,
             Retriever retriever,
+            ContextExpander contextExpander,
             LlmClient llmClient,
             String model) {
 
         this.projectProvider = Objects.requireNonNull(projectProvider, "projectProvider must not be null");
         this.projectRagIndexer = Objects.requireNonNull(projectRagIndexer, "projectRagIndexer must not be null");
         this.retriever = Objects.requireNonNull(retriever, "retriever must not be null");
+        this.contextExpander = Objects.requireNonNull(contextExpander, "contextExpander must not be null");
         this.llmClient = Objects.requireNonNull(llmClient, "llmClient must not be null");
         this.model = normalizeOptional(model);
     }
@@ -90,8 +97,31 @@ public final class DefaultRagExecutionAdapter implements RagExecutionAdapter {
             }
             
 
-            List<String> retrievedContexts = extractContexts(retrievalResult);
+            List<RetrievedDocument> retrievedDocuments = toRetrievedDocuments(projectId, retrievalResult);
+            ContextExpansionRequest expansionRequest = new ContextExpansionRequest(projectId, retrievedDocuments, 1, 1);
+            List<RetrievedDocument> expandedDocuments = contextExpander.expand(expansionRequest);
+            List<String> retrievedContexts = extractContexts(expandedDocuments);
             String answer = generateAnswer(normalizedQuestion, retrievedContexts);
+
+            System.out.println("[RAG-EVAL] Retrieved Count = " + retrievedDocuments.size());
+            System.out.println("[RAG-EVAL] Expanded Count  = " + expandedDocuments.size());
+            
+            for (RetrievedDocument document : expandedDocuments) {
+
+                if (document == null) {
+                    continue;
+                }
+
+                System.out.println(
+                    "[RAG-EVAL] Context"
+                    + " sourcePath=" + document.getSourcePath()
+                    + " sequence=" + document.getSequence()
+                    + " expanded=" + document.isExpanded()
+                    + " retrievalScore=" + document.getRetrievalScore()
+                    + " parentRetrievalScore=" + document.getParentRetrievalScore()
+                    + " parentChunkId=" + document.getParentChunkId()
+                );
+            }
 
             return new RagExecutionResult(retrievedContexts, answer);
 
@@ -132,28 +162,6 @@ public final class DefaultRagExecutionAdapter implements RagExecutionAdapter {
         } catch (ProjectIndexException e) {
             throw new IllegalStateException( "Failed to synchronize project RAG index", e);
         }
-    }
-    
-    private List<String> extractContexts(RetrievalResult retrievalResult) {
-        if (retrievalResult.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<String> contexts = new ArrayList<>();
-
-        for (DocumentChunk chunk : retrievalResult.getChunks()) {
-            if (chunk == null) {
-                continue;
-            }
-
-            String content = normalizeOptional(chunk.getContent());
-
-            if (content != null) {
-                contexts.add(content);
-            }
-        }
-
-        return Collections.unmodifiableList(contexts);
     }
 
     private String generateAnswer(String question, List<String> contexts) {
@@ -231,5 +239,61 @@ public final class DefaultRagExecutionAdapter implements RagExecutionAdapter {
         String normalized = value.trim();
 
         return normalized.isEmpty() ? null : normalized;
+    }
+    
+    private List<RetrievedDocument> toRetrievedDocuments(String projectId, RetrievalResult retrievalResult) {
+
+    	if (retrievalResult == null || retrievalResult.isEmpty()) {
+    	    return List.of();
+    	}
+
+        List<RetrievedDocument> documents = new ArrayList<>();
+
+        for (VectorSearchResult result : retrievalResult.getSearchResults()) {
+
+        	if (result == null || result.getChunk() == null) {
+        	    continue;
+        	}
+
+            DocumentChunk chunk = result.getChunk();
+
+            RetrievedDocument document = new RetrievedDocument(
+                projectId,
+                chunk.getId(),
+                chunk.getSourcePath(),
+                chunk.getSequence(),
+                chunk.getTitle(),
+                chunk.getContent(),
+                result.getScore()
+            );
+
+            documents.add(document);
+        }
+
+        return List.copyOf(documents);
+    }
+    
+    private List<String> extractContexts(List<RetrievedDocument> documents) {
+
+        if (documents == null || documents.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> contexts = new ArrayList<>();
+
+        for (RetrievedDocument document : documents) {
+
+            if (document == null) {
+                continue;
+            }
+
+            String text = normalizeOptional(document.getText());
+
+            if (text != null) {
+                contexts.add(text);
+            }
+        }
+
+        return Collections.unmodifiableList(contexts);
     }
 }
