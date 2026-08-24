@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import kr.co.goms.gomsbook.ai.tools.epub.InspectEpubTool;
 import kr.co.goms.gomsbook.ai.tools.epub.ReadEpubNavigationTool;
+import kr.co.goms.gomsbook.ai.tools.image.ListEpubImagesTool;
 import kr.co.goms.gomsbook.ai.tools.project.InspectCurrentProjectTool;
 import kr.co.goms.gomsbook.ai.tools.rag.IndexProjectDocumentsTool;
 import kr.co.goms.gomsbook.ai.tools.rag.SearchProjectDocumentsTool;
@@ -73,66 +74,33 @@ public final class DefaultAgentToolRegistrar implements AgentToolRegistrar {
     public void registerTools(
             ToolRegistry registry) {
 
-        Objects.requireNonNull(
-                registry,
-                "registry must not be null"
-        );
+        Objects.requireNonNull(registry, "registry must not be null");
 
 
         /*
          * Tool Calling pipeline test.
          */
-        registerIfAbsent(
-                registry,
-                new EchoTool()
-        );
+        registerIfAbsent(registry, new EchoTool());
 
         /*
          * Current EPUB project inspection.
          */
-        registerIfAbsent(
-                registry,
-                new InspectCurrentProjectTool(
-                        currentProjectProvider
-                )
-        );
+        registerIfAbsent(registry, new InspectCurrentProjectTool(currentProjectProvider));
         
 
         /*
          * EPUB inspection.
          */
-        registerIfAbsent(
-                registry,
-                new InspectEpubTool()
-        );
+        registerIfAbsent(registry, new InspectEpubTool());
         
 
         /*
          * Current EPUB project RAG indexing.
          */
-        registerIfAbsent(
-                registry,
-                new IndexProjectDocumentsTool(
-                        currentProjectProvider,
-                        projectRagIndexer
-                )
-        );
-        
-        registerIfAbsent(
-                registry,
-                new SearchProjectDocumentsTool(
-                        ragService,
-                        currentProjectProvider,
-                        projectRagIndexer
-                )
-        );
-        
-        registerIfAbsent(
-                registry,
-                new ReadEpubNavigationTool(
-                        currentProjectProvider
-                )
-        );
+        registerIfAbsent(registry, new IndexProjectDocumentsTool( currentProjectProvider, projectRagIndexer));
+        registerIfAbsent(registry, new SearchProjectDocumentsTool( ragService, currentProjectProvider, projectRagIndexer ));
+        registerIfAbsent(registry, new ReadEpubNavigationTool(currentProjectProvider));
+        registerIfAbsent(registry, new ListEpubImagesTool(currentProjectProvider));
         
     }
 
