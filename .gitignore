@@ -1,1 +1,6 @@
 /bin/
+# Secrets
+.env
+.env.*
+*.secret
+secrets/
